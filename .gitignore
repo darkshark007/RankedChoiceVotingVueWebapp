@@ -1,0 +1,4 @@
+*.pyc
+
+
+rcv/db.sqlite3
