@@ -14,3 +14,6 @@ build: install
 
 run: venv
 	python rcv/manage.py runserver
+
+shell: venv
+	python rcv/manage.py shell
