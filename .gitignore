@@ -4,3 +4,4 @@
 rcv/db.sqlite3
 venv
 staticfiles/
+rcv/static/

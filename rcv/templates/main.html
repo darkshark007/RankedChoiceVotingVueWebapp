@@ -1,9 +1,13 @@
 {% extends 'masterpage.html' %}
-{% block content %}
 {% load static %}
-<script type="module" src="{% static 'main.js' %}"></script>
+{% block content %}
 <v-app>
     <div id="app">
     </div>
 </v-app>
+<script type="text/javascript" src="{% static 'src/vue/dist/js/chunk-vendors.js' %}"></script>
+<script type="text/javascript" src="{% static 'src/vue/dist/js/app.js' %}"></script>
+<script>
+{{ data }}
+</script>
 {% endblock %}
