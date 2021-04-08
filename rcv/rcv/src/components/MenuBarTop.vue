@@ -27,7 +27,6 @@
 
             </v-app-bar>
         </v-card>
-        <!--
         <v-card
         class="mx-auto overflow-hidden"
         height="400"
