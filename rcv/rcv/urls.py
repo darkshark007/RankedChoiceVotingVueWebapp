@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from rcvserver.views import index, create_or_update_poll
+from rcvserver.views import index
+from rcvserver.api import create_or_update_poll
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

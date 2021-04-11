@@ -1,22 +1,19 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-// import Home from '../views/Home.vue'
 
-import HelloWorld from '../components/HelloWorld.vue'
-import RedPoll from '../components/RedPoll.vue';
-import Poll from '../components/Poll.vue';
-// import Test from './components/Test.vue';
+import HelloWorld from '../views/HelloWorld.vue'
+import MyPolls from '../views/MyPolls.vue';
+
+import EditPoll from '../views/EditPoll.vue';
+import Test from '../views/Test.vue';
 
 Vue.use(VueRouter)
 
-
-console.log(">>> RedPoll:");
-console.log(RedPoll);
-
 const routes = [
-    { name: 'default', path: '/', component: HelloWorld },
-    { name: 'foo', path: '/foo', component: Poll },
-    { name: 'bar', path: '/bar', component: RedPoll },
+    { name: 'default', path: '/', component: Test },
+    { name: 'mypolls', path: '/mypolls', component: MyPolls },
+    { name: 'editPoll', path: '/editPoll', component: EditPoll },
+    { name: 'helloworld', path: '/helloworld', component: HelloWorld },
 ];
 
 
@@ -37,8 +34,8 @@ const routes = [
 // ]
 
 const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
+  // mode: 'history',
+  // base: process.env.BASE_URL,
   routes
 })
 

@@ -6,18 +6,14 @@
 
 <script>
 module.exports = {
-    name: 'red-poll-component',
+    name: 'poll-component',
     data: () => {
         return {};
     },
     mounted: () => {
-        console.log('Red Poll Component mounted');
     },
 };
 </script>
 
 <style scoped>
-    .fish {
-        color: red;
-    }
 </style>

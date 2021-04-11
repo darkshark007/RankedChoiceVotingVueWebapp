@@ -1,13 +1,13 @@
 {% extends 'masterpage.html' %}
 {% load static %}
 {% block content %}
-<v-app>
-    <div id="app">
-    </div>
-</v-app>
-<script type="text/javascript" src="{% static 'src/vue/dist/js/chunk-vendors.js' %}"></script>
-<script type="text/javascript" src="{% static 'src/vue/dist/js/app.js' %}"></script>
 <script>
-{{ data }}
+    {% for key, value in javascript_variables.items %}
+        {% autoescape off %} var {{ key }} = {{ value }};{% endautoescape %}
+    {% endfor %}
 </script>
+<div id="app">
+</div>
+<script type="text/javascript" src="{% static 'src/vue/dist/js/app.js' %}"></script>
+<script type="text/javascript" src="{% static 'src/vue/dist/js/chunk-vendors.js' %}"></script>
 {% endblock %}

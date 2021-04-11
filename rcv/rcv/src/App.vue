@@ -1,20 +1,20 @@
 <template>
-  <div>
-      <menu-bar-top/>
-      <div>
-          <menu-bar-left/>
-          <router-view></router-view>
-      </div>
-  </div>
+  <v-app>
+    <div>
+        <menu-bar-top/>
+        <div>
+            <router-view></router-view>
+        </div>
+    </div>
+  </v-app>
 </template>
 
 <script>
-import MenuBarLeft from './components/MenuBarLeft.vue'
 import MenuBarTop from './components/MenuBarTop.vue';
+import Utils from './utils.js';
 
 export default {
     components: {
-        'menu-bar-left': MenuBarLeft,
         'menu-bar-top': MenuBarTop,
     },
     data: () => {
@@ -27,8 +27,11 @@ export default {
 
         let data = {
             'fish': 'trout',
+            'nested': {
+              'bird': 'swallow',
+            }
         };
-        fetch(`api/create_or_update_poll/`, data);
+        Utils.post(`api/create_or_update_poll/`, data);
 
     },
 }
@@ -41,6 +44,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
