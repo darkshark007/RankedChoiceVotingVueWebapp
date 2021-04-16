@@ -88,7 +88,7 @@ class Ballot(models.Model):
     '''
     id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
     user = models.EmbeddedField(model_container=User)
-    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    name = models.CharField(max_length=40)
     context = models.DictField()
 
 
@@ -98,7 +98,7 @@ class Ballot(models.Model):
 
 class Result(models.Model):
     id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
-    rcv_result = models.CharField(max_length=40)
+    rcv_result = models.DictField(default={})
 
 
     def __getitem__(self, name):
