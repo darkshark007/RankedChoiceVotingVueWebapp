@@ -13,11 +13,11 @@ TYPE_CHOICES = (
 
 # Create your models here.
 
-class Candidate(models.Model):
+class Choice(models.Model):
     '''
     (OUTDATED)
     Sample Data Structure:
-        Candidate({
+        Choice({
             'id': ObjectId('606115f19696a4dc0e8f3f57'),
             'name': "Bobby Fischer",
         })
@@ -31,8 +31,8 @@ class Candidate(models.Model):
        return getattr(self, name, None)
 
 
-    def get_js_candidate_model(self):
-        print('>>> get_js_candidate_model:')
+    def get_js_choice_model(self):
+        print('>>> get_js_choice_model:')
         print(self.__dict__)
         obj = {
             'id': str(self.id),
@@ -118,10 +118,10 @@ class Poll(models.Model):
         Poll({
             'id': ObjectId('606115f19696a4dc0e8f3f57'),
             'creator': User({...}),
-            'candidates': [
-                Candidate({...}),
-                Candidate({...}),
-                Candidate({...}),
+            'choices': [
+                Choice({...}),
+                Choice({...}),
+                Choice({...}),
             ],
             'ballots': [
                 Ballot({...}),
@@ -140,7 +140,7 @@ class Poll(models.Model):
     description = models.CharField(max_length=500)
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
 
-    candidates = models.ArrayField(model_container=Candidate, default=[])
+    choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
     results = models.EmbeddedField(model_container=Result, default=Result)
 
@@ -153,17 +153,17 @@ class Poll(models.Model):
         self.name = model.get('name', None)
         self.description = model.get('description', None)
         self.type = model.get('type', None)
-        old_candidates_map = {str(cand.id): cand for cand in self.candidates}
-        new_candidates = []
-        for cand in model.get('candidates', []):
+        old_choices_map = {str(cand.id): cand for cand in self.choices}
+        new_choices = []
+        for cand in model.get('choices', []):
             if cand.get('id', None):
-                cand_obj = old_candidates_map[cand.get('id')]
+                cand_obj = old_choices_map[cand.get('id')]
             else:
-                cand_obj = Candidate()
+                cand_obj = Choice()
             cand_obj.name = cand.get('name', None)
             cand_obj.description = cand.get('description', None)
-            new_candidates.append(cand_obj)
-        self.candidates = new_candidates
+            new_choices.append(cand_obj)
+        self.choices = new_choices
         self.updated = pendulum.now()
         self.save()
 
@@ -176,7 +176,7 @@ class Poll(models.Model):
             'name': self.name,
             'description': self.description,
             'type': self.type,
-            'candidates': list(map(lambda cand: cand.get_js_candidate_model(), self.candidates)),
+            'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
             'results': self.results.get_js_result_model(),
         }
         return obj

@@ -57,11 +57,11 @@
                     <v-divider class="mx-4"></v-divider>
                     <v-row>
                         <v-col class="subheader">
-                            <h4>Candidates</h4>
+                            <h4>Choices</h4>
                         </v-col>
                     </v-row>
-                    <v-card 
-                        v-for="cand, idx in pollModel.candidates" 
+                    <v-card
+                        v-for="cand, idx in pollModel.choices" 
                         :key="idx"
                         class="ma-4"
                         elevation=2
@@ -78,7 +78,7 @@
                         </v-row>
                     </v-card>
                     <v-divider class="mx-4"></v-divider>
-                    <v-row>
+                    <v-row align=center>
                         <v-col class="subheader" cols=6>
                             <h4>Ballots</h4>
                         </v-col>
@@ -86,7 +86,7 @@
                         <v-col class="subheader" cols=4>
                             <nav-button
                                 :route="pollModel.editBallots"
-                                title="Edit"
+                                icon="mdi-plus"
                             ></nav-button>
                         </v-col>
                     </v-row>
@@ -121,7 +121,7 @@ export default {
                 name: '',
                 type: '',
                 description: '',
-                candidates: [],
+                choices: [],
             },
             loading: false,
             errorString: null,
@@ -156,7 +156,7 @@ export default {
                 name: '',
                 type: '',
                 description: '',
-                candidates: [],
+                choices: [],
             };
         },
         setPollModel(id) {

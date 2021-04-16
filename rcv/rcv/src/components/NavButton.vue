@@ -1,6 +1,11 @@
 <template>
     <router-link :to="route" class="nav-button">
+        <v-icon 
+            v-if="isIcon"
+            class="ma-3"
+        >{{ icon }}</v-icon>
         <v-btn
+            v-if="isButton"
             color="light-green lighten-4"
             elevation="2"
         >
@@ -21,7 +26,21 @@ export default {
         },
         title: {
             type: String,
-            required: true,
+            required: false,
+            default: "",
+        },
+        icon: {
+            type: String,
+            required: false,
+            default: "",
+        },
+    },
+    computed: {
+        isIcon() {
+            return this.icon && !this.title;
+        },
+        isButton() {
+            return !this.icon && this.title;
         },
     },
     data: () => {

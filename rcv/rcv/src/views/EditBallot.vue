@@ -51,25 +51,25 @@
                 </v-row>
                 <v-row>
                     <v-col cols=6>
-                        <h4>Candidates</h4>
+                        <h4>Choices</h4>
                     </v-col>
                     <v-col cols=6>
                         <v-btn
                             icon
                             color="indigo"
-                            @click="addCandidate"
+                            @click="addChoice"
                         >
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-col>
                 </v-row>
-                <div v-for="cand, idx in pollModel.candidates" :key="idx">
+                <div v-for="cand, idx in pollModel.choices" :key="idx">
                     <v-row>
                         <v-col cols=1>
                             <v-btn
                                 icon
                                 color="indigo"
-                                @click="removeCandidate(cand)"
+                                @click="removeChoice(cand)"
                             >
                                 <v-icon>mdi-close</v-icon>
                             </v-btn>
@@ -142,7 +142,7 @@ export default {
                 name: '',
                 type: '',
                 description: '',
-                candidates: [],
+                choices: [],
             },
             loading: false,
             errorString: null,
@@ -168,22 +168,22 @@ export default {
                 name: '',
                 type: '',
                 description: '',
-                candidates: [],
+                choices: [],
             };
         },
-        getEmptyCandidateModel() {
+        getEmptyChoiceModel() {
             return {
                 name: '',
                 description: '',
             };
         },
-        addCandidate() {
-            let new_cand = this.getEmptyCandidateModel();
-            this.pollModel.candidates.push(new_cand);
+        addChoice() {
+            let new_cand = this.getEmptyChoiceModel();
+            this.pollModel.choices.push(new_cand);
         },
-        removeCandidate(cand) {
-            let candIdx = this.pollModel.candidates.indexOf(cand);
-            this.pollModel.candidates.splice(candIdx, 1);
+        removeChoice(cand) {
+            let candIdx = this.pollModel.choices.indexOf(cand);
+            this.pollModel.choices.splice(candIdx, 1);
         },
         savePoll() {
             let data = this.pollModel;
