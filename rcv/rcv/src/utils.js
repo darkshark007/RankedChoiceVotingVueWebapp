@@ -18,20 +18,28 @@ export default {
 
     // Function for building HTTP requests
     _sendRequest: function _sendRequest(method, url, data) {
-        let formData = new FormData();
-        formData.append('csrfmiddlewaretoken', this.getCookie('csrftoken'));
-        formData.append('json', JSON.stringify(data));
+
         let requestData = {
             'method': method,
             'credentials': 'same-origin',
-            'body': formData,
+        }
+
+        if (['POST'].indexOf(method) !== -1) {
+            let formData = new FormData();
+            formData.append('csrfmiddlewaretoken', this.getCookie('csrftoken'));
+            formData.append('json', JSON.stringify(data));    
+            requestData['body'] = formData;
         }
         return fetch(url, requestData);
     },
 
     // Helper function for GET requests
-    get: function get(url, /* data */) {
+    get: function get(url, data) {
         // TODO: Parse Data
+        if (data) {
+            let params = new URLSearchParams(data).toString();
+            url += `?${params}`;
+        }
         return this._sendRequest('GET', url)
     },
 

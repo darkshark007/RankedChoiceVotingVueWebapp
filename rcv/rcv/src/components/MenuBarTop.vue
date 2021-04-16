@@ -8,25 +8,17 @@
             >
                 <!--<v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>-->
                 <v-toolbar-title v-for="item in items.left" :key="item.route">
-                    <router-link :to="item.route" class="nav-button">
-                        <v-btn
-                            color="light-green lighten-4"
-                            elevation="2"
-                        >
-                            {{ item.desc }}
-                        </v-btn>
-                    </router-link>
+                    <nav-button
+                        :route="item.route"
+                        :title="item.desc"
+                    ></nav-button>
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-title v-for="item in items.right" :key="item.route">
-                    <router-link :to="item.route" class="nav-button">
-                        <v-btn
-                            color="light-green lighten-4"
-                            elevation="2"
-                        >
-                            {{ item.desc }}
-                        </v-btn>
-                    </router-link>
+                    <nav-button
+                        :route="item.route"
+                        :title="item.desc"
+                    ></nav-button>
                 </v-toolbar-title>
             </v-app-bar>
             <!--
@@ -65,9 +57,12 @@
 </template>
 
 <script>
-module.exports = {
+import NavButton from '../components/NavButton.vue';
+
+export default {
     name: 'menu-bar-top',
     components: {
+        'nav-button': NavButton,
     },
     data: () => {
         return {
@@ -77,7 +72,6 @@ module.exports = {
                 left: [
                     {'route': '/',    'desc': 'Home'},
                     {'route': '/mypolls', 'desc': 'My Polls'},
-                    // {'route': '/bar', 'desc': 'Bar'},
                     {'route': '/helloworld', 'desc': 'HelloW'},
                 ],
                 right: [
@@ -95,7 +89,6 @@ module.exports = {
 .nav-button {
     margin-left: 5px;
     margin-right: 5px;
-    color: red !important; /* This doesn't work, for some reason?! */
     text-decoration: none;
 }
 </style>

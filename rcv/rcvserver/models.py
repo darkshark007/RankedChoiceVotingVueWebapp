@@ -4,6 +4,13 @@ import pendulum
 # from django.utils import timezone
 
 
+TYPE_CLASSIC_RCV = 'classic_rcv'
+TYPE_FIRST_PAST_THE_POST = 'fptp'
+TYPE_CHOICES = (
+    (TYPE_CLASSIC_RCV, 'Classic RCV'),
+    (TYPE_FIRST_PAST_THE_POST, 'Single-Choice Popular Vote'),
+)
+
 # Create your models here.
 
 class Candidate(models.Model):
@@ -15,14 +22,24 @@ class Candidate(models.Model):
             'name': "Bobby Fischer",
         })
     '''
-    id = models.ObjectIdField(default=ObjectId)
+    id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
     name = models.CharField(max_length=40)
     description = models.CharField(max_length=500)
 
 
     def __getitem__(self, name):
-       return getattr(self, name)
+       return getattr(self, name, None)
 
+
+    def get_js_candidate_model(self):
+        print('>>> get_js_candidate_model:')
+        print(self.__dict__)
+        obj = {
+            'id': str(self.id),
+            'name': self.name,
+            'description': self.description,
+        }
+        return obj
 
 class User(models.Model):
     '''
@@ -33,13 +50,31 @@ class User(models.Model):
             'user_id': 'abcdefghijklmnopqrstuvwxyz'
         })
     '''
-    id = models.ObjectIdField(default=ObjectId)
+    id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
+    # id = models.ObjectIdField(default=ObjectId)
     user_id = models.CharField(max_length=40) # Don't have a real user model yet, this is a placeholder
     session_id = models.CharField(max_length=40)
 
 
     def __getitem__(self, name):
-       return getattr(self, name)
+       return getattr(self, name, None)
+
+
+    @staticmethod
+    def get_user_from_request(request):
+        if not request.session.session_key:
+            request.session.create()
+        session_id = request.session.session_key
+        try:
+            user = User.objects.get(session_id=session_id)
+        except User.DoesNotExist:
+            user = User(**{
+                'session_id': session_id,
+            })
+            user.save()
+
+        return user
+
 
 
 class Ballot(models.Model):
@@ -51,21 +86,29 @@ class Ballot(models.Model):
             'user':
         })
     '''
-    id = models.ObjectIdField(default=ObjectId)
+    id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
     user = models.EmbeddedField(model_container=User)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    context = models.DictField()
 
 
     def __getitem__(self, name):
-       return getattr(self, name)
+       return getattr(self, name, None)
 
 
 class Result(models.Model):
-    id = models.ObjectIdField(default=ObjectId)
+    id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
     rcv_result = models.CharField(max_length=40)
 
 
     def __getitem__(self, name):
-       return getattr(self, name)
+       return getattr(self, name, None)
+
+
+    def get_js_result_model(self):
+        obj = {
+        }
+        return obj
 
 
 class Poll(models.Model):
@@ -89,15 +132,8 @@ class Poll(models.Model):
         })
     '''
 
-    TYPE_CLASSIC_RCV = 'classic_rcv'
-    TYPE_FIRST_PAST_THE_POST = 'fptp'
-    TYPE_CHOICES = (
-        (TYPE_CLASSIC_RCV, 'Classic RCV'),
-        (TYPE_FIRST_PAST_THE_POST, 'First Past The Post'),
-    )
-
-    # id = models.ObjectIdField(default=ObjectId)
-    creator = models.EmbeddedField(model_container=User)
+    id = models.ObjectIdField(default=ObjectId)
+    creator = models.EmbeddedField(model_container=User, default=User)
     created = models.DateTimeField(default=pendulum.now)
     updated = models.DateTimeField(default=pendulum.now)
     name = models.CharField(max_length=50)
@@ -106,28 +142,18 @@ class Poll(models.Model):
 
     candidates = models.ArrayField(model_container=Candidate, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
-    results = models.EmbeddedField(model_container=Result)
-
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.results = Result()
+    results = models.EmbeddedField(model_container=Result, default=Result)
 
 
     def __getitem__(self, name):
-       return getattr(self, name)
+       return getattr(self, name, None)
 
 
-    def update_from_poll_model(self, model):
-        print('>>> update_from_poll_model invoked:')
-        print(self)
-
+    def update_from_js_poll_model(self, model):
         self.name = model.get('name', None)
         self.description = model.get('description', None)
         self.type = model.get('type', None)
-        print('>>> LEN:')
-        print(len(self.candidates))
-        old_candidates_map = {cand.id: cand for cand in self.candidates}
+        old_candidates_map = {str(cand.id): cand for cand in self.candidates}
         new_candidates = []
         for cand in model.get('candidates', []):
             if cand.get('id', None):
@@ -139,6 +165,18 @@ class Poll(models.Model):
             new_candidates.append(cand_obj)
         self.candidates = new_candidates
         self.updated = pendulum.now()
-        print('>>> PRE-SAVE:')
-        print(self)
         self.save()
+
+
+    def get_js_poll_model(self):
+        obj = {
+            'id': str(self.id),
+            'created': self.created,
+            'updated': self.updated,
+            'name': self.name,
+            'description': self.description,
+            'type': self.type,
+            'candidates': list(map(lambda cand: cand.get_js_candidate_model(), self.candidates)),
+            'results': self.results.get_js_result_model(),
+        }
+        return obj

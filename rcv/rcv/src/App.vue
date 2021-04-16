@@ -11,7 +11,6 @@
 
 <script>
 import MenuBarTop from './components/MenuBarTop.vue';
-import Utils from './utils.js';
 
 export default {
     components: {
@@ -24,15 +23,6 @@ export default {
           };
     },
     mounted: () => {
-
-        let data = {
-            'fish': 'trout',
-            'nested': {
-              'bird': 'swallow',
-            }
-        };
-        Utils.post(`api/create_or_update_poll/`, data);
-
     },
 }
 </script>
@@ -42,7 +32,6 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 </style>
