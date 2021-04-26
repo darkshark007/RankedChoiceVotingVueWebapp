@@ -5,7 +5,6 @@ import HelloWorld from '../views/HelloWorld.vue'
 import About from '../views/About.vue'
 
 import MyPolls from '../views/MyPolls.vue';
-import MyBallots from '../views/MyBallots.vue';
 import EditPoll from '../views/EditPoll.vue';
 import EditBallot from '../views/EditBallot.vue';
 import Poll from '../views/Poll.vue';
@@ -15,10 +14,9 @@ Vue.use(VueRouter)
 const routes = [
     { name: 'default', path: '/', component: About },
     { name: 'mypolls', path: '/mypolls', component: MyPolls },
-    { name: 'myballots', path: '/myballots', component: MyBallots },
     { name: 'poll', path: '/poll/:id', component: Poll, props: true  },
     { name: 'editBallotsWithId', path: '/editBallots/:pollid/:ballotid', component: EditBallot, props: true },
-    { name: 'editBallots', path: '/editBallots/:pollid', component: EditBallot },
+    { name: 'editBallots', path: '/editBallots/:pollid', component: EditBallot, props: true  },
     { name: 'editPollWithId', path: '/editPoll/:id', component: EditPoll, props: true },
     { name: 'editPoll', path: '/editPoll', component: EditPoll },
     { name: 'helloworld', path: '/helloworld', component: HelloWorld },

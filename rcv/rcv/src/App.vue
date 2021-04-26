@@ -34,4 +34,16 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
+
+.subheader {
+    text-align: left;
+    padding: 20px;
+    padding-left: 50px;
+}
+
+.wrapper {
+    align: center;
+    padding: 15px;
+}
+
 </style>

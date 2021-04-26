@@ -8,10 +8,10 @@
                 v-if="loading"
                 :loading="loading"
             ></v-card>
-            <error-card
+            <message-card
                 :errorString=errorString
                 errorStringBase="Error loading Polls: "
-            ></error-card>
+            ></message-card>
             <v-card
                 class="wrapper"
                 max-width="60%"
@@ -39,13 +39,13 @@
 </template>
 
 <script>
-import ErrorCard from '../components/ErrorCard.vue';
+import MessageCard from '../components/MessageCard.vue';
 import Utils from '../utils.js';
 
 export default {
     name: 'my-polls',
     components: {
-        'error-card': ErrorCard,
+        'message-card': MessageCard,
     },
     data: () => {
         return {

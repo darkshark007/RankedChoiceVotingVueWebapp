@@ -9,10 +9,10 @@
                 v-if="loading"
                 :loading="loading"
             ></v-card>
-            <error-card
-                :errorString=errorString
+            <message-card
+                :errorString=loadingErrorString
                 errorStringBase="Error loading Poll: "
-            ></error-card>
+            ></message-card>
             <v-card
                 class="wrapper"
                 max-width="60%"
@@ -63,30 +63,13 @@
                         </v-btn>
                     </v-col>
                 </v-row>
-                <div v-for="cand, idx in pollModel.choices" :key="idx">
-                    <v-row>
-                        <v-col cols=1>
-                            <v-btn
-                                icon
-                                color="indigo"
-                                @click="removeChoice(cand)"
-                            >
-                                <v-icon>mdi-close</v-icon>
-                            </v-btn>
-                        </v-col>
-                        <v-spacer></v-spacer>
-                        <v-col cols=10>
-                            <v-text-field
-                                label="Name"
-                                v-model="cand.name"
-                            ></v-text-field>
-                            <v-text-field
-                                label="Description"
-                                v-model="cand.description"
-                            ></v-text-field>
-                        </v-col>
-                    </v-row>
-                </div>
+                <poll-choice 
+                    v-for="cand, idx in pollModel.choices"
+                    :key="idx"
+                    :choice="cand"
+                    :edit="true"
+                    @remove="removeChoice(cand)"
+                ></poll-choice>
                 <v-row>
                     <v-col cols=12>
                         <v-divider class="mx-4"></v-divider>
@@ -102,26 +85,25 @@
                             :loading="saving"
                             @click="savePoll"
                         >
-                            Save
+                            Save Poll
                         </v-btn>
                     </v-col>
                 </v-row>
-                <v-row>
-                    <v-col cols=12>
-                        <span v-if="saveResult">
-                            {{ saveResult }}
-                        </span>
-                    </v-col>
-                </v-row>
             </v-card>
+            <message-card
+                :errorString=saveErrorString
+                errorStringBase="Error Saving Poll: "
+                :successString=saveSuccessString
+            ></message-card>
         </v-container>
     </div>
 </template>
 
 <script>
-import Utils from '../utils.js';
-import ErrorCard from '../components/ErrorCard.vue';
+import Common from '../common.js';
+import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
+import Choice from '../components/Choice.vue';
 
 export default {
     name: 'edit-poll-component',
@@ -132,108 +114,58 @@ export default {
         },
     },
     components: {
-        'error-card': ErrorCard,
+        'message-card': MessageCard,
         'nav-button': NavButton,
+        'poll-choice': Choice,
     },
     data: () => {
         return {
-            pollModel: {
-                id: null,
-                name: '',
-                type: '',
-                description: '',
-                choices: [],
-            },
+            ...Common.data,
+            pollModel: Common.getEmptyPollContext(),
             loading: false,
-            errorString: null,
+            loadingErrorString: null,
             saving: false,
-            saveResult: null,
+            saveErrorString: null,
+            saveSuccessString: null,
         };
     },
     computed: {
-        pollTypeList() {
-            let mapping = window.POLL_TYPES.map((typ) => {
-                return {
-                    'id': typ[0],
-                    'name': typ[1],
-                };
-            });
-            return mapping;
-        },
     },
     methods: {
-        getEmptyPollModel() {
-            return {
-                id: null,
-                name: '',
-                type: '',
-                description: '',
-                choices: [],
-            };
-        },
-        getEmptyChoiceModel() {
-            return {
-                name: '',
-                description: '',
-            };
-        },
         addChoice() {
-            let new_cand = this.getEmptyChoiceModel();
-            this.pollModel.choices.push(new_cand);
+            this.pollModel.choices.push({});
         },
         removeChoice(cand) {
             let candIdx = this.pollModel.choices.indexOf(cand);
             this.pollModel.choices.splice(candIdx, 1);
         },
         savePoll() {
-            let data = this.pollModel;
             this.saving = true;
-            Utils.post(window['API'].create_or_update_poll, data)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Save Successful:', data);
-                    this.saveResult = "Save Successful!";
-                    if (!this.pollModel.id) {
-                        this.$router.push({ name: 'editPollWithId', params: { id: data.id } });
-                    }
-                    this.pollModel = data;
-                    this.pollModel.pollRoute = `/poll/${this.pollModel.id}`
-                })
-                .catch((error) => {
-                    console.error('Save Error:', error);
-                    this.saveResult = "Error!  Not saved!";
-                })
-                .finally(() => {
-                    this.saving = false;
-                    setTimeout(() => {
-                        this.saveResult = null;
-                    }, 10000);
-                });
-        },
-        setPollModel(id) {
-            this.pollModel = this.getEmptyPollModel();
-            if (id) {
-                let data = {
-                    'id': id,
-                };
-                this.loading = true;
-                Utils.get(window['API'].get_poll_data, data)
-                    .then(response => {
-                        if (response.status === 200) {
-                            return response.json()
-                                .then(data => {
-                                    this.pollModel = data;
-                                    this.pollModel.pollRoute = `/poll/${this.pollModel.id}`
-                                });
-                        } else {
-                            return response.text()
-                                .then(text => {
-                                    this.errorString = text;
-                                });
-                        }
+            this.saveErrorString = null;
+            this.saveSuccessString = null;
+            Common.savePoll(this.pollModel)
+                    .then(data => {
+                        this.saveSuccessString = "Save Successful!";
+                        this.pollModel = data;
                     })
                     .catch((error) => {
-                        this.errorString = error;
+                        this.saveErrorString = error;
+                    })
+                    .finally(() => {
+                        this.saving = false;
+                    });
+        },
+        setPollModel(id) {
+            this.pollModel = Common.getEmptyPollContext()
+            if (id) {
+                this.loading = true;
+                this.loadingErrorString = null;
+                Common.getPollData(id)
+                    .then(data => {
+                        this.pollModel = data;
+                    })
+                    .catch((error) => {
+                        this.loadingErrorString = error;
                     })
                     .finally(() => {
                         this.loading = false;
@@ -253,8 +185,4 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
-    align: center;
-    padding: 15px;
-}
 </style>

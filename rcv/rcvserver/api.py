@@ -21,7 +21,6 @@ def create_or_update_poll(request):
             response = HttpResponse("User does not have permission to modify that Poll")
             response.status_code = 403
             return response
-
     else:
         poll = Poll()
         poll.creator = user

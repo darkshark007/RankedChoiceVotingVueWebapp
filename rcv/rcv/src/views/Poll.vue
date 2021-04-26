@@ -9,10 +9,10 @@
                 v-if="loading"
                 :loading="loading"
             ></v-card>
-            <error-card
+            <message-card
                 :errorString=errorString
                 errorStringBase="Error loading Poll: "
-            ></error-card>
+            ></message-card>
             <div
                 v-if="!loading"
             >
@@ -36,30 +36,29 @@
                     </v-card-subtitle>
                     <v-divider class="mx-4"></v-divider>
                     <v-row>
-                        <v-col class="subheader" cols=6>
-                            <h4>Details</h4>
+                        <v-col cols=9>
+                            <v-card-text align=left>
+                                <p>
+                                    Type: {{ pollModel.type | displayPollType }}<br/>
+                                    Created: {{ pollModel.created | displayDate }}<br/>
+                                    Updated: {{ pollModel.updated | displayDate }}
+                                </p>
+                            </v-card-text>
                         </v-col>
-                        <v-spacer></v-spacer>
-                        <v-col class="subheader" cols=4>
+                        <v-col class="mt-4" cols=3>
                             <nav-button
                                 :route="pollModel.editRoute"
                                 title="Edit"
                             ></nav-button>
                         </v-col>
                     </v-row>
-                    <v-card-text align=left>
-                        <p>
-                            Type: {{ pollModel.type | displayPollType }}<br/>
-                            Created: {{ pollModel.created | displayDate }}<br/>
-                            Updated: {{ pollModel.updated | displayDate }}
-                        </p>
-                    </v-card-text>
                     <v-divider class="mx-4"></v-divider>
                     <v-row>
                         <v-col class="subheader">
                             <h4>Choices</h4>
                         </v-col>
                     </v-row>
+                    <!--
                     <v-card
                         v-for="cand, idx in pollModel.choices" 
                         :key="idx"
@@ -72,11 +71,21 @@
                             </v-col>
                             <v-spacer></v-spacer>
                             <v-col cols=10 align=left>
-                                    Name: {{ cand.name }}<br/>
-                                    Description: {{ cand.description }}
+                                <div v-if="cand.name">
+                                    <b>{{ cand.name }}</b>
+                                </div>
+                                <div v-if="cand.description">
+                                    <i>{{ cand.description }}</i>
+                                </div>
                             </v-col>
                         </v-row>
                     </v-card>
+                    -->
+                    <poll-choice
+                        v-for="cand, idx in pollModel.choices" 
+                        :key="idx"
+                        :choice="cand"
+                    ></poll-choice>
                     <v-divider class="mx-4"></v-divider>
                     <v-row align=center>
                         <v-col class="subheader" cols=6>
@@ -98,9 +107,10 @@
 </template>
 
 <script>
-import Utils from '../utils.js';
-import ErrorCard from '../components/ErrorCard.vue';
+import Common from '../common.js';
+import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
+import Choice from '../components/Choice.vue';
 
 export default {
     name: 'poll',
@@ -111,8 +121,9 @@ export default {
         },
     },
     components: {
-        'error-card': ErrorCard,
+        'message-card': MessageCard,
         'nav-button': NavButton,
+        'poll-choice': Choice,
     },
     data: () => {
         return {
@@ -128,59 +139,16 @@ export default {
         };
     },
     filters: {
-        displayDate(date) {
-            let dt = new Date(date);
-            let hour = ""+dt.getHours();
-            if (hour.length === 1) {
-                hour = "0"+hour;
-            }
-            let min = ""+dt.getMinutes();
-            if (min.length === 1) {
-                min = "0"+min;
-            }
-            return `${dt.getMonth()}/${dt.getDate()}/${dt.getYear()} ${hour}:${min}`;
-        },
-        displayPollType(type) {
-            let item = window['POLL_TYPES'].find((t) => {
-                return t[0] === type;
-            });
-            if (item)
-                return item[1];
-            return null;
-        },
+        ...Common.filters,
     },
     methods: {
-        getEmptyPollModel() {
-            return {
-                id: null,
-                name: '',
-                type: '',
-                description: '',
-                choices: [],
-            };
-        },
         setPollModel(id) {
-            this.pollModel = this.getEmptyPollModel();
+            this.pollModel = Common.getEmptyPollContext()
             if (id) {
-                let data = {
-                    'id': id,
-                };
                 this.loading = true;
-                Utils.get(window['API'].get_poll_data, data)
-                    .then(response => {
-                        if (response.status === 200) {
-                            return response.json()
-                                .then(data => {
-                                    this.pollModel = data;
-                                    this.pollModel.editRoute = `/editPoll/${this.pollModel.id}`;
-                                    this.pollModel.editBallots = `/editBallots/${this.pollModel.id}`;
-                                });
-                        } else {
-                            return response.text()
-                                .then(text => {
-                                    this.errorString = text;
-                                });
-                        }
+                Common.getPollData(id)
+                    .then(data => {
+                        this.pollModel = data;
                     })
                     .catch((error) => {
                         this.errorString = error;
@@ -198,16 +166,4 @@ export default {
 </script>
 
 <style scoped>
-.subheader {
-    text-align: left;
-    padding: 20px;
-    padding-left: 50px;
-}
-
-.nav-button {
-    margin-left: 5px;
-    margin-right: 5px;
-    text-decoration: none;
-}
-
 </style>
