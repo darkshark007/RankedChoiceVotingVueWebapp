@@ -2,7 +2,7 @@
     <div ref="target">
         <v-card
             class="wrapper message-card"
-            max-width="60%"
+            max-width="500px"
             align="center"
             v-if="displayedError"
         >
@@ -17,7 +17,7 @@
         </v-card>
         <v-card
             class="wrapper message-card"
-            max-width="60%"
+            max-width="500px"
             align="center"
             v-if="displayedSuccess"
         >

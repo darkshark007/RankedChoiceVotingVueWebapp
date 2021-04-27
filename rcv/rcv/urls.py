@@ -19,13 +19,17 @@ from rcvserver.views import index
 from rcvserver.api import (
     create_or_update_poll, 
     get_poll_data,
+    get_ballot_data,
     get_my_polls,
+    create_or_update_ballot,
 )
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/create_or_update_poll/', create_or_update_poll),
+    url(r'^api/create_or_update_ballot/', create_or_update_ballot),
     url(r'^api/get_poll_data/', get_poll_data),
+    url(r'^api/get_ballot_data/', get_ballot_data),
     url(r'^api/get_my_polls/', get_my_polls),
     url(r'^$', index, name='index'),
 ]

@@ -4,7 +4,7 @@
             <v-card
                 class="wrapper"
                 id="loading-card"
-                max-width="60%"
+                max-width="500px"
                 align="center"
                 v-if="loading"
                 :loading="loading"
@@ -18,14 +18,14 @@
             >
                 <v-card
                     class="wrapper"
-                    max-width="60%"
+                    max-width="500px"
                     v-if="!pollModel.id"
                 >
                     Poll with that ID was not found.
                 </v-card>
                 <v-card
                     class="wrapper"
-                    max-width="60%"
+                    max-width="500px"
                     v-else
                 >
                     <v-card-title>
@@ -45,7 +45,7 @@
                                 </p>
                             </v-card-text>
                         </v-col>
-                        <v-col class="mt-4" cols=3>
+                        <v-col class="mt-4" cols=3 v-if=pollModel.canEdit>
                             <nav-button
                                 :route="pollModel.editRoute"
                                 title="Edit"
@@ -83,13 +83,13 @@
                     -->
                     <poll-choice
                         v-for="cand, idx in pollModel.choices" 
-                        :key="idx"
+                        :key="'choice-'+idx"
                         :choice="cand"
                     ></poll-choice>
                     <v-divider class="mx-4"></v-divider>
                     <v-row align=center>
                         <v-col class="subheader" cols=6>
-                            <h4>Ballots</h4>
+                            <h4>My Ballots</h4>
                         </v-col>
                         <v-spacer></v-spacer>
                         <v-col class="subheader" cols=4>
@@ -99,7 +99,27 @@
                             ></nav-button>
                         </v-col>
                     </v-row>
-
+                    <div v-for="ballot, idx in pollModel.ballots" :key="'ballot-'+idx">
+                        <router-link :to="ballot.route" class="route-item">
+                            <v-row align=center>
+                                <v-col cols=1>
+                                    <v-icon class="ma-3">mdi-ballot-outline</v-icon>
+                                </v-col>
+                                <v-col cols=10>
+                                    <v-card-text>{{ ballot.name }}</v-card-text>
+                                </v-col>
+                            </v-row>
+                        </router-link>
+                    </div>
+                    <v-divider class="mx-4"></v-divider>
+                    <v-row align=center>
+                        <v-col class="subheader" cols=6>
+                        <nav-button
+                            :route="'/results/'+id"
+                            title="Results"
+                        ></nav-button>
+                        </v-col>
+                    </v-row>
                 </v-card>
             </div>
         </v-container>
@@ -146,9 +166,13 @@ export default {
             this.pollModel = Common.getEmptyPollContext()
             if (id) {
                 this.loading = true;
-                Common.getPollData(id)
+                Common.getPollData({'id': id, includeMyBallots: true})
                     .then(data => {
                         this.pollModel = data;
+                        for (let ballotKey in data.ballots) {
+                            let ballot = data.ballots[ballotKey];
+                            ballot.route = `/editBallots/${data.id}/${ballot.id}`;
+                        }
                     })
                     .catch((error) => {
                         this.errorString = error;

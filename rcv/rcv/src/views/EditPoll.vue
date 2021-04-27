@@ -4,7 +4,7 @@
             <v-card
                 class="wrapper"
                 id="loading-card"
-                max-width="60%"
+                max-width="500px"
                 align="center"
                 v-if="loading"
                 :loading="loading"
@@ -15,7 +15,7 @@
             ></message-card>
             <v-card
                 class="wrapper"
-                max-width="60%"
+                max-width="500px"
                 align="center"
                 v-if="!loading"
             >
@@ -147,6 +147,9 @@ export default {
                     .then(data => {
                         this.saveSuccessString = "Save Successful!";
                         this.pollModel = data;
+                        if (!this.pollModel.id) {
+                            this.$router.push({name: 'editPollWithId', params: { id: data.id } });
+                        }
                     })
                     .catch((error) => {
                         this.saveErrorString = error;
@@ -160,7 +163,7 @@ export default {
             if (id) {
                 this.loading = true;
                 this.loadingErrorString = null;
-                Common.getPollData(id)
+                Common.getPollData({'id': id})
                     .then(data => {
                         this.pollModel = data;
                     })

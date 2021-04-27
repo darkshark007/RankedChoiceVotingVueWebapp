@@ -4,7 +4,7 @@
             <v-card
                 class="wrapper"
                 id="loading-card"
-                max-width="60%"
+                max-width="500px"
                 align="center"
                 v-if="loading"
                 :loading="loading"
@@ -15,7 +15,7 @@
             ></message-card>
             <v-card
                 class="wrapper"
-                max-width="60%"
+                max-width="500px"
                 align="center"
                 v-if="!loading"
             >
@@ -23,6 +23,12 @@
                 <div v-else>
                     <v-card-title>
                         {{ pollModel.name }}
+                        <v-spacer></v-spacer>
+                        <nav-button
+                            :route="pollModel.pollRoute"
+                            title="Back"
+                            v-if="pollModel.pollRoute"
+                        ></nav-button><!-- TODO: Add confirmation modal if changes? -->
                     </v-card-title>
                     <v-card-subtitle align=left>
                         {{ pollModel.description }}
@@ -59,13 +65,13 @@
                         </v-col>
                     </v-row>
                     <poll-choice 
-                        v-for="cand, idx in newCandidates"
+                        v-for="choice, idx in newChoices"
                         :key="idx"
-                        :choice="cand"
+                        :choice="choice"
                         :edit="true"
-                        @remove="removeChoice(cand)"
+                        @remove="removeChoice(choice)"
                     ></poll-choice>
-                    <v-row v-if="newCandidates.length > 0">
+                    <v-row v-if="newChoices.length > 0">
                         <v-col cols=12>
                             <v-spacer></v-spacer>
                             <!-- TODO: Refactor button -->
@@ -127,9 +133,9 @@
                         </v-col>
                     </v-row>
                     <message-card
-                        errorString="a"
+                        :errorString="saveBallotErrorString"
                         errorStringBase="Error Saving New Choices: "
-                        successString="a"
+                        :successString="saveBallotSuccessString"
                     ></message-card>
                 </div>
             </v-card>
@@ -140,7 +146,7 @@
 <script>
 import Common from '../common.js';
 import MessageCard from '../components/MessageCard.vue';
-// import NavButton from '../components/NavButton.vue';
+import NavButton from '../components/NavButton.vue';
 import Choice from '../components/Choice.vue';
 import Ballot from '../components/Ballot.vue';
 
@@ -152,10 +158,14 @@ export default {
             type: String,
             required: false,
         },
+        ballotid: {
+            type: String,
+            required: false,
+        },
     },
     components: {
         'message-card': MessageCard,
-        // 'nav-button': NavButton,
+        'nav-button': NavButton,
         'poll-choice': Choice,
         'ballot': Ballot,
     },
@@ -163,9 +173,9 @@ export default {
         return {
             ...Common.data,
             pollModel: Common.getEmptyPollContext(),
-            ballotContext: Common.emptyBallotContext(),
+            ballotContext: Common.getEmptyBallotContext(),
             selectedType: '',
-            newCandidates: [],
+            newChoices: [],
             loading: false,
             errorString: null,
             savingChoices: false,
@@ -183,28 +193,27 @@ export default {
     },
     methods: {
         addChoice() {
-            let new_cand = Common.emptyBallotContext();
-            this.newCandidates.push(new_cand);
+            let new_choice = Common.emptyChoiceContext();
+            this.newChoices.push(new_choice);
         },
-        removeChoice(cand) {
-            let candIdx = this.newCandidates.indexOf(cand);
-            this.newCandidates.splice(candIdx, 1);
+        removeChoice(choice) {
+            let choiceIdx = this.newChoices.indexOf(choice);
+            this.newChoices.splice(choiceIdx, 1);
         },
         getChoicesForType(type) {
-            if (!this.ballotContext.choices[type]) {
-                this.ballotContext.choices[type] = {};
+            if (!this.ballotContext.context[type]) {
+                this.ballotContext.context[type] = {};
             }
-            return this.ballotContext.choices[type];
+            return this.ballotContext.context[type];
         },
         saveChoices() {
             let data = {
                 ...this.pollModel,
                 choices: [
                     ...this.pollModel.choices,
-                    ...this.newCandidates,
+                    ...this.newChoices,
                 ],
             };
-            console.log(data);
             this.savingChoices = true;
             this.saveChoicesErrorString = null;
             this.saveChoicesSuccessString = null;
@@ -212,7 +221,7 @@ export default {
                     .then(data => {
                         this.saveChoicesSuccessString = "New Choices Saved!";
                         this.pollModel = data;
-                        this.newCandidates = [];
+                        this.newChoices = [];
                     })
                     .catch((error) => {
                         this.saveChoicesErrorString = error;
@@ -222,12 +231,33 @@ export default {
                     });
         },
         saveBallot() {
+            let data = {
+                'pollId': this.pollModel.id,
+                'ballot': this.ballotContext,
+            };
+            this.savingBallot = true;
+            this.saveBallotErrorString = null;
+            this.saveBallotSuccessString = null;
+            Common.saveBallot(data)
+                    .then((data) => {
+                        this.saveBallotSuccessString = "Ballot Saved!";
+                        this.ballotContext = data;
+                        if (!this.ballotid) {
+                            this.$router.push({name: 'editBallotsWithId', params: { pollid: this.pollid, ballotid: data.id } });
+                        }
+                    })
+                    .catch((error) => {
+                        this.saveBallotErrorString = error;
+                    })
+                    .finally(() => {
+                        this.savingBallot = false;
+                    });
         },
         setPollModel(id) {
             this.pollModel = Common.getEmptyPollContext()
             if (id) {
                 this.loading = true;
-                Common.getPollData(id)
+                Common.getPollData({'id': id})
                     .then(data => {
                         this.pollModel = data;
                         this.selectedType = this.pollModel.type;
@@ -240,9 +270,29 @@ export default {
                     });
             }
         },
+        setBallotModel(pollId, ballotId) {
+            this.ballotContext = Common.getEmptyBallotContext()
+            if (pollId && ballotId) {
+                this.loading = true;
+                Common.getBallotData(pollId, ballotId)
+                    .then(data => {
+                        this.ballotContext = data;
+                    })
+                    .catch((error) => {
+                        this.errorString = error;
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            }
+        },
     },
     mounted() {
         this.setPollModel(this.pollid);
+        console.log(this.ballotid);
+        if (this.ballotid) {
+            this.setBallotModel(this.pollid, this.ballotid);
+        }
     },
     watch: {
         "$route.params.pollid"(newId) {

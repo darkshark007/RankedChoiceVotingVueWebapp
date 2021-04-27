@@ -12,13 +12,15 @@ import Poll from '../views/Poll.vue';
 Vue.use(VueRouter)
 
 const routes = [
-    { name: 'default', path: '/', component: About },
+    // { name: 'default', path: '/', component: About },
+    { name: 'default', path: '/', component: MyPolls },
     { name: 'mypolls', path: '/mypolls', component: MyPolls },
     { name: 'poll', path: '/poll/:id', component: Poll, props: true  },
     { name: 'editBallotsWithId', path: '/editBallots/:pollid/:ballotid', component: EditBallot, props: true },
     { name: 'editBallots', path: '/editBallots/:pollid', component: EditBallot, props: true  },
     { name: 'editPollWithId', path: '/editPoll/:id', component: EditPoll, props: true },
     { name: 'editPoll', path: '/editPoll', component: EditPoll },
+    { name: 'about', path: '/about', component: About },
     { name: 'helloworld', path: '/helloworld', component: HelloWorld },
 ];
 

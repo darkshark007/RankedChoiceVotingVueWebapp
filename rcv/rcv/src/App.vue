@@ -46,4 +46,9 @@ export default {
     padding: 15px;
 }
 
+.route-item {
+    text-align: left;
+    text-decoration: none;
+}
+
 </style>

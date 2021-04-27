@@ -15,7 +15,9 @@ def index(request):
         'javascript_variables': {
             'API': {
                 'create_or_update_poll': '/api/create_or_update_poll/',
+                'create_or_update_ballot': '/api/create_or_update_ballot/',
                 'get_poll_data': '/api/get_poll_data/',
+                'get_ballot_data': '/api/get_ballot_data/',
                 'get_my_polls': '/api/get_my_polls/',
             },
             'POLL_TYPES': TYPE_CHOICES,

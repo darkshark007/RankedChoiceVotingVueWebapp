@@ -2,36 +2,29 @@ import Utils from './utils.js';
 
 export default {
     // Poll Helper Functions
-    getPollData(id) {
+    getPollData(data) {
         return new Promise((resolve, reject) => {
-            if (id) {
-                let data = {
-                    'id': id,
-                };
-                Utils.get(window['API'].get_poll_data, data)
-                    .then(response => {
-                        if (response.status === 200) {
-                            return response.json()
-                                .then(data => {
-                                    let pollModel = data;
-                                    pollModel.pollRoute = `/poll/${pollModel.id}`;
-                                    pollModel.editRoute = `/editPoll/${pollModel.id}`;
-                                    pollModel.editBallots = `/editBallots/${pollModel.id}`;
-                                    resolve(pollModel);
-                                });
-                        } else {
-                            return response.text()
-                                .then(text => {
-                                    reject(text);
-                                });
-                        }
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
-            } else {
-                reject('No ID passed!');
-            }
+            Utils.get(window['API'].get_poll_data, data)
+                .then(response => {
+                    if (response.status === 200) {
+                        return response.json()
+                            .then(data => {
+                                let pollModel = data;
+                                pollModel.pollRoute = `/poll/${pollModel.id}`;
+                                pollModel.editRoute = `/editPoll/${pollModel.id}`;
+                                pollModel.editBallots = `/editBallots/${pollModel.id}`;
+                                resolve(pollModel);
+                            });
+                    } else {
+                        return response.text()
+                            .then(text => {
+                                reject(text);
+                            });
+                    }
+                })
+                .catch((error) => {
+                    reject(error);
+                });
         });
     },
     savePoll(pollModel) {
@@ -57,7 +50,6 @@ export default {
             .catch((error) => {
                 reject(error);
             });
-
         });
     },
     getEmptyPollContext() {
@@ -75,12 +67,66 @@ export default {
 
 
     // Ballot Helper Functions
-    emptyBallotContext() {
+    getBallotData(pollId, ballotId) {
+        return new Promise((resolve, reject) => {
+            if (pollId && ballotId) {
+                let data = {
+                    'pollId': pollId,
+                    'ballotId': ballotId,
+                };
+                Utils.get(window['API'].get_ballot_data, data)
+                    .then(response => {
+                        if (response.status === 200) {
+                            return response.json()
+                                .then(data => {
+                                    let ballotContext = data;
+                                    resolve(ballotContext);
+                                });
+                        } else {
+                            return response.text()
+                                .then(text => {
+                                    reject(text);
+                                });
+                        }
+                    })
+                    .catch((error) => {
+                        reject(error);
+                    });
+            } else {
+                reject('No ID passed!');
+            }
+        });
+    },
+    saveBallot(ballotData) {
+        return new Promise((resolve, reject) => {
+            Utils.post(window['API'].create_or_update_ballot, ballotData)
+            .then(response => {
+                if (response.status === 200) {
+                    return response.json()
+                        .then((data) => {
+                            // let pollModel = data;
+                            // pollModel.pollRoute = `/poll/${pollModel.id}`;
+                            // pollModel.editRoute = `/editPoll/${pollModel.id}`;
+                            // pollModel.editBallots = `/editBallots/${pollModel.id}`;
+                            resolve(data);
+                        });
+                } else {
+                    return response.text()
+                        .then(text => {
+                            reject(text);
+                        });
+                }
+            })
+            .catch((error) => {
+                reject(error);
+            });
+        });
+    },
+    getEmptyBallotContext() {
         return {
-            id: null,
             name: '',
-            type: '',
-            choices: {},
+            id: null,
+            context: {},
         };
     },
 
@@ -118,7 +164,7 @@ export default {
         },
     },
 
-    // Constants
+    // Data/Constants
     data: {
         pollTypeList: function() {
             let mapping = window.POLL_TYPES.map((typ) => {

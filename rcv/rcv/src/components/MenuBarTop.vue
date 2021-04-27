@@ -70,9 +70,9 @@ export default {
             group: null,
             items: { 
                 left: [
-                    {'route': '/',    'desc': 'Home'},
+                    // {'route': '/',    'desc': 'Home'},
                     {'route': '/mypolls', 'desc': 'My Polls'},
-                    {'route': '/helloworld', 'desc': 'HelloW'},
+                    // {'route': '/helloworld', 'desc': 'HelloW'},
                 ],
                 right: [
                     {'route': '/editPoll', 'desc': 'Create Poll'},

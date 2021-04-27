@@ -4,7 +4,7 @@
             <v-card
                 class="wrapper"
                 id="loading-card"
-                max-width="60%"
+                max-width="500px"
                 v-if="loading"
                 :loading="loading"
             ></v-card>
@@ -14,15 +14,18 @@
             ></message-card>
             <v-card
                 class="wrapper"
-                max-width="60%"
+                max-width="500px"
                 v-if="!loading"
             >
                 <v-card-title>
                     My Polls
                 </v-card-title>
                 <v-divider class="mx-4"></v-divider>
+                <div v-if="polls.length === 0">
+                    You don't have any Polls yet!
+                </div>
                 <div v-for="poll, idx in polls" :key="idx">
-                    <router-link :to="poll.route" class="poll-item">
+                    <router-link :to="poll.route" class="route-item">
                         <v-row align=center>
                             <v-col cols=1>
                                 <v-icon class="ma-3">mdi-chart-box</v-icon>
@@ -50,8 +53,8 @@ export default {
     data: () => {
         return {
             errorString: null,
-            loading: null,
-            polls: null,
+            loading: false,
+            polls: [],
         };
     },
     methods: {
@@ -90,8 +93,4 @@ export default {
 </script>
 
 <style scoped>
-.poll-item {
-    text-align: left;
-    text-decoration: none;
-}
 </style>
