@@ -44,6 +44,13 @@
                     item-value="id"
                     v-model="pollModel.type"
                 ></v-select>
+                TODO: Checkbox: Is Public Poll<br/>
+                TODO: Tog: Ballots Not public/can be Public/must be public<br/>
+                TODO: Checkbox: Allow Multiple Ballots per User<br/>
+                TODO: Checkbox: Lock Poll<br/>
+                TODO: Checkbox: Randomize Choices on Ballots<br/>
+                TODO: Checkbox: Show Results Publicly<br/>
+                TODO: Checkbox: Show Results While Poll Open<br/>
                 <v-row>
                     <v-col cols=12>
                         <v-divider class="mx-4"></v-divider>
@@ -55,11 +62,12 @@
                     </v-col>
                     <v-col cols=6>
                         <v-btn
-                            icon
-                            color="indigo"
+                            fab
+                            small
+                            color="light-green lighten-4"
                             @click="addChoice"
                         >
-                            <v-icon>mdi-plus</v-icon>
+                            <v-icon color="indigo">mdi-plus</v-icon>
                         </v-btn>
                     </v-col>
                 </v-row>

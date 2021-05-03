@@ -1,9 +1,15 @@
 <template>
     <router-link :to="route" class="nav-button">
-        <v-icon 
+        <v-btn
             v-if="isIcon"
+            fab
+            small
+            color="light-green lighten-4"
             class="ma-3"
-        >{{ icon }}</v-icon>
+            @click="addChoice"
+        >
+            <v-icon color="indigo">{{icon}}</v-icon>
+        </v-btn>
         <v-btn
             v-if="isButton"
             color="light-green lighten-4"

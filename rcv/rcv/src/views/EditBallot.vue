@@ -52,11 +52,12 @@
                         </v-col>
                         <v-col cols=2>
                             <v-btn
-                                icon
-                                color="indigo"
+                                fab
+                                small
+                                color="light-green lighten-4"
                                 @click="addChoice"
                             >
-                                <v-icon>mdi-plus</v-icon>
+                                <v-icon color="indigo">mdi-plus</v-icon>
                             </v-btn>
                         </v-col>
                     </v-row>
@@ -215,7 +216,6 @@ export default {
             this.newChoices.splice(choiceIdx, 1);
         },
         getContextForType() {
-            console.log('>>> getContextForType');
             this.updateGeneratedBallots();
 
             if (this.ballotContext && 
@@ -253,7 +253,6 @@ export default {
                     });
         },
         saveBallot() {
-            console.log('>>> saveBallot');
             this.updateGeneratedBallots();
             let data = {
                 'pollId': this.pollModel.id,
@@ -311,7 +310,6 @@ export default {
             }
         },
         updateGeneratedBallots() {
-            console.log('>>> updateGeneratedBallots');
             const fptp = 'fptp';
             const rcv = 'classic_rcv';
             const rca = 'ranked_cumulative_approval';
@@ -370,7 +368,7 @@ export default {
                 if (tempSelected.length === 0 && this.ballotContext.context[fptp] && !this.ballotContext.context[fptp].generated) {
                     tempSelected = [this.ballotContext.context[fptp].selected];
                 }
-                if (tempSelected.join('_') !== tempSelected.join('_')) {
+                if (this.ballotContext.context[rca].selected.join('_') !== tempSelected.join('_')) {
                     this.ballotContext.context[rca].selected = tempSelected;
                 }
             }

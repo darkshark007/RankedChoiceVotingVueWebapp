@@ -180,6 +180,7 @@ export default {
                     if (oldTable.length > idx1 && oldTable[idx1].length > idx2) {
                         newVal = oldTable[idx1][idx2];
                     }
+                    newVal.val = false;
                     if (this.ballotContext.selected && 
                         this.ballotContext.selected.length > idx2) {
                         if (this.ballotContext.selected[idx2] === this.choices[idx1].id) {
@@ -205,8 +206,6 @@ export default {
             this.ballotMatrix = this.getBallotMatrix();
         },
         ballotContext() {
-            console.log('>>> WATCH BALLOTCONTEXT');
-            console.log(this.ballotContext);
             this.ballotMatrix = this.getBallotMatrix();
         },
     }
