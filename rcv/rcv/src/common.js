@@ -174,6 +174,14 @@ export default {
                 };
             });
             return mapping;
-        }(),    
+        }(),
+        // pollTypes: function() {
+        //     let mapping = {};
+        //     for (let t in window.POLL_TYPES) {
+        //         let type = window.POLL_TYPES[t];
+        //         mapping[type[0]] = type[0];
+        //     }
+        //     return mapping;
+        // }(),
     },
 };

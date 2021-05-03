@@ -45,11 +45,7 @@
                             </v-card-text>
                         </v-col>
                     </v-row>
-                    <v-row>
-                        <v-col cols=12>
-                            <v-divider class="mx-4"></v-divider>
-                        </v-col>
-                    </v-row>
+                    <v-divider class="mx-4"></v-divider>
                     <v-row>
                         <v-col class="subheader" cols=8>
                             <h4>Add new Choices</h4>
@@ -90,15 +86,31 @@
                         errorStringBase="Error Saving New Choices: "
                         :successString=saveChoicesSuccessString
                     ></message-card>
-                    <v-row>
-                        <v-col cols=12>
-                            <v-divider class="mx-4"></v-divider>
-                        </v-col>
-                    </v-row>
                     <v-divider class="mx-4"></v-divider>
                     <v-row>
-                        <v-col class="subheader">
+                        <v-col class="subheader" cols=8>
                             <h4>Ballot</h4>
+                        </v-col>
+                        <v-col cols=2 v-if="generated">
+                            <!-- <v-btn
+                                icon
+                                color="red"
+                            >
+                                <v-icon>mdi-hammer-wrench</v-icon>
+                            </v-btn> -->
+                            <v-tooltip bottom max-width="300px">
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-icon
+                                        color="red"
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        class="ma-2"
+                                    >
+                                    mdi-hammer-wrench
+                                    </v-icon>
+                                </template>
+                                <span>This <i>{{ this.selectedType | displayPollType }}</i>-style Ballot was pre-filled using data from your other filled-out similar-style ballot(s).</span>
+                            </v-tooltip>
                         </v-col>
                     </v-row>
                     <v-text-field
@@ -113,10 +125,11 @@
                         v-model="selectedType"
                     ></v-select>
                     <ballot
-                        :ballotContext="getChoicesForType(selectedType)"
+                        :ballotContext="getContextForType()"
                         :choices="pollModel.choices"
                         :type="selectedType"
                         :edit="true"
+                        @onChange="onBallotChange"
                     />
                     <v-row>
                         <v-col cols=12>
@@ -184,6 +197,7 @@ export default {
             savingBallot: false,
             saveBallotSuccessString: null,
             saveBallotErrorString: null,
+            generated: false,
         };
     },
     filters: {
@@ -193,18 +207,26 @@ export default {
     },
     methods: {
         addChoice() {
-            let new_choice = Common.emptyChoiceContext();
+            let new_choice = Common.getEmptyChoiceContext();
             this.newChoices.push(new_choice);
         },
         removeChoice(choice) {
             let choiceIdx = this.newChoices.indexOf(choice);
             this.newChoices.splice(choiceIdx, 1);
         },
-        getChoicesForType(type) {
-            if (!this.ballotContext.context[type]) {
-                this.ballotContext.context[type] = {};
+        getContextForType() {
+            console.log('>>> getContextForType');
+            this.updateGeneratedBallots();
+
+            if (this.ballotContext && 
+                this.ballotContext.context[this.selectedType] && 
+                this.ballotContext.context[this.selectedType].generated) {
+                this.generated = true;
+            } else {
+                this.generated = false;
             }
-            return this.ballotContext.context[type];
+
+            return this.ballotContext.context[this.selectedType];
         },
         saveChoices() {
             let data = {
@@ -231,6 +253,8 @@ export default {
                     });
         },
         saveBallot() {
+            console.log('>>> saveBallot');
+            this.updateGeneratedBallots();
             let data = {
                 'pollId': this.pollModel.id,
                 'ballot': this.ballotContext,
@@ -286,10 +310,78 @@ export default {
                     });
             }
         },
+        updateGeneratedBallots() {
+            console.log('>>> updateGeneratedBallots');
+            const fptp = 'fptp';
+            const rcv = 'classic_rcv';
+            const rca = 'ranked_cumulative_approval';
+            // FPTP
+            if (!this.ballotContext.context[fptp]) {
+                this.ballotContext.context[fptp] = {
+                    'generated': true,
+                    'selected': null,
+                };
+            }
+            if (this.ballotContext.context[fptp].generated) {
+                let tempSelected = null;
+                if (!tempSelected && this.ballotContext.context[rcv] && !this.ballotContext.context[rcv].generated) {
+                    tempSelected = this.ballotContext.context[rcv].selected[0];
+                }
+                if (!tempSelected && this.ballotContext.context[rca] && !this.ballotContext.context[rca].generated) {
+                    tempSelected = this.ballotContext.context[rca].selected[0];
+                }
+                if (this.ballotContext.context[fptp].selected !== tempSelected) {
+                    this.ballotContext.context[fptp].selected = tempSelected;
+                }
+            }
+
+            // RCV
+            if (!this.ballotContext.context[rcv]) {
+                this.ballotContext.context[rcv] = {
+                    'generated': true,
+                    'selected': [],
+                };
+            }
+            if (this.ballotContext.context[rcv].generated) {
+                let tempSelected = [];
+                if (tempSelected.length === 0 && this.ballotContext.context[rca] && !this.ballotContext.context[rca].generated) {
+                    tempSelected = [...this.ballotContext.context[rca].selected];
+                }
+                if (tempSelected.length === 0 && this.ballotContext.context[fptp] && !this.ballotContext.context[fptp].generated) {
+                    tempSelected = [this.ballotContext.context[fptp].selected];
+                }
+                if (this.ballotContext.context[rcv].selected.join('_') !== tempSelected.join('_')) {
+                    this.ballotContext.context[rcv].selected = tempSelected;
+                }
+            }
+
+            // RCA
+            if (!this.ballotContext.context[rca]) {
+                this.ballotContext.context[rca] = {
+                    'generated': true,
+                    'selected': [],
+                };
+            }
+            if (this.ballotContext.context[rca].generated) {
+                let tempSelected = [];
+                if (tempSelected.length === 0 && this.ballotContext.context[rcv] && !this.ballotContext.context[rcv].generated) {
+                    tempSelected = [...this.ballotContext.context[rcv].selected];
+                }
+                if (tempSelected.length === 0 && this.ballotContext.context[fptp] && !this.ballotContext.context[fptp].generated) {
+                    tempSelected = [this.ballotContext.context[fptp].selected];
+                }
+                if (tempSelected.join('_') !== tempSelected.join('_')) {
+                    this.ballotContext.context[rca].selected = tempSelected;
+                }
+            }
+        },
+        onBallotChange() {
+            this.ballotContext.context[this.selectedType].generated = false;
+            this.generated = false;
+        },
     },
     mounted() {
         this.setPollModel(this.pollid);
-        console.log(this.ballotid);
         if (this.ballotid) {
             this.setBallotModel(this.pollid, this.ballotid);
         }

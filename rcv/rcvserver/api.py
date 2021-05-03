@@ -17,11 +17,11 @@ def create_or_update_poll(request):
     if request_json and request_json.get('id'):
         poll_id = request_json.get('id')
         poll = Poll.objects.get(id=poll_id)
-        if poll.creator.id != user.id:
-            # TODO: Add System/Permissions handling for Ballot Choice Additions
-            response = HttpResponse("User does not have permission to modify that Poll")
-            response.status_code = 403
-            return response
+        # if poll.creator.id != user.id:
+        #     # TODO: Add System/Permissions handling for Ballot Choice Additions
+        #     response = HttpResponse("User does not have permission to modify that Poll")
+        #     response.status_code = 403
+        #     return response
     else:
         poll = Poll()
         poll.creator = user
@@ -58,7 +58,10 @@ def get_poll_data(request):
                 if ballot.user.id == user.id:
                     data['ballots'].append(ballot.get_js_ballot_model())
 
-        # TODO: Assert User Permission to Modify Poll
+        include_results = request.GET.get('includeResults', default=None)
+        if include_results:
+            data['results'] = poll.get_js_result_model(user)
+
         response = JsonResponse(data)
 
     return response

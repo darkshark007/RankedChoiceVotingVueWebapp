@@ -6,9 +6,21 @@ import pendulum
 
 TYPE_CLASSIC_RCV = 'classic_rcv'
 TYPE_FIRST_PAST_THE_POST = 'fptp'
+TYPE_SCORE_THEN_AUTOMATIC_RUNOFF = 'star_vote'
+TYPE_APPROVAL = 'approval'
+TYPE_RANKED_CUMULATIVE_APPROVAL = 'ranked_cumulative_approval'
+TYPE_RANKED_SCORED_TIER = 'ranked_score_tier'
+TYPE_RANKED_SCORED_SPLIT = 'ranked_score_split'
+TYPE_RANKED_GRAPH_MAXIMAL = 'ranked_graph_maximal'
 TYPE_CHOICES = (
     (TYPE_CLASSIC_RCV, 'Classic RCV'),
     (TYPE_FIRST_PAST_THE_POST, 'Single-Choice Popular Vote'),
+    (TYPE_RANKED_CUMULATIVE_APPROVAL, 'Ranked Cumulative Approval'),
+    # (TYPE_SCORE_THEN_AUTOMATIC_RUNOFF, 'STAR Vote'),
+    # (TYPE_APPROVAL, 'APPROVAL'),
+    # (TYPE_RANKED_SCORED_TIER, 'Ranked Tiered-Score Vote'),
+    # (TYPE_RANKED_SCORED_SPLIT, 'Ranked Split-Score Vote'),
+    # (TYPE_RANKED_GRAPH_MAXIMAL, 'Ranked Graph Maximum Approval'),
 )
 
 # Create your models here.
@@ -32,8 +44,6 @@ class Choice(models.Model):
 
 
     def get_js_choice_model(self):
-        print('>>> get_js_choice_model:')
-        print(self.__dict__)
         obj = {
             'id': str(self.id),
             'name': self.name,
@@ -110,47 +120,65 @@ class Result(models.Model):
     id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
     fptp_result = models.DictField(default={})
     rcv_result = models.DictField(default={})
+    rca_result = models.DictField(default={})
 
 
     def __getitem__(self, name):
        return getattr(self, name, None)
 
 
-    def get_js_result_model(self):
+    def get_js_result_model(self, user):
         obj = {
+            TYPE_FIRST_PAST_THE_POST: self.fptp_result,
+            TYPE_CLASSIC_RCV: self.rcv_result,
+            TYPE_RANKED_CUMULATIVE_APPROVAL: self.rca_result,
         }
         return obj
 
     
     def update_fptp_result_from_ballot(self, ballot, mult):
-
-        def get_fptp_data():
-            if TYPE_FIRST_PAST_THE_POST in ballot.context:
-                if 'selected' in ballot.context[TYPE_FIRST_PAST_THE_POST]:
-                    return ballot.context[TYPE_FIRST_PAST_THE_POST]['selected']
-            return None
-
-        def get_rcv_data():
-            pass
-
-        # Find the most relevant ballot data
-        data = None
+        data = ballot.context[TYPE_FIRST_PAST_THE_POST].get('selected', None)
         if not data:
-            data = get_fptp_data()
-        if not data:
-            data = get_rcv_data()
-        if not data:
-            raise Exception('Could not find relevant Ballot data')
-
-        # Update Result data
+            return
         if data not in self.fptp_result:
             self.fptp_result[data] = 0
         self.fptp_result[data] += (1 * mult)
 
-        # Update Result statistics
+        # TODO: Update Result statistics
 
-        print('>>> RESULTS: ')
         print(self.fptp_result)
+
+
+    def update_rcv_result_from_ballot(self, ballot, mult):
+        data = ballot.context[TYPE_CLASSIC_RCV]['selected']
+        current = self.rcv_result
+        for choice in data:
+            if choice not in current:
+                current[choice] = {'count': 0}
+            
+            current[choice]['count'] += (1 * mult)
+            current = current[choice]
+
+        # TODO: Update Result statistics
+
+        print('>>> RCV RESULTS: ')
+        print(self.rcv_result)
+
+
+    def update_rca_result_from_ballot(self, ballot, mult):
+        data = ballot.context[TYPE_RANKED_CUMULATIVE_APPROVAL]['selected']
+        current = self.rca_result
+        for choice in data:
+            if choice not in current:
+                current[choice] = {'count': 0}
+            
+            current[choice]['count'] += (1 * mult)
+            current = current[choice]
+
+        # TODO: Update Result statistics
+
+        print('>>> RCA RESULTS: ')
+        print(self.rca_result)
 
 
 
@@ -221,12 +249,16 @@ class Poll(models.Model):
             'description': self.description,
             'type': self.type,
             'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
-            'results': self.results.get_js_result_model(),
         }
-        print('>>> IDS??? {} == {}'.format(user.id, self.creator.id))
         if user.id == self.creator.id:
             obj['canEdit'] = True
         return obj
+
+
+    def get_js_result_model(self, user):
+        data = self.results.get_js_result_model(user)
+        data['count'] = len(self.ballots)
+        return data
 
 
     def update_ballot_from_js(self, model, user):
@@ -252,11 +284,15 @@ class Poll(models.Model):
         if not new_ballot:
             # TODO: Update Results/statistics data
             self.results.update_fptp_result_from_ballot(current_ballot, -1)
+            self.results.update_rcv_result_from_ballot(current_ballot, -1)
+            self.results.update_rca_result_from_ballot(current_ballot, -1)
 
         current_ballot.context = model['ballot']['context']
 
         # TODO: Update Results/statistics data
         self.results.update_fptp_result_from_ballot(current_ballot, 1)
+        self.results.update_rcv_result_from_ballot(current_ballot, 1)
+        self.results.update_rca_result_from_ballot(current_ballot, 1)
 
         self.save()
         return current_ballot.get_js_ballot_model()

@@ -8,6 +8,7 @@
                     :key="idx"
                     :value="choice.id"
                     class="choiceRadioLabel"
+                    @change="onChange"
                 >
                     <template 
                         v-slot:label
@@ -23,7 +24,14 @@
             </v-radio-group>
         </v-container>
         <v-container v-if="isPreview" align=center class="wrapper">
-            TODO:
+            <v-chip-group
+                multiple
+                active-class="primary--text"
+            >
+                <v-chip>
+                    {{ getChoiceNameFromId(ballotContext.selected) }}
+                </v-chip>
+            </v-chip-group>
         </v-container>
         <v-container v-if="isDisplay" align=center class="wrapper">
             TODO:
@@ -64,12 +72,18 @@ export default {
     components: {
         'poll-choice': Choice,
     },
-    computed: {
-    },
-    mounted() {
-    },
-    data: () => {
-        return {}
+    methods: {
+        getChoiceNameFromId(id) {
+            for (let choiceIdx = 0; choiceIdx < this.choices.length; choiceIdx++) {
+                if (this.choices[choiceIdx].id === id) {
+                    return this.choices[choiceIdx].name;
+                }
+            }
+            return null;
+        },
+        onChange() {
+            this.$emit('onChange');
+        },
     },
 };
 </script>

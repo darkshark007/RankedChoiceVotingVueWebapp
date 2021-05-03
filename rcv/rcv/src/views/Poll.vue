@@ -101,14 +101,55 @@
                     </v-row>
                     <div v-for="ballot, idx in pollModel.ballots" :key="'ballot-'+idx">
                         <router-link :to="ballot.route" class="route-item">
-                            <v-row align=center>
+                            <!-- <v-row align=center>
                                 <v-col cols=1>
                                     <v-icon class="ma-3">mdi-ballot-outline</v-icon>
                                 </v-col>
                                 <v-col cols=10>
-                                    <v-card-text>{{ ballot.name }}</v-card-text>
+                                    <v-row>
+                                        <v-card-text class="ma-0 pa-0">{{ ballot.name }}</v-card-text>
+                                    </v-row>
+                                    <v-row class="ma-0 pa-0">
+                                        <ballot
+                                            :ballotContext="ballot.context[pollModel.type]"
+                                            :choices="pollModel.choices"
+                                            :type="pollModel.type"
+                                            :preview="true"
+                                        />
+                                    </v-row>
                                 </v-col>
-                            </v-row>
+                            </v-row> -->
+                            <v-card
+                                class="ma-4"
+                                elevation=2
+                            >
+                                <v-row align=center class="ma-2">
+
+                                    <!-- Icon -->
+                                    <v-col cols=1>
+                                        <v-icon color="indigo" class="ma-2">mdi-ballot-outline</v-icon>
+                                    </v-col>
+
+                                    <v-spacer></v-spacer>
+                                    <v-col cols=10 align=left>
+
+                                        <!-- Name -->
+                                        <div>
+                                            <b>{{ ballot.name }}</b>
+                                        </div>
+
+                                        <!-- Description -->
+                                        <div>
+                                            <ballot
+                                                :ballotContext="ballot.context[pollModel.type]"
+                                                :choices="pollModel.choices"
+                                                :type="pollModel.type"
+                                                :preview="true"
+                                            />
+                                        </div>
+                                    </v-col>
+                                </v-row>
+                            </v-card>
                         </router-link>
                     </div>
                     <v-divider class="mx-4"></v-divider>
@@ -131,6 +172,7 @@ import Common from '../common.js';
 import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
 import Choice from '../components/Choice.vue';
+import Ballot from '../components/Ballot.vue';
 
 export default {
     name: 'poll',
@@ -144,16 +186,11 @@ export default {
         'message-card': MessageCard,
         'nav-button': NavButton,
         'poll-choice': Choice,
+        'ballot': Ballot,
     },
     data: () => {
         return {
-            pollModel: {
-                id: null,
-                name: '',
-                type: '',
-                description: '',
-                choices: [],
-            },
+            pollModel: Common.getEmptyPollContext(),
             loading: false,
             errorString: null,
         };

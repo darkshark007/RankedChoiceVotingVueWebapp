@@ -9,13 +9,27 @@
                 :isDisplay="isDisplay"
                 :isEdit="isEdit"
                 :isPreview="isPreview"
+                @onChange="onChange"
+            />
+        </v-container>
+
+        <!-- Classic RCV -->
+        <v-container v-if="type === 'classic_rcv' || type === 'ranked_cumulative_approval'" class="wrapper">
+            <ballot-rcv
+                :ballotContext="ballotContext"
+                :choices="choices"
+                :isDisplay="isDisplay"
+                :isEdit="isEdit"
+                :isPreview="isPreview"
+                @onChange="onChange"
             />
         </v-container>
     </v-container>
 </template>
 
 <script>
-import BallotFPTPVue from './BallotFPTP.vue';
+import BallotFPTP from './BallotFPTP.vue';
+import BallotRCV from './BallotRCV.vue';
 
 export default {
     name: 'poll-ballot',
@@ -44,7 +58,8 @@ export default {
         },
     },
     components: {
-        'ballot-fptp': BallotFPTPVue,
+        'ballot-fptp': BallotFPTP,
+        'ballot-rcv': BallotRCV,
     },
     computed: {
         // Render Type
@@ -56,6 +71,11 @@ export default {
         },
         isPreview() {
             return !this.edit && this.preview;
+        },
+    },
+    methods: {
+        onChange() {
+            this.$emit('onChange');
         },
     },
     mounted() {
