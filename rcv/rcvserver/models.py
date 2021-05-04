@@ -99,6 +99,7 @@ class Ballot(models.Model):
     id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
     user = models.EmbeddedField(model_container=User)
     name = models.CharField(max_length=40)
+    public = models.BooleanField(default=False)
     context = models.DictField(default={})
 
 
@@ -110,6 +111,7 @@ class Ballot(models.Model):
         obj = {
             'id': str(self.id),
             'name': self.name,
+            'publicBallot': self.public,
             'context': self.context,
         }
         return obj
@@ -211,6 +213,7 @@ class Poll(models.Model):
     description = models.CharField(max_length=500)
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     public = models.BooleanField(default=False)
+    public_ballots = models.CharField(max_length=5, choices=[('yes','yes'), ('no','no'), ('maybe','maybe')])
 
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
@@ -239,6 +242,7 @@ class Poll(models.Model):
         self.choices = new_choices
         self.updated = pendulum.now()
         self.public = model.get('publicPoll', None)
+        self.public_ballots = model.get('publicBallots', None)
         self.save()
 
 
@@ -251,6 +255,7 @@ class Poll(models.Model):
             'description': self.description,
             'type': self.type,
             'publicPoll': self.public,
+            'publicBallots': self.public_ballots,
             'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
         }
         if user.id == self.creator.id:
@@ -283,15 +288,15 @@ class Poll(models.Model):
             self.ballots.append(current_ballot)
             current_ballot.user = user
 
-        current_ballot.name = model['ballot']['name']
-
         if not new_ballot:
             # TODO: Update Results/statistics data
             self.results.update_fptp_result_from_ballot(current_ballot, -1)
             self.results.update_rcv_result_from_ballot(current_ballot, -1)
             self.results.update_rca_result_from_ballot(current_ballot, -1)
 
+        current_ballot.name = model['ballot']['name']
         current_ballot.context = model['ballot']['context']
+        current_ballot.public = model['ballot']['publicBallot']
 
         # TODO: Update Results/statistics data
         self.results.update_fptp_result_from_ballot(current_ballot, 1)

@@ -41,7 +41,9 @@
                                 <p>
                                     Type: {{ pollModel.type | displayPollType }}<br/>
                                     Created: {{ pollModel.created | displayDate }}<br/>
-                                    Updated: {{ pollModel.updated | displayDate }}
+                                    Updated: {{ pollModel.updated | displayDate }}<br/>
+                                    Public Poll: {{ pollModel.publicPoll | titleCase }}<br/>
+                                    Public Ballots: {{ pollModel.publicBallots | titleCase }}<br/>
                                 </p>
                             </v-card-text>
                         </v-col>
@@ -101,24 +103,6 @@
                     </v-row>
                     <div v-for="ballot, idx in pollModel.ballots" :key="'ballot-'+idx">
                         <router-link :to="ballot.route" class="route-item">
-                            <!-- <v-row align=center>
-                                <v-col cols=1>
-                                    <v-icon class="ma-3">mdi-ballot-outline</v-icon>
-                                </v-col>
-                                <v-col cols=10>
-                                    <v-row>
-                                        <v-card-text class="ma-0 pa-0">{{ ballot.name }}</v-card-text>
-                                    </v-row>
-                                    <v-row class="ma-0 pa-0">
-                                        <ballot
-                                            :ballotContext="ballot.context[pollModel.type]"
-                                            :choices="pollModel.choices"
-                                            :type="pollModel.type"
-                                            :preview="true"
-                                        />
-                                    </v-row>
-                                </v-col>
-                            </v-row> -->
                             <v-card
                                 class="ma-4"
                                 elevation=2
@@ -151,6 +135,47 @@
                                 </v-row>
                             </v-card>
                         </router-link>
+                    </div>
+                    <div v-if="pollModel.ballotsPublic.length > 0">
+                        <v-divider class="mx-4"></v-divider>
+                        <v-row align=center>
+                            <v-col class="subheader" cols=6>
+                                <h4>Public Ballots</h4>
+                            </v-col>
+                        </v-row>
+                        <div v-for="ballot, idx in pollModel.ballotsPublic" :key="'ballot-'+idx">
+                            <v-card
+                                class="ma-4"
+                                elevation=2
+                            >
+                                <v-row align=center class="ma-2">
+
+                                    <!-- Icon -->
+                                    <v-col cols=1>
+                                        <v-icon color="indigo" class="ma-2">mdi-ballot-outline</v-icon>
+                                    </v-col>
+
+                                    <v-spacer></v-spacer>
+                                    <v-col cols=10 align=left>
+
+                                        <!-- Name -->
+                                        <div>
+                                            <b>{{ ballot.name }}</b>
+                                        </div>
+
+                                        <!-- Description -->
+                                        <div>
+                                            <ballot
+                                                :ballotContext="ballot.context[pollModel.type]"
+                                                :choices="pollModel.choices"
+                                                :type="pollModel.type"
+                                                :preview="true"
+                                            />
+                                        </div>
+                                    </v-col>
+                                </v-row>
+                            </v-card>
+                        </div>
                     </div>
                     <v-divider class="mx-4"></v-divider>
                     <v-row align=center>

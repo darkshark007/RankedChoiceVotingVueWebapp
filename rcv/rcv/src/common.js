@@ -59,7 +59,10 @@ export default {
             type: '',
             description: '',
             publicPoll: false,
+            publicBallots: "maybe",
             choices: [],
+            ballots: [],
+            ballotsPublic: [],
             pollRoute: '',
             editRoute: '',
             editBallots: '',
@@ -127,6 +130,7 @@ export default {
         return {
             name: '',
             id: null,
+            publicBallot: false,
             context: {},
         };
     },
@@ -153,7 +157,7 @@ export default {
             if (min.length === 1) {
                 min = "0"+min;
             }
-            return `${dt.getMonth()}/${dt.getDate()}/${dt.getYear()} ${hour}:${min}`;
+            return `${dt.getMonth()}/${dt.getDate()}/${dt.getFullYear()} ${hour}:${min}`;
         },
         displayPollType(type) {
             let item = window['POLL_TYPES'].find((t) => {
@@ -162,6 +166,12 @@ export default {
             if (item)
                 return item[1];
             return null;
+        },
+        titleCase(val) {
+            return `${val}`
+                .split(" ")
+                .map((w) => w.substring(0,1).toUpperCase()+w.substring(1))
+                .join(" ");
         },
     },
 

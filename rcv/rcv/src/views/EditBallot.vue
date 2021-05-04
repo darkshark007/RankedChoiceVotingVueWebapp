@@ -6,8 +6,8 @@
                 id="loading-card"
                 max-width="500px"
                 align="center"
-                v-if="loading"
-                :loading="loading"
+                v-if="loading > 0"
+                :loading="loading > 0"
             ></v-card>
             <message-card
                 :errorString=errorString
@@ -17,7 +17,7 @@
                 class="wrapper"
                 max-width="500px"
                 align="center"
-                v-if="!loading"
+                v-if="!loading > 0"
             >
                 <div v-if="!pollModel.id"> Poll with that ID was not found.</div>
                 <div v-else>
@@ -93,12 +93,6 @@
                             <h4>Ballot</h4>
                         </v-col>
                         <v-col cols=2 v-if="generated">
-                            <!-- <v-btn
-                                icon
-                                color="red"
-                            >
-                                <v-icon>mdi-hammer-wrench</v-icon>
-                            </v-btn> -->
                             <v-tooltip bottom max-width="300px">
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-icon
@@ -125,6 +119,12 @@
                         item-value="id"
                         v-model="selectedType"
                     ></v-select>
+                    <form-checkbox
+                        title="This Ballot is Public"
+                        tooltip="If Selected, this Ballot and its choices will be visible to anyone on the Poll page.<br/><br/><b>Note:</b> If switch cannot be toggled, this means that this Poll's creator set <b><i>all</i></b> Ballots to either public or private."
+                        :disabled="pollModel.publicBallots !== 'maybe'"
+                        v-model="ballotContext.publicBallot"
+                    />
                     <ballot
                         :ballotContext="getContextForType()"
                         :choices="pollModel.choices"
@@ -148,7 +148,7 @@
                     </v-row>
                     <message-card
                         :errorString="saveBallotErrorString"
-                        errorStringBase="Error Saving New Choices: "
+                        errorStringBase="Error Saving Ballot: "
                         :successString="saveBallotSuccessString"
                     ></message-card>
                 </div>
@@ -163,6 +163,7 @@ import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
 import Choice from '../components/Choice.vue';
 import Ballot from '../components/Ballot.vue';
+import FormCheckbox from '../components/FormCheckbox.vue';
 
 
 export default {
@@ -180,6 +181,7 @@ export default {
     components: {
         'message-card': MessageCard,
         'nav-button': NavButton,
+        'form-checkbox': FormCheckbox,
         'poll-choice': Choice,
         'ballot': Ballot,
     },
@@ -190,7 +192,7 @@ export default {
             ballotContext: Common.getEmptyBallotContext(),
             selectedType: '',
             newChoices: [],
-            loading: false,
+            loading: 0,
             errorString: null,
             savingChoices: false,
             saveChoicesSuccessString: null,
@@ -226,7 +228,10 @@ export default {
                 this.generated = false;
             }
 
-            return this.ballotContext.context[this.selectedType];
+            if (this.selectedType) {
+                return this.ballotContext.context[this.selectedType];
+            }
+            return Common.getEmptyBallotContext();
         },
         saveChoices() {
             let data = {
@@ -253,6 +258,19 @@ export default {
                     });
         },
         saveBallot() {
+            // Validate
+            let errors = false;
+            this.saveBallotErrorString = null;
+            if (!this.ballotContext.name) {
+                errors = true;
+                setTimeout(function() {
+                    // Hate this.
+                    this.saveBallotErrorString = 'Name is required!';
+                }.bind(this), 0);
+            }
+            if (errors) return;
+
+            // Save
             this.updateGeneratedBallots();
             let data = {
                 'pollId': this.pollModel.id,
@@ -274,12 +292,13 @@ export default {
                     })
                     .finally(() => {
                         this.savingBallot = false;
+                        this.syncPollBallotSettings();
                     });
         },
         setPollModel(id) {
             this.pollModel = Common.getEmptyPollContext()
             if (id) {
-                this.loading = true;
+                this.loading += 1;
                 Common.getPollData({'id': id})
                     .then(data => {
                         this.pollModel = data;
@@ -289,14 +308,15 @@ export default {
                         this.errorString = error;
                     })
                     .finally(() => {
-                        this.loading = false;
+                        this.loading -= 1;
+                        this.syncPollBallotSettings();
                     });
             }
         },
         setBallotModel(pollId, ballotId) {
             this.ballotContext = Common.getEmptyBallotContext()
             if (pollId && ballotId) {
-                this.loading = true;
+                this.loading += 1;
                 Common.getBallotData(pollId, ballotId)
                     .then(data => {
                         this.ballotContext = data;
@@ -305,8 +325,19 @@ export default {
                         this.errorString = error;
                     })
                     .finally(() => {
-                        this.loading = false;
+                        this.loading -= 1;
+                        this.syncPollBallotSettings();
                     });
+            }
+        },
+        syncPollBallotSettings() {
+            if (this.loading > 0) {
+                return                
+            }
+            if (this.pollModel.publicBallots === 'yes') {
+                this.ballotContext.publicBallot = true;
+            } else if (this.pollModel.publicBallots === 'no') {
+                this.ballotContext.publicBallot = false;
             }
         },
         updateGeneratedBallots() {

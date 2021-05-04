@@ -45,11 +45,19 @@
                     v-model="pollModel.type"
                 ></v-select>
                 <form-checkbox
-                    title="Is Public Poll"
+                    title="This Poll is Public"
                     tooltip="If Selected, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
                     v-model="pollModel.publicPoll"
                 />
-                TODO: Tog: Ballots Not public/can be Public/must be public<br/>
+                <v-select
+                    label="Public Ballots"
+                    :items="publicBallotOptions"
+                    item-text="name"
+                    item-value="value"
+                    :hint="publicBallotHint"
+                    v-model="pollModel.publicBallots"
+                    persistent-hint
+                ></v-select>
                 TODO: Checkbox: Allow Multiple Ballots per User<br/>
                 TODO: Checkbox: Lock Poll<br/>
                 TODO: Checkbox: Randomize Choices on Ballots<br/>
@@ -141,9 +149,22 @@ export default {
             saving: false,
             saveErrorString: null,
             saveSuccessString: null,
+            publicBallotOptions: [
+                { name: 'Never',      value: 'no',    hint: 'No - Ballots are always hidden' },
+                { name: 'Optionally', value: 'maybe', hint: 'Maybe - Creator can decide whether their Ballot is hidden' },
+                { name: 'Always',     value: 'yes',   hint: 'Yes - Ballots are always public, anyone can see the choices' },
+            ],
         };
     },
     computed: {
+        publicBallotHint() {
+            for (let key in this.publicBallotOptions) {
+                if (this.publicBallotOptions[key].value === this.pollModel.publicBallots) {
+                    return this.publicBallotOptions[key].hint
+                }
+            }
+            return "";
+        }
     },
     methods: {
         addChoice() {

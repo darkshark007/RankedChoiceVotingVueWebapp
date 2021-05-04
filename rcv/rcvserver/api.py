@@ -54,9 +54,12 @@ def get_poll_data(request):
         include_my_ballots = request.GET.get('includeMyBallots', default=None)
         if include_my_ballots:
             data['ballots'] = []
+            data['ballotsPublic'] = []
             for ballot in poll.ballots:
                 if ballot.user.id == user.id:
                     data['ballots'].append(ballot.get_js_ballot_model())
+                elif poll.public_ballots != 'no' and (poll.public_ballots == 'yes' or ballot.public):
+                    data['ballotsPublic'].append(ballot.get_js_ballot_model())
 
         include_results = request.GET.get('includeResults', default=None)
         if include_results:

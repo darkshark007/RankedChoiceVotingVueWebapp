@@ -19,6 +19,7 @@
             <v-switch
                 v-model=local
                 inset
+                :disabled=disabled
                 :label="title"
             ></v-switch>
         </v-col>
@@ -47,6 +48,11 @@ export default {
         value: {
             type: Boolean,
             required: true,
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
     methods: {
