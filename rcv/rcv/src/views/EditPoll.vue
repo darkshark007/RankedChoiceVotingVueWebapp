@@ -46,11 +46,9 @@
                 ></v-select>
                 <form-checkbox
                     title="Is Public Poll"
-                    tooltip="Is Public Poll"
+                    tooltip="If Selected, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
                     v-model="pollModel.publicPoll"
                 />
-
-                TODO: Checkbox: Is Public Poll<br/>
                 TODO: Tog: Ballots Not public/can be Public/must be public<br/>
                 TODO: Checkbox: Allow Multiple Ballots per User<br/>
                 TODO: Checkbox: Lock Poll<br/>
