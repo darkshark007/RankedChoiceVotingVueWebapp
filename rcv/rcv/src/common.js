@@ -58,6 +58,7 @@ export default {
             name: '',
             type: '',
             description: '',
+            publicPoll: false,
             choices: [],
             pollRoute: '',
             editRoute: '',

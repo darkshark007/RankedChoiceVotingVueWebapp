@@ -37,6 +37,31 @@
                     </router-link>
                 </div>
             </v-card>
+            <v-card
+                class="wrapper"
+                max-width="500px"
+                v-if="!loading"
+            >
+                <v-card-title>
+                    Public Polls
+                </v-card-title>
+                <v-divider class="mx-4"></v-divider>
+                <div v-if="publicPolls.length === 0">
+                    There are no Public polls!
+                </div>
+                <div v-for="poll, idx in publicPolls" :key="idx">
+                    <router-link :to="poll.route" class="route-item">
+                        <v-row align=center>
+                            <v-col cols=1>
+                                <v-icon class="ma-3">mdi-chart-box</v-icon>
+                            </v-col>
+                            <v-col cols=10>
+                                <v-card-text>{{ poll.name }}</v-card-text>
+                            </v-col>
+                        </v-row>
+                    </router-link>
+                </div>
+            </v-card>
         </v-container>
     </div>
 </template>
@@ -55,6 +80,7 @@ export default {
             errorString: null,
             loading: false,
             polls: [],
+            publicPolls: [],
         };
     },
     methods: {
@@ -68,6 +94,11 @@ export default {
                                 this.polls = data.polls.sort((a, b) => (a.updated > b.updated) ? -1 : 1);
                                 for (let pollIdx = 0; pollIdx < this.polls.length; pollIdx++) {
                                     let current = this.polls[pollIdx];
+                                    current.route = `/poll/${current.id}`;
+                                }
+                                this.publicPolls = data.public.sort((a, b) => (a.updated > b.updated) ? -1 : 1);
+                                for (let pollIdx = 0; pollIdx < this.publicPolls.length; pollIdx++) {
+                                    let current = this.publicPolls[pollIdx];
                                     current.route = `/poll/${current.id}`;
                                 }
                             });

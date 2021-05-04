@@ -210,6 +210,7 @@ class Poll(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=500)
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    public = models.BooleanField(default=False)
 
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
@@ -237,6 +238,7 @@ class Poll(models.Model):
             new_choices.append(cand_obj)
         self.choices = new_choices
         self.updated = pendulum.now()
+        self.public = model.get('publicPoll', None)
         self.save()
 
 
@@ -248,6 +250,7 @@ class Poll(models.Model):
             'name': self.name,
             'description': self.description,
             'type': self.type,
+            'publicPoll': self.public,
             'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
         }
         if user.id == self.creator.id:
@@ -265,6 +268,7 @@ class Poll(models.Model):
         new_ballot = False
         if model['ballot']['id']:
             ballot_id = model['ballot']['id']
+            current_ballot = None
             for ballot in self.ballots:
                 if ballot.id == ballot_id:
                     current_ballot = ballot

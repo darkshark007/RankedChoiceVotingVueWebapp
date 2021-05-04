@@ -6,7 +6,6 @@
             small
             color="light-green lighten-4"
             class="ma-3"
-            @click="addChoice"
         >
             <v-icon color="indigo">{{icon}}</v-icon>
         </v-btn>

@@ -44,6 +44,12 @@
                     item-value="id"
                     v-model="pollModel.type"
                 ></v-select>
+                <form-checkbox
+                    title="Is Public Poll"
+                    tooltip="Is Public Poll"
+                    v-model="pollModel.publicPoll"
+                />
+
                 TODO: Checkbox: Is Public Poll<br/>
                 TODO: Tog: Ballots Not public/can be Public/must be public<br/>
                 TODO: Checkbox: Allow Multiple Ballots per User<br/>
@@ -112,6 +118,7 @@ import Common from '../common.js';
 import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
 import Choice from '../components/Choice.vue';
+import FormCheckbox from '../components/FormCheckbox.vue';
 
 export default {
     name: 'edit-poll-component',
@@ -125,6 +132,7 @@ export default {
         'message-card': MessageCard,
         'nav-button': NavButton,
         'poll-choice': Choice,
+        'form-checkbox': FormCheckbox,
     },
     data: () => {
         return {
@@ -154,7 +162,10 @@ export default {
             Common.savePoll(this.pollModel)
                     .then(data => {
                         this.saveSuccessString = "Save Successful!";
-                        this.pollModel = data;
+                        this.pollModel = {
+                            ...Common.getEmptyPollContext(),
+                            ...data,
+                        };
                         if (!this.pollModel.id) {
                             this.$router.push({name: 'editPollWithId', params: { id: data.id } });
                         }
@@ -173,7 +184,10 @@ export default {
                 this.loadingErrorString = null;
                 Common.getPollData({'id': id})
                     .then(data => {
-                        this.pollModel = data;
+                        this.pollModel = {
+                            ...Common.getEmptyPollContext(),
+                            ...data,
+                        };
                     })
                     .catch((error) => {
                         this.loadingErrorString = error;

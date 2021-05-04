@@ -42,7 +42,7 @@ export default {
 }
 
 .wrapper {
-    align: center;
+    text-align: center;
     padding: 15px;
 }
 

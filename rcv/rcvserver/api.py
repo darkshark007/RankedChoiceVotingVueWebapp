@@ -113,10 +113,13 @@ def get_my_polls(request):
     user = User.get_user_from_request(request)
 
     user_polls = Poll.objects.filter(creator__exact={'id': user.id})
+    found_ids = set(map(lambda poll: str(poll.id), user_polls))
+    public_polls = Poll.objects.filter(public=True).exclude(id__in=found_ids)
     # TODO: Find Polls with User Ballots in them
     data = {
         'polls': list(map(lambda poll: poll.get_js_poll_model(user), user_polls)),
         'ballots': None,
+        'public': list(map(lambda poll: poll.get_js_poll_model(user), public_polls)),
     }
 
     response = JsonResponse(data)
