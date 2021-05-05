@@ -97,7 +97,7 @@
                         <v-col class="subheader" cols=4>
                             <nav-button
                                 :route="pollModel.editBallots"
-                                :disabled="!pollModel.multiBallotsPerUser && pollModel.ballots.length >= 1"
+                                :disabled="(!pollModel.multiBallotsPerUser && pollModel.ballots.length >= 1) || (pollModel.locked)"
                                 icon="mdi-plus"
                             ></nav-button>
                         </v-col>

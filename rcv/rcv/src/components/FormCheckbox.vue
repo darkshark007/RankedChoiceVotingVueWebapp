@@ -19,7 +19,8 @@
             <v-switch
                 v-model=local
                 inset
-                :disabled=disabled
+                :color="switchColor"
+                :disabled="disabled"
                 :label="title"
             ></v-switch>
         </v-col>
@@ -53,6 +54,11 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+        },
+        switchColor: {
+            type: String,
+            required: false,
+            default: '#1976d2',
         },
     },
     methods: {

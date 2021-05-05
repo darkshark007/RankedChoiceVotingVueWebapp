@@ -22,6 +22,11 @@ def create_or_update_poll(request):
         #     response = HttpResponse("User does not have permission to modify that Poll")
         #     response.status_code = 403
         #     return response
+        # if poll.locked:
+        #     # TODO: If Poll is locked, block updates to Choices
+        #     response = HttpResponse("This poll is locked.  Ballot changes cannot be made")
+        #     response.status_code = 403
+        #     return response
     else:
         poll = Poll()
         poll.creator = user
@@ -142,10 +147,13 @@ def create_or_update_ballot(request):
         poll_id = request_json.get('pollId')
         poll = Poll.objects.get(id=poll_id)
         # if poll.creator.id != user.id:
-        #     # TODO: Add System/Permissions handling for Ballot Choice Additions
         #     response = HttpResponse("User does not have permission to modify that Poll")
         #     response.status_code = 403
         #     return response
+        if poll.locked:
+            response = HttpResponse("This poll is locked.  Ballot changes cannot be made")
+            response.status_code = 403
+            return response
     else:
         response = HttpResponse("No PollId found on Request")
         response.status_code = 403
@@ -156,6 +164,7 @@ def create_or_update_ballot(request):
     data = poll.update_ballot_from_js(request_json, user)
     if type(data) is HttpResponse:
         return data
+
     response = JsonResponse(data)
     return response
 

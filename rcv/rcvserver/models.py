@@ -215,6 +215,8 @@ class Poll(models.Model):
     public = models.BooleanField(default=False)
     public_ballots = models.CharField(max_length=5, choices=[('yes','yes'), ('no','no'), ('maybe','maybe')])
     multi_ballots_per_user = models.BooleanField(default=True)
+    locked = models.BooleanField(default=False)
+
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
     # ballots = models.DictField(default={})
@@ -244,6 +246,7 @@ class Poll(models.Model):
         self.public = model.get('publicPoll', None)
         self.public_ballots = model.get('publicBallots', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
+        self.locked = model.get('locked', None)
         self.save()
 
 
@@ -258,6 +261,7 @@ class Poll(models.Model):
             'publicPoll': self.public,
             'publicBallots': self.public_ballots,
             'multiBallotsPerUser': self.multi_ballots_per_user,
+            'locked': self.locked,
             'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
         }
         if user.id == self.creator.id:

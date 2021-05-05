@@ -55,6 +55,7 @@
                                 fab
                                 small
                                 color="light-green lighten-4"
+                                :disabled="pollModel.locked"
                                 @click="addChoice"
                             >
                                 <v-icon color="indigo">mdi-plus</v-icon>
@@ -104,7 +105,7 @@
                                     mdi-hammer-wrench
                                     </v-icon>
                                 </template>
-                                <span>This <i>{{ this.selectedType | displayPollType }}</i>-style Ballot was pre-filled using data from your other filled-out similar-style ballot(s).</span>
+                                <span>This <i>{{ this.selectedType | displayPollType }}</i>-style Ballot was pre-filled using data from your other filled-out similar-style ballot(s).<br/><br/>Selections on this ballot form may change to reflect changes made to the selections in other forms.  Modify the values in this form to lock them in and clear the 'Generated'-Ballot status.</span>
                             </v-tooltip>
                         </v-col>
                     </v-row>
@@ -140,6 +141,7 @@
                                 color="light-green lighten-4"
                                 elevation="2"
                                 :loading="savingBallot"
+                                :disabled="pollModel.locked"
                                 @click="saveBallot"
                             >
                                 Save Ballot

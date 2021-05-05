@@ -61,6 +61,7 @@ export default {
             publicPoll: false,
             publicBallots: "maybe",
             multiBallotsPerUser: true,
+            locked: false,
             choices: [],
             ballots: [],
             ballotsPublic: [],
