@@ -63,13 +63,6 @@
                     tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for allowing multiple participants to submit Ballots from a single device."
                     v-model="pollModel.multiBallotsPerUser"
                 />
-                <form-checkbox
-                    title="Lock Poll"
-                    tooltip="If active, Users will not be able to submit or edit ballots."
-                    switchColor="red"
-                    v-model="pollModel.locked"
-                />
-                TODO: Checkbox: Lock Poll<br/>
                 TODO: Checkbox: Randomize Choices on Ballots<br/>
                 TODO: Checkbox: Show Results Publicly<br/>
                 TODO: Checkbox: Show Results While Poll Open<br/>
@@ -93,6 +86,11 @@
                         </v-btn>
                     </v-col>
                 </v-row>
+                <form-checkbox
+                    title="Randomize Choices"
+                    tooltip="If active, Choices will be listed in a random order."
+                    v-model="pollModel.randomizeChoices"
+                />
                 <poll-choice 
                     v-for="cand, idx in pollModel.choices"
                     :key="idx"
@@ -105,6 +103,12 @@
                         <v-divider class="mx-4"></v-divider>
                     </v-col>
                 </v-row>
+                <form-checkbox
+                    title="Lock Poll"
+                    tooltip="If active, Users will not be able to submit or edit ballots."
+                    switchColor="red"
+                    v-model="pollModel.locked"
+                />
                 <v-row>
                     <v-col cols=12>
                         <v-spacer></v-spacer>

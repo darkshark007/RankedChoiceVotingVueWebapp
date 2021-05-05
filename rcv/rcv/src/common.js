@@ -9,11 +9,7 @@ export default {
                     if (response.status === 200) {
                         return response.json()
                             .then(data => {
-                                let pollModel = data;
-                                pollModel.pollRoute = `/poll/${pollModel.id}`;
-                                pollModel.editRoute = `/editPoll/${pollModel.id}`;
-                                pollModel.editBallots = `/editBallots/${pollModel.id}`;
-                                resolve(pollModel);
+                                resolve(this.processPollData(data));
                             });
                     } else {
                         return response.text()
@@ -34,11 +30,7 @@ export default {
                 if (response.status === 200) {
                     return response.json()
                         .then(data => {
-                            let pollModel = data;
-                            pollModel.pollRoute = `/poll/${pollModel.id}`;
-                            pollModel.editRoute = `/editPoll/${pollModel.id}`;
-                            pollModel.editBallots = `/editBallots/${pollModel.id}`;
-                            resolve(pollModel);
+                            resolve(this.processPollData(data));
                         });
                 } else {
                     return response.text()
@@ -62,6 +54,7 @@ export default {
             publicBallots: "maybe",
             multiBallotsPerUser: true,
             locked: false,
+            randomizeChoices: true,
             choices: [],
             ballots: [],
             ballotsPublic: [],
@@ -69,6 +62,26 @@ export default {
             editRoute: '',
             editBallots: '',
         };
+    },
+    processPollData(data) {
+        let pollModel = {
+            ...this.getEmptyPollContext(),
+            ...data,
+        }
+        pollModel.pollRoute = `/poll/${pollModel.id}`;
+        pollModel.editRoute = `/editPoll/${pollModel.id}`;
+        pollModel.editBallots = `/editBallots/${pollModel.id}`;
+
+        if (pollModel.randomizeChoices) {
+            this.shuffle(pollModel.choices);
+        }
+
+        for (let ballotKey in pollModel.ballots) {
+            let ballot = pollModel.ballots[ballotKey];
+            ballot.route = `/editBallots/${pollModel.id}/${ballot.id}`;
+        }
+
+        return pollModel;
     },
 
 
@@ -146,6 +159,28 @@ export default {
         };
     },
 
+
+    // Other Helper Functions
+    shuffle(array) {
+        // Based on Fischer-Yates Knuth Shuffle
+        //   "How to randomize (shuffle) a JavaScript array?"
+        //       >>> https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    },
 
     // Data Filters/Transformers
     filters: {

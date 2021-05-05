@@ -44,6 +44,12 @@
                                     Updated: {{ pollModel.updated | displayDate }}<br/>
                                     Public Poll: {{ pollModel.publicPoll | titleCase }}<br/>
                                     Public Ballots: {{ pollModel.publicBallots | titleCase }}<br/>
+                                    Multiple Ballots Per Use: {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
+                                    Randomize Choices: {{ pollModel.randomizeChoices | titleCase }}<br/>
+                                </p>
+                                <p>
+                                    <font :color="pollModel.locked ? 'red' : ''">Poll Locked: {{ pollModel.locked | titleCase }}</font>
+
                                 </p>
                             </v-card-text>
                         </v-col>
@@ -126,7 +132,7 @@
                                         <!-- Description -->
                                         <div>
                                             <ballot
-                                                :ballotContext="ballot.context[pollModel.type]"
+                                                :ballotContext="ballot.context[pollModel.type] || getEmptyPollContext()"
                                                 :choices="pollModel.choices"
                                                 :type="pollModel.type"
                                                 :preview="true"
@@ -167,7 +173,7 @@
                                         <!-- Description -->
                                         <div>
                                             <ballot
-                                                :ballotContext="ballot.context[pollModel.type]"
+                                                :ballotContext="ballot.context[pollModel.type] || getEmptyPollContext()"
                                                 :choices="pollModel.choices"
                                                 :type="pollModel.type"
                                                 :preview="true"
@@ -225,6 +231,7 @@ export default {
         ...Common.filters,
     },
     methods: {
+        getEmptyPollContext: Common.getEmptyPollContext,
         setPollModel(id) {
             this.pollModel = Common.getEmptyPollContext()
             if (id) {
@@ -232,10 +239,6 @@ export default {
                 Common.getPollData({'id': id, includeMyBallots: true})
                     .then(data => {
                         this.pollModel = data;
-                        for (let ballotKey in data.ballots) {
-                            let ballot = data.ballots[ballotKey];
-                            ballot.route = `/editBallots/${data.id}/${ballot.id}`;
-                        }
                     })
                     .catch((error) => {
                         this.errorString = error;

@@ -216,6 +216,7 @@ class Poll(models.Model):
     public_ballots = models.CharField(max_length=5, choices=[('yes','yes'), ('no','no'), ('maybe','maybe')])
     multi_ballots_per_user = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
+    randomize_choices = models.BooleanField(default=True)
 
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
@@ -245,6 +246,7 @@ class Poll(models.Model):
         self.updated = pendulum.now()
         self.public = model.get('publicPoll', None)
         self.public_ballots = model.get('publicBallots', None)
+        self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
         self.locked = model.get('locked', None)
         self.save()
@@ -261,6 +263,7 @@ class Poll(models.Model):
             'publicPoll': self.public,
             'publicBallots': self.public_ballots,
             'multiBallotsPerUser': self.multi_ballots_per_user,
+            'randomizeChoices': self.randomize_choices,
             'locked': self.locked,
             'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
         }
