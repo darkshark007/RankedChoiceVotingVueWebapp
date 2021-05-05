@@ -149,7 +149,6 @@ export default {
             let results = this.resultContext['classic_rcv'];
             let total = this.resultContext.count;
             let majority = Math.floor(total * 0.50)+1;
-            console.log('MAJORITY: ', majority);
             let addExplainStage = function(message, scoreMap, round) {
                 let data = {
                     'message': message,
@@ -169,7 +168,6 @@ export default {
                 }
 
                 this.explainStages.push(data);
-                console.log(data);
             }.bind(this);
 
             // Get initial Score Distribution
@@ -183,15 +181,12 @@ export default {
                 choiceEliminationMap[choiceKey] = true;
                 choiceScoresMap[choiceKey] = results[choiceKey]['count'];
             }
-            console.log(choiceEliminationMap);
-            console.log(choiceScoresMap);
 
             let round = 1;
             addExplainStage('Ranked Choice Voting is an iterative Runoff process that continues until one Choice has more than 50% of the total vote. (Absolute majority)', choiceScoresMap, round);
             addExplainStage('First, we tally up all of the First-Rank choices...', choiceScoresMap, round);
             let winner = null;
             while (!winner) {
-                console.log(`while (!winner) (${winner})`)
                 addExplainStage(`Then we check again to see if any of the Choices have more than 50% of the total vote...`, choiceScoresMap, round)
                 for (let choiceKey in choiceScoresMap) {
                     if (choiceScoresMap[choiceKey] >= majority) {
@@ -243,7 +238,6 @@ export default {
                     choiceScoresMap[choice.id] = 0;
                 }
                 while (sumQueue.length > 0) {
-                    console.log(`>>> Next: ${sumQueue[0]} / ${sumQueue.length}`);
                     let next = sumQueue.splice(0,1)[0];
                     for (let choiceKey in next) {
                         if (choiceEliminationMap[choiceKey]) {
@@ -253,10 +247,6 @@ export default {
                         }
                     }
                 }
-                console.log(`>>> choiceEliminationMap:`);
-                console.log(choiceEliminationMap);
-                console.log(`>>> choiceScoresMap:`);
-                console.log(choiceScoresMap);
                 addExplainStage(`Then, Ballots which supported those choices will shift to support their next Choice.`, choiceScoresMap, round);
             }
             this.rounds = round;

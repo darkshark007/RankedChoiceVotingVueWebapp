@@ -132,7 +132,6 @@ export default {
             let results = this.resultContext['ranked_cumulative_approval'];
             let total = this.resultContext.count;
             let majority = this.majority;
-            console.log('MAJORITY: ', majority);
             let addExplainStage = function(message, scoreMap, round) {
                 let data = {
                     'message': message,
@@ -152,7 +151,6 @@ export default {
                 }
 
                 this.explainStages.push(data);
-                console.log(data);
             }.bind(this);
 
             let choiceScoresMap = null;
@@ -179,15 +177,11 @@ export default {
 
             // Get initial Score Distribution
             calculateScores();
-            console.log(choiceScoresMap);
 
             addExplainStage('Ranked Cumulative Approval Voting is an iterative Runoff process that continues until one Choice has more than 50% of the total vote. (Absolute majority)', choiceScoresMap, topN);
             addExplainStage('First, we tally up all of the First-Rank choices...', choiceScoresMap, topN);
             let winner = [];
-            let ITER = 0;
-            console.log('Start Loop'); if (ITER++ > 100) return;
             while (winner.length === 0) {
-                console.log('while winner.length === 0'); if (ITER++ > 100) return;
                 addExplainStage(`Then we check again to see if any of the Choices have more than 50% of the total vote...`, choiceScoresMap, topN)
                 for (let choiceKey in choiceScoresMap) {
                     if (choiceScoresMap[choiceKey] >= majority) {
@@ -240,9 +234,6 @@ export default {
                         best = true;
                         for (let otherChoiceKey in winner) {
                             if (bestWinner === otherChoiceKey) continue;
-                            console.log(choiceScoresMap)
-                            console.log(`bestWinner === otherChoiceKey: ${bestWinner} === ${otherChoiceKey} (${bestWinner === otherChoiceKey})`);
-                            console.log(`choiceScoresMap[otherChoiceKey] >= choiceScoresMap[bestWinner]: ${choiceScoresMap[otherChoiceKey]} >= ${choiceScoresMap[bestWinner]} (${choiceScoresMap[otherChoiceKey] >= choiceScoresMap[bestWinner]})`);
                             if (choiceScoresMap[winner[otherChoiceKey]] >= choiceScoresMap[winner[bestWinner]]) {
                                 best = false;
                                 addExplainStage(`It looks like ${this.choiceIdToNameMap[winner[bestWinner]]} was not more popular than all the other tied candidates...`, choiceScoresMap, bestRound+"*");
