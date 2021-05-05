@@ -154,6 +154,8 @@ def create_or_update_ballot(request):
 
     # Return
     data = poll.update_ballot_from_js(request_json, user)
+    if type(data) is HttpResponse:
+        return data
     response = JsonResponse(data)
     return response
 

@@ -1,7 +1,7 @@
 from djongo import models
 from bson import ObjectId
 import pendulum
-# from django.utils import timezone
+from django.http import HttpResponse
 
 
 TYPE_CLASSIC_RCV = 'classic_rcv'
@@ -214,7 +214,7 @@ class Poll(models.Model):
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     public = models.BooleanField(default=False)
     public_ballots = models.CharField(max_length=5, choices=[('yes','yes'), ('no','no'), ('maybe','maybe')])
-
+    multi_ballots_per_user = models.BooleanField(default=True)
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
     # ballots = models.DictField(default={})
@@ -243,6 +243,7 @@ class Poll(models.Model):
         self.updated = pendulum.now()
         self.public = model.get('publicPoll', None)
         self.public_ballots = model.get('publicBallots', None)
+        self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
         self.save()
 
 
@@ -256,6 +257,7 @@ class Poll(models.Model):
             'type': self.type,
             'publicPoll': self.public,
             'publicBallots': self.public_ballots,
+            'multiBallotsPerUser': self.multi_ballots_per_user,
             'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
         }
         if user.id == self.creator.id:
@@ -283,6 +285,12 @@ class Poll(models.Model):
                 response.status_code = 403
                 return response
         else:
+            if self.multi_ballots_per_user == False:
+                for ballot in self.ballots:
+                    if ballot.user.id == user.id:
+                        response = HttpResponse("User can not create another Ballot for this Poll!")
+                        response.status_code = 403
+                        return response
             current_ballot = Ballot()
             new_ballot = True
             self.ballots.append(current_ballot)

@@ -60,6 +60,7 @@ export default {
             description: '',
             publicPoll: false,
             publicBallots: "maybe",
+            multiBallotsPerUser: true,
             choices: [],
             ballots: [],
             ballotsPublic: [],

@@ -46,7 +46,7 @@
                 ></v-select>
                 <form-checkbox
                     title="This Poll is Public"
-                    tooltip="If Selected, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
+                    tooltip="If active, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
                     v-model="pollModel.publicPoll"
                 />
                 <v-select
@@ -58,7 +58,11 @@
                     v-model="pollModel.publicBallots"
                     persistent-hint
                 ></v-select>
-                TODO: Checkbox: Allow Multiple Ballots per User<br/>
+                <form-checkbox
+                    title="Allow Multiple Ballots per User"
+                    tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for allowing multiple participants to submit Ballots from a single device."
+                    v-model="pollModel.multiBallotsPerUser"
+                />
                 TODO: Checkbox: Lock Poll<br/>
                 TODO: Checkbox: Randomize Choices on Ballots<br/>
                 TODO: Checkbox: Show Results Publicly<br/>
@@ -185,7 +189,7 @@ export default {
                             ...Common.getEmptyPollContext(),
                             ...data,
                         };
-                        if (!this.pollModel.id) {
+                        if (!this.id) {
                             this.$router.push({name: 'editPollWithId', params: { id: data.id } });
                         }
                     })
