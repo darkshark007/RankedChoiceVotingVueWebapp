@@ -194,7 +194,7 @@ export default {
             if (min.length === 1) {
                 min = "0"+min;
             }
-            return `${dt.getMonth()}/${dt.getDate()}/${dt.getFullYear()} ${hour}:${min}`;
+            return `${(dt.getMonth()+1)}/${dt.getDate()}/${dt.getFullYear()} ${hour}:${min}`;
         },
         displayPollType(type) {
             let item = window['POLL_TYPES'].find((t) => {

@@ -63,7 +63,8 @@
                     tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for allowing multiple participants to submit Ballots from a single device."
                     v-model="pollModel.multiBallotsPerUser"
                 />
-                TODO: Checkbox: Randomize Choices on Ballots<br/>
+                TODO: Checkbox: Allow Users to edit Ballots once submitted
+                TODO: Checkbox: All Choices must be Ranked/Considered
                 TODO: Checkbox: Show Results Publicly<br/>
                 TODO: Checkbox: Show Results While Poll Open<br/>
                 <v-row>

@@ -15,7 +15,7 @@ TYPE_RANKED_GRAPH_MAXIMAL = 'ranked_graph_maximal'
 TYPE_CHOICES = (
     (TYPE_CLASSIC_RCV, 'Classic RCV'),
     (TYPE_FIRST_PAST_THE_POST, 'Single-Choice Popular Vote'),
-    (TYPE_RANKED_CUMULATIVE_APPROVAL, 'Ranked Cumulative Approval'),
+    (TYPE_RANKED_CUMULATIVE_APPROVAL, 'Ranked Cumulative Approval (Bucklin)'),
     # (TYPE_SCORE_THEN_AUTOMATIC_RUNOFF, 'STAR Vote'),
     # (TYPE_APPROVAL, 'APPROVAL'),
     # (TYPE_RANKED_SCORED_TIER, 'Ranked Tiered-Score Vote'),
