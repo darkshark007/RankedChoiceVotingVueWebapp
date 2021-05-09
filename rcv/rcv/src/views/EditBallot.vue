@@ -346,6 +346,16 @@ export default {
             const fptp = 'fptp';
             const rcv = 'classic_rcv';
             const rca = 'ranked_cumulative_approval';
+            const star = 'star_vote';
+
+            function getRankFromScore(arr) {
+                return arr
+                    .filter((s) => !s.auto)
+                    .map((item, index) => ({item, index}))
+                    .sort((a, b) => (b.item.score - a.item.score) || (a.index - b.index))
+                    .map(({item}) => item.id)
+            }
+
             // FPTP
             if (!this.ballotContext.context[fptp]) {
                 this.ballotContext.context[fptp] = {
@@ -360,6 +370,9 @@ export default {
                 }
                 if (!tempSelected && this.ballotContext.context[rca] && !this.ballotContext.context[rca].generated) {
                     tempSelected = this.ballotContext.context[rca].selected[0];
+                }
+                if (!tempSelected && this.ballotContext.context[star] && !this.ballotContext.context[star].generated) {
+                    tempSelected = getRankFromScore(this.ballotContext.context[star].selected)[0];
                 }
                 if (this.ballotContext.context[fptp].selected !== tempSelected) {
                     this.ballotContext.context[fptp].selected = tempSelected;
@@ -377,6 +390,9 @@ export default {
                 let tempSelected = [];
                 if (tempSelected.length === 0 && this.ballotContext.context[rca] && !this.ballotContext.context[rca].generated) {
                     tempSelected = [...this.ballotContext.context[rca].selected];
+                }
+                if (tempSelected.length === 0 && this.ballotContext.context[star] && !this.ballotContext.context[star].generated) {
+                    tempSelected = getRankFromScore(this.ballotContext.context[star].selected);
                 }
                 if (tempSelected.length === 0 && this.ballotContext.context[fptp] && !this.ballotContext.context[fptp].generated) {
                     tempSelected = [this.ballotContext.context[fptp].selected];
@@ -398,6 +414,9 @@ export default {
                 if (tempSelected.length === 0 && this.ballotContext.context[rcv] && !this.ballotContext.context[rcv].generated) {
                     tempSelected = [...this.ballotContext.context[rcv].selected];
                 }
+                if (tempSelected.length === 0 && this.ballotContext.context[star] && !this.ballotContext.context[star].generated) {
+                    tempSelected = getRankFromScore(this.ballotContext.context[star].selected);
+                }
                 if (tempSelected.length === 0 && this.ballotContext.context[fptp] && !this.ballotContext.context[fptp].generated) {
                     tempSelected = [this.ballotContext.context[fptp].selected];
                 }
@@ -405,6 +424,60 @@ export default {
                     this.ballotContext.context[rca].selected = tempSelected;
                 }
             }
+
+            // STAR Vote
+            let context = this.ballotContext.context[star];
+            if (!context) {
+                this.ballotContext.context[star] = {
+                    'generated': true,
+                    'selected': [],
+                };
+                context = this.ballotContext.context[star];
+            }
+            if (context.generated) {
+                let tempSelected = [];
+                if (tempSelected.length === 0 && this.ballotContext.context[rcv] && !this.ballotContext.context[rcv].generated) {
+                    tempSelected = [...this.ballotContext.context[rcv].selected];
+                }
+                if (tempSelected.length === 0 && this.ballotContext.context[rca] && !this.ballotContext.context[rca].generated) {
+                    tempSelected = [...this.ballotContext.context[rca].selected];
+                }
+                if (tempSelected.length === 0 && this.ballotContext.context[fptp] && !this.ballotContext.context[fptp].generated) {
+                    tempSelected = [this.ballotContext.context[fptp].selected];
+                }
+                let count = 5;
+                tempSelected = tempSelected.map(function(id) {
+                    return {
+                        'id': id,
+                        'score': Math.max(count--,0),
+                    };
+                });
+                for (let choiceIdx in this.pollModel.choices) {
+                    let choice = this.pollModel.choices[choiceIdx];
+                    let selIdx = 0;
+                    for (; selIdx < tempSelected.length; selIdx++) {
+                        if (tempSelected[selIdx].id === choice.id) {
+                            break;
+                        }
+                    }
+                    if (selIdx === tempSelected.length) {
+                        tempSelected.push({
+                            'id': choice.id,
+                            'score': 0,
+                            'auto': true,
+                        });
+                    }
+                }
+                if (context.selected.join('_') !== tempSelected.join('_')) {
+                    context.selected = tempSelected;
+                }
+            }
+
+
+
+
+
+
         },
         onBallotChange() {
             this.ballotContext.context[this.selectedType].generated = false;

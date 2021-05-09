@@ -24,12 +24,25 @@
                 @onChange="onChange"
             />
         </v-container>
+
+        <!-- STAR Vote -->
+        <v-container v-if="type === 'star_vote'" class="wrapper">
+            <ballot-star
+                :ballotContext="ballotContext"
+                :choices="choices"
+                :isDisplay="isDisplay"
+                :isEdit="isEdit"
+                :isPreview="isPreview"
+                @onChange="onChange"
+            />
+        </v-container>
     </v-container>
 </template>
 
 <script>
 import BallotFPTP from './BallotFPTP.vue';
 import BallotRCV from './BallotRCV.vue';
+import BallotSTAR from './BallotSTAR.vue';
 
 export default {
     name: 'poll-ballot',
@@ -60,6 +73,7 @@ export default {
     components: {
         'ballot-fptp': BallotFPTP,
         'ballot-rcv': BallotRCV,
+        'ballot-star': BallotSTAR,
     },
     computed: {
         // Render Type

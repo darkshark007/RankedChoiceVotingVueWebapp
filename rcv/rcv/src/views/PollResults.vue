@@ -88,6 +88,13 @@
                                 :resultContext="pollModel.results"
                             />
                         </v-container>
+                        <!-- STAR Voting -->
+                        <v-container v-if="type === 'star_vote'" class="wrapper">
+                            <result-star
+                                :pollModel="pollModel"
+                                :resultContext="pollModel.results"
+                            />
+                        </v-container>
                     </v-container>
                 </v-card>
             </v-card>
@@ -101,6 +108,7 @@ import Common from '../common.js';
 import ResultFPTP from '../components/ResultFPTP.vue';
 import ResultRCV from '../components/ResultRCV.vue';
 import ResultRankedCumulativeApproval from '../components/ResultRankedCumulativeApproval.vue';
+import ResultSTAR from '../components/ResultSTAR.vue';
 import NavButton from '../components/NavButton.vue';
 
 export default {
@@ -117,6 +125,7 @@ export default {
         'result-fptp': ResultFPTP,
         'result-rcv': ResultRCV,
         'result-rca': ResultRankedCumulativeApproval,
+        'result-star': ResultSTAR,
     },
     data: () => {
         return {

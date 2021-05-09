@@ -3,7 +3,7 @@ import json
 from bson import ObjectId
 from django.http import JsonResponse, HttpResponse
 
-from rcvserver.models import Poll, User
+from rcvserver.models import Poll, User, Result
 
 # API Endpoint for Creating or Updating Poll Data from the FrontEnd
 def create_or_update_poll(request):
@@ -29,6 +29,7 @@ def create_or_update_poll(request):
         #     return response
     else:
         poll = Poll()
+        poll.results = Result()
         poll.creator = user
     poll.update_from_js_poll_model(request_json)
 

@@ -16,7 +16,7 @@ TYPE_CHOICES = (
     (TYPE_CLASSIC_RCV, 'Classic RCV'),
     (TYPE_FIRST_PAST_THE_POST, 'Single-Choice Popular Vote'),
     (TYPE_RANKED_CUMULATIVE_APPROVAL, 'Ranked Cumulative Approval (Bucklin)'),
-    # (TYPE_SCORE_THEN_AUTOMATIC_RUNOFF, 'STAR Vote'),
+    (TYPE_SCORE_THEN_AUTOMATIC_RUNOFF, 'Score Then Automatic Runoff (STAR)'),
     # (TYPE_APPROVAL, 'APPROVAL'),
     # (TYPE_RANKED_SCORED_TIER, 'Ranked Tiered-Score Vote'),
     # (TYPE_RANKED_SCORED_SPLIT, 'Ranked Split-Score Vote'),
@@ -123,6 +123,7 @@ class Result(models.Model):
     fptp_result = models.DictField(default={})
     rcv_result = models.DictField(default={})
     rca_result = models.DictField(default={})
+    star_result = models.DictField(default={})
 
 
     def __getitem__(self, name):
@@ -134,11 +135,14 @@ class Result(models.Model):
             TYPE_FIRST_PAST_THE_POST: self.fptp_result,
             TYPE_CLASSIC_RCV: self.rcv_result,
             TYPE_RANKED_CUMULATIVE_APPROVAL: self.rca_result,
+            TYPE_SCORE_THEN_AUTOMATIC_RUNOFF: self.star_result,
         }
         return obj
 
     
     def update_fptp_result_from_ballot(self, ballot, mult):
+        if TYPE_FIRST_PAST_THE_POST not in ballot.context:
+            return
         data = ballot.context[TYPE_FIRST_PAST_THE_POST].get('selected', None)
         if not data:
             return
@@ -148,10 +152,10 @@ class Result(models.Model):
 
         # TODO: Update Result statistics
 
-        print(self.fptp_result)
-
 
     def update_rcv_result_from_ballot(self, ballot, mult):
+        if TYPE_CLASSIC_RCV not in ballot.context:
+            return
         data = ballot.context[TYPE_CLASSIC_RCV]['selected']
         current = self.rcv_result
         for choice in data:
@@ -163,11 +167,10 @@ class Result(models.Model):
 
         # TODO: Update Result statistics
 
-        print('>>> RCV RESULTS: ')
-        print(self.rcv_result)
-
 
     def update_rca_result_from_ballot(self, ballot, mult):
+        if TYPE_RANKED_CUMULATIVE_APPROVAL not in ballot.context:
+            return
         data = ballot.context[TYPE_RANKED_CUMULATIVE_APPROVAL]['selected']
         current = self.rca_result
         for choice in data:
@@ -179,8 +182,47 @@ class Result(models.Model):
 
         # TODO: Update Result statistics
 
-        print('>>> RCA RESULTS: ')
-        print(self.rca_result)
+
+    def update_star_result_from_ballot(self, ballot, mult):
+        if TYPE_SCORE_THEN_AUTOMATIC_RUNOFF not in ballot.context:
+            return
+        data = ballot.context[TYPE_SCORE_THEN_AUTOMATIC_RUNOFF]['selected']
+        res = self.star_result
+        for idx1 in range(0,len(data)):
+            choice = data[idx1]
+            if choice['id'] not in res:
+                res[choice['id']] = {'score': 0}
+            res[choice['id']]['score'] += (mult*choice['score'])
+            score_key = 'score-{}'.format(choice['score'])
+            if score_key not in res[choice['id']]:
+                res[choice['id']][score_key] = 0
+            res[choice['id']][score_key] += (mult*1)
+            for idx2 in range(idx1+1,len(data)):
+                choice2 = data[idx2]
+                if choice2['id'] not in res:
+                    res[choice2['id']] = {'score': 0}
+                compare_key1 = None
+                compare_key2 = None
+                if choice['score'] > choice2['score']:
+                    compare_key1 = ">{}".format(choice2['id'])
+                    compare_key2 = "<{}".format(choice['id'])
+                elif choice['score'] < choice2['score']:
+                    compare_key1 = "<{}".format(choice2['id'])
+                    compare_key2 = ">{}".format(choice['id'])
+                else:
+                    compare_key1 = "={}".format(choice2['id'])
+                    compare_key2 = "={}".format(choice['id'])
+                if compare_key1 not in res[choice['id']]:
+                    res[choice['id']][compare_key1] = 0
+                if compare_key2 not in res[choice2['id']]:
+                    res[choice2['id']][compare_key2] = 0
+                res[choice['id']][compare_key1] += (mult*1)
+                res[choice2['id']][compare_key2] += (mult*1)
+
+        # TODO: Update Result statistics
+
+        print('>>> STAR RESULTS: ')
+        print(self.star_result)
 
 
 
@@ -220,7 +262,6 @@ class Poll(models.Model):
 
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
-    # ballots = models.DictField(default={})
     results = models.EmbeddedField(model_container=Result, default=Result)
 
 
@@ -308,6 +349,7 @@ class Poll(models.Model):
             self.results.update_fptp_result_from_ballot(current_ballot, -1)
             self.results.update_rcv_result_from_ballot(current_ballot, -1)
             self.results.update_rca_result_from_ballot(current_ballot, -1)
+            self.results.update_star_result_from_ballot(current_ballot, -1)
 
         current_ballot.name = model['ballot']['name']
         current_ballot.context = model['ballot']['context']
@@ -317,6 +359,7 @@ class Poll(models.Model):
         self.results.update_fptp_result_from_ballot(current_ballot, 1)
         self.results.update_rcv_result_from_ballot(current_ballot, 1)
         self.results.update_rca_result_from_ballot(current_ballot, 1)
+        self.results.update_star_result_from_ballot(current_ballot, 1)
 
         self.save()
         return current_ballot.get_js_ballot_model()

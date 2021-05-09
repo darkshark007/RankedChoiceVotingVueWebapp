@@ -1,6 +1,6 @@
 <template>
     <div>
-        <!-- Classic RCV -->
+        <!-- Ranked Cumulative Approval (Bucklin) -->
         <v-card 
             class="pa-2 ma-0"
             elevation=2
