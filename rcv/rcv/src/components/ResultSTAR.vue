@@ -447,6 +447,6 @@ export default {
 
 <style scoped>
 .explain-message {
-    height: 130px;
+    height: 140px;
 }
 </style>

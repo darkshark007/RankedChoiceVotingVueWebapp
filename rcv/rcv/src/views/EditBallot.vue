@@ -468,16 +468,10 @@ export default {
                         });
                     }
                 }
-                if (context.selected.join('_') !== tempSelected.join('_')) {
+                if (JSON.stringify(context.selected) !== JSON.stringify(tempSelected)) {
                     context.selected = tempSelected;
                 }
             }
-
-
-
-
-
-
         },
         onBallotChange() {
             this.ballotContext.context[this.selectedType].generated = false;
@@ -489,6 +483,8 @@ export default {
         if (this.ballotid) {
             this.setBallotModel(this.pollid, this.ballotid);
         }
+        // TOOD: Make conditional/Query Param?
+        window.editBallotContext = this;
     },
     watch: {
         "$route.params.pollid"(newId) {

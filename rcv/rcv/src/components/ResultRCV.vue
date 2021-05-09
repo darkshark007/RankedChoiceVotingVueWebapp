@@ -211,16 +211,28 @@ export default {
                         highestScore = choiceScoresMap[choiceKey];
                     }
                 }
-                if (lowestScore === highestScore) {
-                    addExplainStage(`It looks all the remaining candidates are tied!`, choiceScoresMap, round);
-                    addExplainStage(`Result:<br/>Tie`, choiceScoresMap, round);
-                    break;
-                }
                 let lowestChoices = [];
                 for (let choiceKey in choiceScoresMap) {
                     if (choiceScoresMap[choiceKey] === lowestScore) {
                         choiceEliminationMap[choiceKey] = false;
                         lowestChoices.push(this.choiceIdToNameMap[choiceKey]);
+                    }
+                }
+                if (lowestScore === highestScore) {
+                    if (lowestChoices.length === 1) {
+                        if (lowestScore < majority) {
+                            addExplainStage(`It looks like there is only one choice left, ${lowestChoices[0]}, but it got less than a majority of the votes.`, choiceScoresMap, round);
+                            addExplainStage(`Result:<br/>Winner, by Simple Majority: ${lowestChoices[0]}`, choiceScoresMap, round);
+                            break;
+                        } else {
+                            addExplainStage(`It looks like ${lowestChoices[0]} has a Majority!`, choiceScoresMap, round);
+                            addExplainStage(`Result:<br/>Winner, by Absolute Majority: ${lowestChoices[0]}`, choiceScoresMap, round);
+                            break;
+                        }
+                    } else {
+                        addExplainStage(`It looks all the remaining candidates are tied!`, choiceScoresMap, round);
+                        addExplainStage(`Result:<br/>Tie`, choiceScoresMap, round);
+                        break;
                     }
                 }
 
