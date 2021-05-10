@@ -154,17 +154,23 @@ export default {
                     'message': message,
                     'round': round,
                 };
+
+                choiceScoresMap['Exhausted'] = total;
                 data['choiceData'] = [];
                 for (let choiceKey in scoreMap) {
                     data['choiceData'].push({
                         'y': scoreMap[choiceKey] * 100.0 / total,
                         'votes': scoreMap[choiceKey],
                     });
+                    choiceScoresMap['Exhausted'] -= scoreMap[choiceKey];
                 }
 
                 data['choiceList'] = [];
                 for (let choiceKey in scoreMap) {
-                    data['choiceList'].push(this.choiceIdToNameMap[choiceKey]);
+                    let choiceName =
+                        (choiceKey === 'Exhausted') ?
+                            'Exhausted' : this.choiceIdToNameMap[choiceKey]
+                    data['choiceList'].push(choiceName);
                 }
 
                 this.explainStages.push(data);
