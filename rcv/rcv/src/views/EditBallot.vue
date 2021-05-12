@@ -33,7 +33,7 @@
                     <v-card-subtitle align=left>
                         {{ pollModel.description }}
                     </v-card-subtitle>
-                    <v-divider class="mx-4"></v-divider>
+                    <div><v-divider class="ma-4"></v-divider></div>
                     <v-row>
                         <v-col cols=9>
                             <v-card-text align=left>
@@ -45,7 +45,7 @@
                             </v-card-text>
                         </v-col>
                     </v-row>
-                    <v-divider class="mx-4"></v-divider>
+                    <div><v-divider class="ma-4"></v-divider></div>
                     <v-row>
                         <v-col class="subheader" cols=8>
                             <h4>Add new Choices</h4>
@@ -88,7 +88,7 @@
                         errorStringBase="Error Saving New Choices: "
                         :successString=saveChoicesSuccessString
                     ></message-card>
-                    <v-divider class="mx-4"></v-divider>
+                    <div><v-divider class="ma-4"></v-divider></div>
                     <v-row>
                         <v-col class="subheader" cols=8>
                             <h4>Ballot</h4>
@@ -154,6 +154,50 @@
                         :successString="saveBallotSuccessString"
                     ></message-card>
                 </div>
+                <template v-if="statsList.length > 0">
+                    <div><v-divider class="ma-4"></v-divider></div>
+                    <v-row>
+                    </v-row>
+
+                    <v-row>
+                        <v-col class="subheader">
+                            <h4>Statistics</h4>
+                        </v-col>
+                        <v-spacer/>
+                        <v-col>
+                            <v-btn
+                                fab
+                                small
+                                color="light-green lighten-4"
+                                @click="nextStats"
+                            >
+                                <v-icon color="indigo">mdi-refresh</v-icon>
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col cols=9>
+                            <v-card-text align=left>
+                                <p>
+                                    Your ballot is <b>{{ ballotSimilarity(ballotContext.stats, selectedType) }}%</b> similar to other ballots.<br/>
+                                </p>
+                            </v-card-text>
+                        </v-col>
+                    </v-row>
+                    <v-row justify=center>
+                        <v-col cols=9 align=center>
+                            <v-card
+                                v-for="stat, idx in displayStats"
+                                :key="idx"
+                                v-html="stat.message"
+                                elevation=2
+                                class="pa-4 ma-2"
+                            >
+                                {{ stat.message }}
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </template>
             </v-card>
         </v-container>
     </div>
@@ -189,11 +233,13 @@ export default {
     },
     data: () => {
         return {
-            ...Common.data,
+            pollTypeList: Common.data.pollTypeList,
             pollModel: Common.getEmptyPollContext(),
             ballotContext: Common.getEmptyBallotContext(),
             selectedType: '',
             newChoices: [],
+            statsList: [],
+            displayStats: [],
             loading: 0,
             errorString: null,
             savingChoices: false,
@@ -206,11 +252,108 @@ export default {
         };
     },
     filters: {
-        ...Common.filters,
+        displayPollType: Common.filters.displayPollType,
+        displayDate: Common.filters.displayDate,
     },
     computed: {
+        choiceIdToNameMap: Common.computed.choiceIdToNameMap,
     },
     methods: {
+        ballotSimilarity: Common.methods.ballotSimilarity,
+        processStats() {
+            console.log('processStats');
+            if (!this.pollModel || !this.ballotContext || !this.ballotContext.stats) return;
+            console.log('processStats RUNNING');
+            let total = this.ballotContext.stats.ballotCount-1;
+            if (total <= 0) return;
+            let getNewStat = function(getMessage, count, extra) {
+                count = count-1;
+                let percent = Math.floor(10000.0*(count/total))/100;
+                let baseInterest = Math.abs(count-(total/2)); // Balance high counts and low counts?
+                // let baseInterest = count;
+                let stat = {
+                    count,
+                    percent,
+                    baseInterest,
+                    interest: baseInterest,
+                    ...extra,
+                };
+                stat.message = getMessage(stat);
+                return stat;
+            }.bind(this);
+
+            let stats = this.ballotContext['stats'][this.selectedType];
+            if (stats) {
+                this.statsList = [];
+                if (stats.picks) {
+                    let picksFactory = function(stat) {
+                        if (stat.count === 0) {
+                            return `<b>No</b> other voters picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                        } else if (stat.percent > 66.65) {
+                            return `<b>${stat.percent}%</b> of other voters agree with you, and also picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                        } else if (stat.percent > 25.0) {
+                            return `<b>${stat.percent}%</b> of other voters also picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                        } else {
+                            return `Only <b>${stat.percent}</b>% of other voters also picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                        }
+                    }.bind(this);
+                    for (let statKey in stats.picks) {
+                        if (statKey === 'total') continue;
+                        let spl = statKey.split('-');
+                        let rank = (1*spl[0])+1;
+                        let count = stats.picks[statKey];
+                        let choice = this.choiceIdToNameMap[spl[1]];
+                        if (count/total < 0.34 && rank >= 4) continue;
+                        let newStat = getNewStat(picksFactory, count, {'type': 'pick', rank, choice, });
+                        this.statsList.push(newStat);
+                    }
+                }
+
+                if (stats.preferences) {
+                    let prefsFactory = function(stat) {
+                        if (stat.operator === '>') {
+                            if (stat.count === 0) {
+                                return `<b>No</b> other voters ranked <b>${stat.choice1}</b> above <b>${stat.choice2}</b>!`;
+                            } else if (stat.percent < 10.0) {
+                                return `Merely <b>${stat.percent}%</b> of other voters also ranked <b>${stat.choice1}</b> above <b>${stat.choice2}</b>!`;
+                            } else if (stat.percent < 30.0) {
+                                return `Only <b>${stat.percent}%</b> of other voters preferred <b>${stat.choice1}</b> to <b>${stat.choice2}</b>!`;
+                            } else if (stat.percent < 66.65) {
+                                return `<b>${stat.percent}%</b> of other voters also preferred <b>${stat.choice1}</b> to <b>${stat.choice2}</b>!`;
+                            } else {
+                                return `Overwhelmingly, <b>${stat.percent}%</b> of other voters agreed with you, preferring <b>${stat.choice1}</b> over <b>${stat.choice2}</b>!`;
+                            }
+                        } else if (stat.operator === '=') {
+                            // TODO: Implement
+                        }
+                    }.bind(this);
+                    for (let statKey in stats.preferences) {
+                        if (statKey === 'total') continue;
+                        let spl = statKey.split('>');
+                        let choice1, choice2, operator;
+                        if (spl.length === 2) {
+                            choice1 = this.choiceIdToNameMap[spl[0]];
+                            choice2 = this.choiceIdToNameMap[spl[1]];
+                            operator = '>'
+                        }
+                        let newStat = getNewStat(prefsFactory, stats.preferences[statKey], {'type': 'pref', choice1, choice2, operator});
+                        this.statsList.push(newStat);
+                    }
+                }
+
+                Common.shuffle(this.statsList);
+                this.statsList.sort((a,b) => b.interest-a.interest);
+                this.nextStats();
+            }
+        },
+        nextStats() {
+            this.displayStats = [];
+            for (let idx = 0; idx < 5; idx++) {
+                let nextStat = this.statsList.splice(0,1)[0];
+                this.displayStats.push(nextStat);
+                this.statsList.push(nextStat);
+            }
+        },
         addChoice() {
             let new_choice = Common.getEmptyChoiceContext();
             this.newChoices.push(new_choice);
@@ -277,6 +420,7 @@ export default {
             let data = {
                 'pollId': this.pollModel.id,
                 'ballot': this.ballotContext,
+                'includeStats': true,
             };
             this.savingBallot = true;
             this.saveBallotErrorString = null;
@@ -319,7 +463,7 @@ export default {
             this.ballotContext = Common.getEmptyBallotContext()
             if (pollId && ballotId) {
                 this.loading += 1;
-                Common.getBallotData(pollId, ballotId)
+                Common.getBallotData(pollId, ballotId, true)
                     .then(data => {
                         this.ballotContext = data;
                     })
@@ -341,6 +485,8 @@ export default {
             } else if (this.pollModel.publicBallots === 'no') {
                 this.ballotContext.publicBallot = false;
             }
+
+            this.processStats();
         },
         updateGeneratedBallots() {
             const fptp = 'fptp';
@@ -489,6 +635,9 @@ export default {
     watch: {
         "$route.params.pollid"(newId) {
             this.setPollModel(newId);
+        },
+        selectedType() {
+            this.processStats();
         },
     }
 };

@@ -57,7 +57,7 @@
                 active-class="primary--text"
             >
                 <v-chip
-                    v-for="choice, idx in ballotContext.selected.filter((s) => !s.auto)"
+                    v-for="choice, idx in getSortedChoiceList"
                     :key="idx"
                 >
                     {{ getChoiceNameFromId(choice.id) }} ({{ choice.score }})
@@ -109,6 +109,17 @@ export default {
             scoreList: [5,4,3,2,1,0],
             update: 1,
         }
+    },
+    computed: {
+      getSortedChoiceList() {
+          return this.ballotContext.selected
+            .filter((s) => !s.auto)
+            .map((item, index) => {
+                return {item, index};
+            })
+            .sort((a, b) => (b.item.score - a.item.score) || (a.index - b.index))
+            .map(({item}) => item);
+      },
     },
     methods: {
         getChoiceNameFromId(id) {

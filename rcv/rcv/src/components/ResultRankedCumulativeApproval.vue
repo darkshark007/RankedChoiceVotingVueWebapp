@@ -181,34 +181,46 @@ export default {
             addExplainStage('Ranked Cumulative Approval Voting is an iterative Runoff process that continues until one Choice has more than 50% of the total vote. (Absolute majority)', choiceScoresMap, topN);
             addExplainStage('First, we tally up all of the First-Rank choices...', choiceScoresMap, topN);
             let winner = [];
-            while (winner.length === 0) {
+            let lastScoresCalculated = JSON.stringify(choiceScoresMap);
+            let result = "";
+            while (topN <= this.pollModel.choices.length) {
+                winner = [];
                 addExplainStage(`Then we check again to see if any of the Choices have more than 50% of the total vote...`, choiceScoresMap, topN)
                 for (let choiceKey in choiceScoresMap) {
-                    if (choiceScoresMap[choiceKey] >= majority) {
-                        if (winner.length > 0) {
-                            if (choiceScoresMap[choiceKey] > choiceScoresMap[winner[0]]) {
-                                winner = [choiceKey];
-                            } else if (choiceScoresMap[choiceKey] === choiceScoresMap[winner[0]]) {
-                                winner.push(choiceKey);
-                            }
-                        } else {
+                    if (winner.length > 0) {
+                        if (choiceScoresMap[choiceKey] > choiceScoresMap[winner[0]]) {
+                            winner = [choiceKey];
+                        } else if (choiceScoresMap[choiceKey] === choiceScoresMap[winner[0]]) {
                             winner.push(choiceKey);
                         }
+                    } else {
+                        winner.push(choiceKey);
                     }
                 }
-                if (winner.length > 0) break;
+                if (winner.length > 0 && choiceScoresMap[winner[0]] >= majority) {
+                    result = 'Absolute Majority';
+                    break;
+                }
 
                 addExplainStage(`It looks like there is no majority yet!`, choiceScoresMap, topN);
 
                 topN++;
                 calculateScores();
                 addExplainStage(`We'll sum up the scores again, but including the Top-${topN} Ranked choices from each ballot...`, choiceScoresMap, topN);
+                let tempScoresCalculated = JSON.stringify(choiceScoresMap);
+                if (tempScoresCalculated === lastScoresCalculated) {
+                    addExplainStage(`It looks like there are no more Ballot rankings to count, but we still don't have a Choice with an Absolute Majority!`, choiceScoresMap, topN);
+                    addExplainStage(`In this case, the winner is simply the choice with the most votes.`, choiceScoresMap, topN);
+                    result = 'Simple Majority after exhausting the count';
+                    break;
+                }
+                lastScoresCalculated = tempScoresCalculated;
             }
             this.rounds = topN;
             if (winner.length === 1) {
                 // Single Winner
                 addExplainStage(`It looks like ${this.choiceIdToNameMap[winner[0]]} has a Majority!`, choiceScoresMap, topN);
-                addExplainStage(`Result:<br/>Winner, by Absolute Majority: ${this.choiceIdToNameMap[winner[0]]}`, choiceScoresMap, topN);
+                addExplainStage(`Result:<br/>Winner, by ${result}: ${this.choiceIdToNameMap[winner[0]]}`, choiceScoresMap, topN);
             } else {
                 // Tie
                 let message = `It looks multiple choices are tied!<br/>`;
@@ -246,7 +258,7 @@ export default {
                 }
                 if (best) {
                     addExplainStage(`It looks like in Round #${bestRound}, including only each ballots Top-${bestRound} choices, ${this.choiceIdToNameMap[winner[bestWinner]]} was the most popular choice!`, choiceScoresMap, bestRound+"*");
-                    addExplainStage(`Result:<br/>Winner, by Tie Resolution: ${this.choiceIdToNameMap[winner[bestWinner]]}`, choiceScoresByRoundMap[this.rounds], this.rounds);
+                    addExplainStage(`Result:<br/>Winner, by ${result} after Tie Resolution: ${this.choiceIdToNameMap[winner[bestWinner]]}`, choiceScoresByRoundMap[this.rounds], this.rounds);
                 } else {
                     let message = `Result:<br/>Tie<br/>`;
                     for (let choiceKey in winner) {
@@ -255,7 +267,6 @@ export default {
                     addExplainStage(message, choiceScoresMap, this.rounds+"*");
                 }
             }
-            this.currentExplainStage = this.explainStages.length-1;
         },
     },
     mounted() {
@@ -284,6 +295,7 @@ export default {
             immediate: true,
             handler() {
                 this.processResults();
+                this.currentExplainStage = this.explainStages.length-1;
             },
         }
     }

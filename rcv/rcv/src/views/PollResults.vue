@@ -96,6 +96,41 @@
                             />
                         </v-container>
                     </v-container>
+                    <template v-if="statsList.length > 0">
+                        <div><v-divider class="ma-4"></v-divider></div>
+                        <v-row>
+                        </v-row>
+
+                        <v-row>
+                            <v-col class="subheader">
+                                <h4>Statistics</h4>
+                            </v-col>
+                            <v-spacer/>
+                            <v-col>
+                                <v-btn
+                                    fab
+                                    small
+                                    color="light-green lighten-4"
+                                    @click="nextStats"
+                                >
+                                    <v-icon color="indigo">mdi-refresh</v-icon>
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                        <v-row justify=center>
+                            <v-col cols=9 align=center>
+                                <v-card
+                                    v-for="stat, idx in displayStats"
+                                    :key="idx"
+                                    v-html="stat.message"
+                                    elevation=2
+                                    class="pa-4 ma-2"
+                                >
+                                    {{ stat.message }}
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </template>
                 </v-card>
             </v-card>
         </v-container>
@@ -133,8 +168,13 @@ export default {
             errorString: null,
             loading: false,
             type: null,
+            statsList: [],
+            displayStats: [],
             pollModel: Common.getEmptyPollContext(),
         };
+    },
+    computed: {
+        choiceIdToNameMap: Common.computed.choiceIdToNameMap,
     },
     methods: {
         setPollModel(id) {
@@ -149,6 +189,7 @@ export default {
                             let ballot = data.ballots[ballotKey];
                             ballot.route = `/editBallots/${data.id}/${ballot.id}`;
                         }
+                        this.processStats();
                     })
                     .catch((error) => {
                         this.errorString = error;
@@ -158,6 +199,94 @@ export default {
                     });
             }
         },
+        processStats() {
+            if (!this.pollModel || !this.pollModel.results || !this.type) return;
+            let total = this.pollModel.results.count;
+            let getNewStat = function(getMessage, count, extra) {
+                let percent = Math.floor(10000.0*(count/total))/100;
+                // let baseInterest = Math.abs(count-(total/2)); // Balance high counts and low counts?
+                let baseInterest = count;
+                let stat = {
+                    count,
+                    percent,
+                    baseInterest,
+                    interest: baseInterest,
+                    ...extra,
+                };
+                stat.message = getMessage(stat);
+                return stat;
+            }.bind(this);
+
+            let stats = this.pollModel.results[this.type]['stats'];
+            if (stats) {
+                this.statsList = [];
+                if (stats.picks) {
+                    let picksFactory = function(stat) {
+                        if (stat.count === 0) {
+                            return `<b>No</b> ballots picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                        } else if (stat.percent > 25.0) {
+                            return `<b>${stat.percent}%</b> of ballots picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                        } else {
+                            return `Only <b>${stat.percent}</b>% of ballots picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                        }
+                    }.bind(this);
+                    for (let statKey in stats.picks) {
+                        if (statKey === 'total') continue;
+                        let spl = statKey.split('-');
+                        let rank = (1*spl[0])+1;
+                        let count = stats.picks[statKey];
+                        let choice = this.choiceIdToNameMap[spl[1]];
+                        if (count/total < 0.34 && rank >= 4) continue;
+                        let newStat = getNewStat(picksFactory, count, {'type': 'pick', rank, choice, });
+                        this.statsList.push(newStat);
+                    }
+                }
+
+                if (stats.preferences) {
+                    let prefsFactory = function(stat) {
+                        if (stat.operator === '>') {
+                            if (stat.count === 0) {
+                                return `No ballots ranked <b>${stat.choice1}</b> above <b>${stat.choice2}</b>!`;
+                            } else if (stat.percent < 10.0) {
+                                return `Merely <b>${stat.percent}%</b> of ballots ranked <b>${stat.choice1}</b> above <b>${stat.choice2}</b>!`;
+                            } else if (stat.percent < 30.0) {
+                                return `Only <b>${stat.percent}%</b> of ballots preferred <b>${stat.choice1}</b> to <b>${stat.choice2}</b>!`;
+                            } else if (stat.percent < 66.65) {
+                                return `<b>${stat.percent}%</b> of ballots preferred <b>${stat.choice1}</b> to <b>${stat.choice2}</b>!`;
+                            } else {
+                                return `Overwhelmingly, <b>${stat.percent}%</b> of ballots preferred <b>${stat.choice1}</b> over <b>${stat.choice2}</b>!`;
+                            }
+                        } else if (stat.operator === '=') {
+                            // TODO: Implement
+                        }
+                    }.bind(this);
+                    for (let statKey in stats.preferences) {
+                        if (statKey === 'total') continue;
+                        let spl = statKey.split('>');
+                        let choice1, choice2, operator;
+                        if (spl.length === 2) {
+                            choice1 = this.choiceIdToNameMap[spl[0]];
+                            choice2 = this.choiceIdToNameMap[spl[1]];
+                            operator = '>'
+                        }
+                        let newStat = getNewStat(prefsFactory, stats.preferences[statKey], {'type': 'pref', choice1, choice2, operator});
+                        this.statsList.push(newStat);
+                    }
+                }
+
+                Common.shuffle(this.statsList);
+                this.statsList.sort((a,b) => b.interest-a.interest);
+                this.nextStats();
+            }
+        },
+        nextStats() {
+            this.displayStats = [];
+            for (let idx = 0; idx < 5; idx++) {
+                let nextStat = this.statsList.splice(0,1)[0];
+                this.displayStats.push(nextStat);
+                this.statsList.push(nextStat);
+            }
+        },
     },
     filters: {
         ...Common.filters,
@@ -165,6 +294,14 @@ export default {
     mounted() {
         this.setPollModel(this.id);
     },
+    watch: {
+        type: {
+            immediate: true,
+            handler() {
+                this.processStats();
+            },
+        }
+    }
 };
 </script>
 

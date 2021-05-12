@@ -113,6 +113,11 @@ def get_ballot_data(request):
             response = HttpResponse("Given Ballot does not exist")
             response.status_code = 403
             return response
+
+        include_stats = request.GET.get('includeStats', default=None)
+        if include_stats:
+            data['stats'] = poll.get_stats_for_ballot(current_ballot)
+
         response = JsonResponse(data)
         return response
     return None
@@ -160,11 +165,14 @@ def create_or_update_ballot(request):
         response.status_code = 403
         return response
 
-
     # Return
-    data = poll.update_ballot_from_js(request_json, user)
+    data, current_ballot = poll.update_ballot_from_js(request_json, user)
     if type(data) is HttpResponse:
         return data
+
+    include_stats = request_json.get('includeStats')
+    if include_stats:
+        data['stats'] = poll.get_stats_for_ballot(current_ballot)
 
     response = JsonResponse(data)
     return response

@@ -26,8 +26,12 @@ SECRET_KEY = 'n(o#z@=i@$4hh0)h4o#t0dp7tql&rn4jd4$qw4m-j8fd@ica1c'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    # 'localhost:8000',
-    # '77fbd7dbbe9a.ngrok.io',
+    'localhost:8000',
+    'localhost',
+    '0.0.0.0',
+    # '24c8a8f27c9d.ngrok.io',
+    # '1b2ad9ddebd69b.localhost.run',
+    'loving-dew-34657.pktriot.net',
 ]
 
 

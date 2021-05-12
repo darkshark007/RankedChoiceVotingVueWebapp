@@ -1,6 +1,11 @@
 import Utils from './utils.js';
 
 export default {
+    getBound(block, context) {
+        console.log(block);
+        console.log(context);
+    },
+
     // Poll Helper Functions
     getPollData(data) {
         return new Promise((resolve, reject) => {
@@ -86,13 +91,14 @@ export default {
 
 
     // Ballot Helper Functions
-    getBallotData(pollId, ballotId) {
+    getBallotData(pollId, ballotId, includeStats) {
         return new Promise((resolve, reject) => {
             if (pollId && ballotId) {
                 let data = {
                     'pollId': pollId,
                     'ballotId': ballotId,
                 };
+                if (includeStats) data['includeStats'] = true;
                 Utils.get(window['API'].get_ballot_data, data)
                     .then(response => {
                         if (response.status === 200) {
@@ -231,5 +237,39 @@ export default {
         //     }
         //     return mapping;
         // }(),
+    },
+
+    computed: {
+        choiceIdToNameMap() {
+            let idToNameMap = {};
+            for (let choiceKey in this.pollModel.choices) {
+                let choice = this.pollModel.choices[choiceKey];
+                idToNameMap[choice['id']] = choice['name'];
+            }
+            return idToNameMap;
+        },
+    },
+
+    methods: {
+        ballotSimilarity(stats, type) {
+            let data = stats[type];
+            if (!data) return Number.NaN;
+            let categorySum = 0;
+            for (let categoryKey in data) {
+                let currentCategory = data[categoryKey];
+                let statSum = 0;
+                for (let statKey in currentCategory) {
+                    if (statKey === 'total') continue;
+                    let currentStat = currentCategory[statKey];
+                    statSum += currentStat;
+                }
+                let statCount = Object.keys(currentCategory).length-1;
+                let categorySimilarity = ((statSum-statCount) / (currentCategory['total']-statCount));
+                categorySum += categorySimilarity;
+                console.log(`statSum: ${statSum}\ncategorySum: ${categorySum}\ncategorySimilarity: ${categorySimilarity}`);
+            }
+            let ballotSimilarity = Math.floor(10000.0*(categorySum / Object.keys(data).length))/100;
+            return ballotSimilarity;
+        }
     },
 };

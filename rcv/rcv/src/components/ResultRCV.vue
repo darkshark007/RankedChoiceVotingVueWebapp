@@ -146,7 +146,8 @@ export default {
     methods: {
         processResults() {
             this.explainStages = [];
-            let results = this.resultContext['classic_rcv'];
+            let results = {...this.resultContext['classic_rcv']};
+            delete results['stats'];
             let total = this.resultContext.count;
             let majority = Math.floor(total * 0.50)+1;
             let addExplainStage = function(message, scoreMap, round) {
@@ -172,7 +173,6 @@ export default {
                             'Exhausted' : this.choiceIdToNameMap[choiceKey]
                     data['choiceList'].push(choiceName);
                 }
-
                 this.explainStages.push(data);
             }.bind(this);
 

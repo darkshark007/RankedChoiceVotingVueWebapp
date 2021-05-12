@@ -157,7 +157,8 @@ export default {
             };
             score_stage['choiceData'] = [];
             score_stage['choiceList'] = [];
-            for (let choiceKey in results) {
+            for (let choiceIdx in this.pollModel.choices) {
+                let choiceKey = this.pollModel.choices[choiceIdx].id;
                 score_stage['choiceData'].push({
                     'y': results[choiceKey]['score'],
                     'unit': 'pts',
@@ -166,8 +167,8 @@ export default {
             }
             this.explainStages.push(score_stage);
 
-            for (let choiceKey in results) {
-                addChoiceScoringExplainStage(choiceKey);
+            for (let choiceIdx in this.pollModel.choices) {
+                addChoiceScoringExplainStage(this.pollModel.choices[choiceIdx].id);
             }
 
             let select2Stage = {

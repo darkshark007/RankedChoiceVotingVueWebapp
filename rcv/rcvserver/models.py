@@ -130,6 +130,23 @@ class Result(models.Model):
        return getattr(self, name, None)
 
 
+    def update_stats_from_stats_list(self, stats, results, mult):
+        for category_key in stats:
+            for stat_key in stats[category_key]:
+                results['stats'][category_key][stat_key] += (1 * mult)
+                results['stats'][category_key]['total'] += (1 * mult)
+
+
+    def expand_stats_from_stats_list(self, stats, results):
+        data = results['stats']
+        expanded_stats = {}
+        for category_key in stats:
+            expanded_stats[category_key] = {}
+            expanded_stats[category_key]['total'] = data[category_key]['total']
+            for stat_key in stats[category_key]:
+                expanded_stats[category_key][stat_key] = data[category_key][stat_key]
+        return expanded_stats
+
     def get_js_result_model(self, user):
         obj = {
             TYPE_FIRST_PAST_THE_POST: self.fptp_result,
@@ -166,6 +183,24 @@ class Result(models.Model):
             current = current[choice]
 
         # TODO: Update Result statistics
+        self.update_stats_from_stats_list(self.get_rcv_statistics_from_ballot(ballot), self.rcv_result, mult)
+
+
+    def get_rcv_statistics_from_ballot(self, ballot):
+        stats = {
+            'picks': {},
+            'preferences': {},
+        }
+
+        data = ballot.context[TYPE_CLASSIC_RCV]['selected']
+        for choice_idx1 in range(0, len(data)):
+            pick_key = '{}-{}'.format(choice_idx1, data[choice_idx1])
+            stats['picks'][pick_key] = 1
+            for choice_idx2 in range(choice_idx1+1, len(data)):
+                pref_key = '{}>{}'.format(data[choice_idx1], data[choice_idx2])
+                stats['preferences'][pref_key] = 1
+
+        return stats
 
 
     def update_rca_result_from_ballot(self, ballot, mult):
@@ -184,6 +219,7 @@ class Result(models.Model):
 
 
     def update_star_result_from_ballot(self, ballot, mult):
+        # TODO: How can this be done in a data-positive way?  If new Choices are added, this may break calculation.
         if TYPE_SCORE_THEN_AUTOMATIC_RUNOFF not in ballot.context:
             return
         data = ballot.context[TYPE_SCORE_THEN_AUTOMATIC_RUNOFF]['selected']
@@ -220,9 +256,6 @@ class Result(models.Model):
                 res[choice2['id']][compare_key2] += (mult*1)
 
         # TODO: Update Result statistics
-
-        print('>>> STAR RESULTS: ')
-        print(self.star_result)
 
 
 
@@ -290,7 +323,27 @@ class Poll(models.Model):
         self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
         self.locked = model.get('locked', None)
+        self.init_stats()
         self.save()
+
+
+    def init_stats(self):
+        # Classic RCV
+        if 'stats' not in self.results.rcv_result:
+            self.results.rcv_result['stats'] = {
+                'picks': {'total': 0},
+                'preferences': {'total': 0},
+            }
+        stats = self.results.rcv_result['stats']
+        for idx, choice in enumerate(self.choices):
+            for idx2, choice2 in enumerate(self.choices):
+                pick_key = '{}-{}'.format(idx, choice2.id)
+                if pick_key not in stats['picks']:
+                    stats['picks'][pick_key] = 0
+                if choice.id != choice2.id:
+                    pref_key = '{}>{}'.format(choice.id, choice2.id)
+                    if pref_key not in stats['preferences']:
+                        stats['preferences'][pref_key] = 0
 
 
     def get_js_poll_model(self, user):
@@ -317,6 +370,18 @@ class Poll(models.Model):
         data = self.results.get_js_result_model(user)
         data['count'] = len(self.ballots)
         return data
+
+
+    def get_stats_for_ballot(self, ballot):
+        return {
+            'ballotCount': len(self.ballots),
+            TYPE_CLASSIC_RCV: self.results.expand_stats_from_stats_list(
+                self.results.get_rcv_statistics_from_ballot(ballot),
+                self.results.rcv_result),
+            TYPE_FIRST_PAST_THE_POST: None, # TODO: Add Stats
+            TYPE_RANKED_CUMULATIVE_APPROVAL: None, # TODO: Add Stats
+            TYPE_SCORE_THEN_AUTOMATIC_RUNOFF: None, # TODO: Add Stats
+        }
 
 
     def update_ballot_from_js(self, model, user):
@@ -362,4 +427,4 @@ class Poll(models.Model):
         self.results.update_star_result_from_ballot(current_ballot, 1)
 
         self.save()
-        return current_ballot.get_js_ballot_model()
+        return current_ballot.get_js_ballot_model(), current_ballot
