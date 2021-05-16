@@ -261,9 +261,8 @@ export default {
     methods: {
         ballotSimilarity: Common.methods.ballotSimilarity,
         processStats() {
-            console.log('processStats');
+            this.statsList = [];
             if (!this.pollModel || !this.ballotContext || !this.ballotContext.stats) return;
-            console.log('processStats RUNNING');
             let total = this.ballotContext.stats.ballotCount-1;
             if (total <= 0) return;
             let getNewStat = function(getMessage, count, extra) {
@@ -284,7 +283,6 @@ export default {
 
             let stats = this.ballotContext['stats'][this.selectedType];
             if (stats) {
-                this.statsList = [];
                 if (stats.picks) {
                     let picksFactory = function(stat) {
                         if (stat.count === 0) {
@@ -313,6 +311,7 @@ export default {
                     let prefsFactory = function(stat) {
                         if (stat.operator === '>') {
                             if (stat.count === 0) {
+                                stat.interest *= 0.5;
                                 return `<b>No</b> other voters ranked <b>${stat.choice1}</b> above <b>${stat.choice2}</b>!`;
                             } else if (stat.percent < 10.0) {
                                 return `Merely <b>${stat.percent}%</b> of other voters also ranked <b>${stat.choice1}</b> above <b>${stat.choice2}</b>!`;
@@ -348,7 +347,7 @@ export default {
         },
         nextStats() {
             this.displayStats = [];
-            for (let idx = 0; idx < 5; idx++) {
+            for (let idx = 0; idx < 5 && idx < this.statsList.length; idx++) {
                 let nextStat = this.statsList.splice(0,1)[0];
                 this.displayStats.push(nextStat);
                 this.statsList.push(nextStat);

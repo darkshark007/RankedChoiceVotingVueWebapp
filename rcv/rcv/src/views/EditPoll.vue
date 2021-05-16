@@ -60,12 +60,15 @@
                 ></v-select>
                 <form-checkbox
                     title="Allow Multiple Ballots per User"
-                    tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for allowing multiple participants to submit Ballots from a single device."
+                    tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for permitting multiple participants to submit Ballots from a single device."
                     v-model="pollModel.multiBallotsPerUser"
                 />
-                TODO: Checkbox: Allow Users to edit Ballots once submitted
-                TODO: Checkbox: All Choices must be Ranked/Considered
+                TODO: Checkbox: Show advanced Settings<br/>
+                TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/>
+                TODO: Checkbox: All Choices must be Ranked/Considered<br/>
+                TODO: Checkbox: Disallow users to add new Choices<br/>
                 TODO: Checkbox: Show Results Publicly<br/>
+                TODO: Checkbox: Show Results Before Ballot Creation<br/>
                 TODO: Checkbox: Show Results While Poll Open<br/>
                 <v-row>
                     <v-col cols=12>
@@ -105,11 +108,13 @@
                     </v-col>
                 </v-row>
                 <form-checkbox
-                    title="Lock Poll"
+                    title="Lock Poll Voting"
                     tooltip="If active, Users will not be able to submit or edit ballots."
                     switchColor="red"
                     v-model="pollModel.locked"
                 />
+                TODO: Ballot Submission Start Date<br/>
+                TODO: Ballot Submission End Date<br/>
                 <v-row>
                     <v-col cols=12>
                         <v-spacer></v-spacer>
@@ -165,9 +170,9 @@ export default {
             saveErrorString: null,
             saveSuccessString: null,
             publicBallotOptions: [
-                { name: 'Never',      value: 'no',    hint: 'No - Ballots are always hidden' },
-                { name: 'Optionally', value: 'maybe', hint: 'Maybe - Creator can decide whether their Ballot is hidden' },
-                { name: 'Always',     value: 'yes',   hint: 'Yes - Ballots are always public, anyone can see the choices' },
+                { name: 'Never',      value: 'no',    hint: 'No - Ballots are always hidden, only the Ballot Submitter can see the contents' },
+                { name: 'Optionally', value: 'maybe', hint: 'Maybe - Ballot Submitter can decide whether their Ballot is public or hidden' },
+                { name: 'Always',     value: 'yes',   hint: 'Yes - Ballots are always public, anyone can see the contents of each Ballot' },
             ],
         };
     },

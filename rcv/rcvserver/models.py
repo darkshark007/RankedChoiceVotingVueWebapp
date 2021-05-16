@@ -5,6 +5,7 @@ from django.http import HttpResponse
 
 
 TYPE_CLASSIC_RCV = 'classic_rcv'
+TYPE_COOMBS_RCV = 'coombs_rcv'
 TYPE_FIRST_PAST_THE_POST = 'fptp'
 TYPE_SCORE_THEN_AUTOMATIC_RUNOFF = 'star_vote'
 TYPE_APPROVAL = 'approval'
@@ -13,7 +14,8 @@ TYPE_RANKED_SCORED_TIER = 'ranked_score_tier'
 TYPE_RANKED_SCORED_SPLIT = 'ranked_score_split'
 TYPE_RANKED_GRAPH_MAXIMAL = 'ranked_graph_maximal'
 TYPE_CHOICES = (
-    (TYPE_CLASSIC_RCV, 'Classic RCV'),
+    (TYPE_CLASSIC_RCV, 'Classic RCV / IRV'),
+    # (TYPE_COOMBS_RCV, 'Reverse-Elimination RCV'),
     (TYPE_FIRST_PAST_THE_POST, 'Single-Choice Popular Vote'),
     (TYPE_RANKED_CUMULATIVE_APPROVAL, 'Ranked Cumulative Approval (Bucklin)'),
     (TYPE_SCORE_THEN_AUTOMATIC_RUNOFF, 'Score Then Automatic Runoff (STAR)'),

@@ -200,6 +200,7 @@ export default {
             }
         },
         processStats() {
+            this.statsList = [];
             if (!this.pollModel || !this.pollModel.results || !this.type) return;
             let total = this.pollModel.results.count;
             let getNewStat = function(getMessage, count, extra) {
@@ -219,7 +220,6 @@ export default {
 
             let stats = this.pollModel.results[this.type]['stats'];
             if (stats) {
-                this.statsList = [];
                 if (stats.picks) {
                     let picksFactory = function(stat) {
                         if (stat.count === 0) {

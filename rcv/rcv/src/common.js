@@ -266,7 +266,6 @@ export default {
                 let statCount = Object.keys(currentCategory).length-1;
                 let categorySimilarity = ((statSum-statCount) / (currentCategory['total']-statCount));
                 categorySum += categorySimilarity;
-                console.log(`statSum: ${statSum}\ncategorySum: ${categorySum}\ncategorySimilarity: ${categorySimilarity}`);
             }
             let ballotSimilarity = Math.floor(10000.0*(categorySum / Object.keys(data).length))/100;
             return ballotSimilarity;
