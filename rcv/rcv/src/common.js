@@ -252,9 +252,16 @@ export default {
 
     methods: {
         ballotSimilarity(stats, type) {
+            let statToWeightMap = {
+                'included': 1,
+                'picks': 2,
+                'preferences': 4,
+                'top_n_picks': 4,
+            };
             let data = stats[type];
             if (!data) return Number.NaN;
             let categorySum = 0;
+            let categoryMax = 0;
             for (let categoryKey in data) {
                 let currentCategory = data[categoryKey];
                 let statSum = 0;
@@ -265,10 +272,23 @@ export default {
                 }
                 let statCount = Object.keys(currentCategory).length-1;
                 let categorySimilarity = ((statSum-statCount) / (currentCategory['total']-statCount));
-                categorySum += categorySimilarity;
+                let weight = statToWeightMap[categoryKey]
+                categorySum += weight*categorySimilarity;
+                categoryMax += weight;
             }
-            let ballotSimilarity = Math.floor(10000.0*(categorySum / Object.keys(data).length))/100;
+            let ballotSimilarity = Math.floor(10000.0*(categorySum / categoryMax))/100;
             return ballotSimilarity;
-        }
+        },
+        nextStats() {
+            for (let idx = 0; idx < this.displayStats.length; idx++) {
+                this.displayStats[idx].seen = true;
+            }
+            this.displayStats = [];
+            for (let idx = 0; idx < 5 && idx < this.statsList.length; idx++) {
+                let nextStat = this.statsList.splice(0,1)[0];
+                this.displayStats.push(nextStat);
+                this.statsList.push(nextStat);
+            }
+        },
     },
 };

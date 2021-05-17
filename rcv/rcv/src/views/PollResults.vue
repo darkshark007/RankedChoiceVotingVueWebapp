@@ -125,6 +125,7 @@
                                     v-html="stat.message"
                                     elevation=2
                                     class="pa-4 ma-2"
+                                    :class="{ 'stat-seen': stat.seen }"
                                 >
                                     {{ stat.message }}
                                 </v-card>
@@ -220,6 +221,27 @@ export default {
 
             let stats = this.pollModel.results[this.type]['stats'];
             if (stats) {
+                if (stats.included) {
+                    let includedFactory = function(stat) {
+                        stat.interest *= 0.25;
+                        if (stat.count === 0) {
+                            stat.interest *= 0.5;
+                            return `<b>No</b> ballots included <b>${stat.choice}</b> as a pick!`;
+                        } else if (stat.percent > 25.0) {
+                            return `<b>${stat.percent}%</b> of ballots included <b>${stat.choice}</b> as a pick!`;
+                        } else {
+                            return `Only <b>${stat.percent}</b>% of ballots included <b>${stat.choice}</b> as a pick!`;
+                        }
+                    }.bind(this);
+                    for (let statKey in stats.included) {
+                        if (statKey === 'total') continue;
+                        let count = stats.included[statKey];
+                        let choice = this.choiceIdToNameMap[statKey];
+                        let newStat = getNewStat(includedFactory, count, {'type': 'included', choice, });
+                        this.statsList.push(newStat);
+                    }
+                }
+
                 if (stats.picks) {
                     let picksFactory = function(stat) {
                         if (stat.count === 0) {
@@ -238,6 +260,28 @@ export default {
                         let choice = this.choiceIdToNameMap[spl[1]];
                         if (count/total < 0.34 && rank >= 4) continue;
                         let newStat = getNewStat(picksFactory, count, {'type': 'pick', rank, choice, });
+                        this.statsList.push(newStat);
+                    }
+                }
+
+                if (stats.top_n_picks) {
+                    let topNPicksFactory = function(stat) {
+                        if (stat.count === 0) {
+                            return `<b>No</b> ballots ranked <b>${stat.choice}</b> among their Top-${stat.rank} picks!`;
+                        } else if (stat.percent > 25.0) {
+                            return `<b>${stat.percent}%</b> of ballots ranked <b>${stat.choice}</b> among their Top-${stat.rank} picks!`;
+                        } else {
+                            return `Only <b>${stat.percent}</b>% of ballots ranked <b>${stat.choice}</b> among their Top-${stat.rank} picks!`;
+                        }
+                    }.bind(this);
+                    for (let statKey in stats.top_n_picks) {
+                        if (statKey === 'total') continue;
+                        let spl = statKey.split('-');
+                        let rank = (1*spl[0])+1;
+                        let count = stats.top_n_picks[statKey];
+                        let choice = this.choiceIdToNameMap[spl[1]];
+                        if (count/total < 0.5 && rank >= 4) continue;
+                        let newStat = getNewStat(topNPicksFactory, count, {'type': 'pick', rank, choice, });
                         this.statsList.push(newStat);
                     }
                 }
@@ -279,14 +323,7 @@ export default {
                 this.nextStats();
             }
         },
-        nextStats() {
-            this.displayStats = [];
-            for (let idx = 0; idx < 5; idx++) {
-                let nextStat = this.statsList.splice(0,1)[0];
-                this.displayStats.push(nextStat);
-                this.statsList.push(nextStat);
-            }
-        },
+        nextStats: Common.methods.nextStats,
     },
     filters: {
         ...Common.filters,
@@ -306,4 +343,7 @@ export default {
 </script>
 
 <style scoped>
+.stat-seen {
+    color: #A0A0A0;
+}
 </style>

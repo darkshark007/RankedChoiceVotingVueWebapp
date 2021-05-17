@@ -129,7 +129,8 @@ export default {
             // Ranked Cumulative Approval
             // ============================================================
             this.explainStages = [];
-            let results = this.resultContext['ranked_cumulative_approval'];
+            let results = {...this.resultContext['ranked_cumulative_approval']};
+            delete results['stats'];
             let total = this.resultContext.count;
             let majority = this.majority;
             let addExplainStage = function(message, scoreMap, round) {

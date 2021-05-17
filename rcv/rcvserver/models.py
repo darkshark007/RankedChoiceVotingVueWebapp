@@ -183,26 +183,11 @@ class Result(models.Model):
             
             current[choice]['count'] += (1 * mult)
             current = current[choice]
-
-        # TODO: Update Result statistics
         self.update_stats_from_stats_list(self.get_rcv_statistics_from_ballot(ballot), self.rcv_result, mult)
 
 
     def get_rcv_statistics_from_ballot(self, ballot):
-        stats = {
-            'picks': {},
-            'preferences': {},
-        }
-
-        data = ballot.context[TYPE_CLASSIC_RCV]['selected']
-        for choice_idx1 in range(0, len(data)):
-            pick_key = '{}-{}'.format(choice_idx1, data[choice_idx1])
-            stats['picks'][pick_key] = 1
-            for choice_idx2 in range(choice_idx1+1, len(data)):
-                pref_key = '{}>{}'.format(data[choice_idx1], data[choice_idx2])
-                stats['preferences'][pref_key] = 1
-
-        return stats
+        return self.get_strict_preference_stats_from_ballot(ballot.context[TYPE_CLASSIC_RCV]['selected'])
 
 
     def update_rca_result_from_ballot(self, ballot, mult):
@@ -216,8 +201,35 @@ class Result(models.Model):
             
             current[choice]['count'] += (1 * mult)
             current = current[choice]
+        self.update_stats_from_stats_list(self.get_rca_statistics_from_ballot(ballot), self.rca_result, mult)
 
-        # TODO: Update Result statistics
+
+    def get_rca_statistics_from_ballot(self, ballot):
+        return self.get_strict_preference_stats_from_ballot(ballot.context[TYPE_RANKED_CUMULATIVE_APPROVAL]['selected'])
+
+
+    def get_strict_preference_stats_from_ballot(self, data, base_stats=None):
+        if not base_stats:
+            base_stats = {}
+        stats = {
+            **base_stats,
+            'included': {},
+            'picks': {},
+            'top_n_picks': {},
+            'preferences': {},
+        }
+        for choice_idx1 in range(0, len(data)):
+            included_key = '{}'.format(data[choice_idx1])
+            stats['included'][included_key] = 1
+            pick_key = '{}-{}'.format(choice_idx1, data[choice_idx1])
+            stats['picks'][pick_key] = 1
+            for choice_idx2 in range(choice_idx1+1, len(data)):
+                pref_key = '{}>{}'.format(data[choice_idx1], data[choice_idx2])
+                stats['preferences'][pref_key] = 1
+            for choice_idx2 in range(0, choice_idx1+1):
+                top_n_key = '{}-{}'.format(choice_idx1, data[choice_idx2])
+                stats['top_n_picks'][top_n_key] = 1
+        return stats
 
 
     def update_star_result_from_ballot(self, ballot, mult):
@@ -330,22 +342,38 @@ class Poll(models.Model):
 
 
     def init_stats(self):
+        def init_strict_preference_stats(result):
+            if 'stats' not in result:
+                result['stats'] = {
+                    'included': {'total': 0},
+                    'picks': {'total': 0},
+                    'top_n_picks': {'total': 0},
+                    'preferences': {'total': 0},
+                }
+            stats = result['stats']
+            for idx, choice in enumerate(self.choices):
+                included_key = '{}'.format(choice.id)
+                if included_key not in stats['included']:
+                    stats['included'][included_key] = 0
+                for idx2, choice2 in enumerate(self.choices):
+                    pick_key = '{}-{}'.format(idx, choice2.id)
+                    if pick_key not in stats['picks']:
+                        stats['picks'][pick_key] = 0
+                    if choice.id != choice2.id:
+                        pref_key = '{}>{}'.format(choice.id, choice2.id)
+                        if pref_key not in stats['preferences']:
+                            stats['preferences'][pref_key] = 0
+                    top_n_key = '{}-{}'.format(idx2, choice.id)
+                    if top_n_key not in stats['top_n_picks']:
+                        stats['top_n_picks'][top_n_key] = 0
+
         # Classic RCV
-        if 'stats' not in self.results.rcv_result:
-            self.results.rcv_result['stats'] = {
-                'picks': {'total': 0},
-                'preferences': {'total': 0},
-            }
-        stats = self.results.rcv_result['stats']
-        for idx, choice in enumerate(self.choices):
-            for idx2, choice2 in enumerate(self.choices):
-                pick_key = '{}-{}'.format(idx, choice2.id)
-                if pick_key not in stats['picks']:
-                    stats['picks'][pick_key] = 0
-                if choice.id != choice2.id:
-                    pref_key = '{}>{}'.format(choice.id, choice2.id)
-                    if pref_key not in stats['preferences']:
-                        stats['preferences'][pref_key] = 0
+        init_strict_preference_stats(self.results.rcv_result)
+
+        # Ranked Cumulative Approval (Bucklin)
+        init_strict_preference_stats(self.results.rca_result)
+
+
 
 
     def get_js_poll_model(self, user):
@@ -381,7 +409,9 @@ class Poll(models.Model):
                 self.results.get_rcv_statistics_from_ballot(ballot),
                 self.results.rcv_result),
             TYPE_FIRST_PAST_THE_POST: None, # TODO: Add Stats
-            TYPE_RANKED_CUMULATIVE_APPROVAL: None, # TODO: Add Stats
+            TYPE_RANKED_CUMULATIVE_APPROVAL: self.results.expand_stats_from_stats_list(
+                self.results.get_rca_statistics_from_ballot(ballot),
+                self.results.rca_result),
             TYPE_SCORE_THEN_AUTOMATIC_RUNOFF: None, # TODO: Add Stats
         }
 
@@ -428,5 +458,6 @@ class Poll(models.Model):
         self.results.update_rca_result_from_ballot(current_ballot, 1)
         self.results.update_star_result_from_ballot(current_ballot, 1)
 
+        self.updated = pendulum.now()
         self.save()
         return current_ballot.get_js_ballot_model(), current_ballot
