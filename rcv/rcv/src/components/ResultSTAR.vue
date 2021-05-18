@@ -129,7 +129,8 @@ export default {
             // Ranked Cumulative Approval
             // ============================================================
             this.explainStages = [];
-            let results = this.resultContext['star_vote'];
+            let results = {...this.resultContext['star_vote']};
+            delete results['stats'];
             let addChoiceScoringExplainStage = function(choiceKey) {
                 let data = {
                     'message': `These are the scores that ${this.choiceIdToNameMap[choiceKey]} got on the ballots:<br/><br/>Total Score: ${results[choiceKey]['score']}`,

@@ -255,6 +255,7 @@ export default {
             let statToWeightMap = {
                 'included': 1,
                 'picks': 2,
+                'score_picks': 2,
                 'preferences': 4,
                 'top_n_picks': 4,
             };

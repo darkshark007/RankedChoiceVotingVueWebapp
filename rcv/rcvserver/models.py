@@ -268,9 +268,32 @@ class Result(models.Model):
                     res[choice2['id']][compare_key2] = 0
                 res[choice['id']][compare_key1] += (mult*1)
                 res[choice2['id']][compare_key2] += (mult*1)
+        self.update_stats_from_stats_list(self.get_star_statistics_from_ballot(ballot), self.star_result, mult)
 
-        # TODO: Update Result statistics
 
+    def get_star_statistics_from_ballot(self, ballot):
+        stats = {
+            'included': {},
+            'score_picks': {},
+            'preferences': {},
+        }
+        data = [*ballot.context[TYPE_SCORE_THEN_AUTOMATIC_RUNOFF]['selected']]
+        data.sort(key=lambda d: d['score'], reverse=True)
+        for choice_idx1 in range(0, len(data)):
+            included_key = '{}'.format(data[choice_idx1]['id'])
+            stats['included'][included_key] = 1
+            score_pick_key = '{}-{}'.format(data[choice_idx1]['score'], data[choice_idx1]['id'])
+            stats['score_picks'][score_pick_key] = 1
+            for choice_idx2 in range(choice_idx1+1, len(data)):
+                if data[choice_idx1]['score'] == data[choice_idx2]['score']:
+                    pref_key = '{}={}'.format(data[choice_idx2]['id'], data[choice_idx1]['id'])
+                    if data[choice_idx1]['id'] > data[choice_idx2]['id']:
+                        pref_key = '{}={}'.format(data[choice_idx1]['id'], data[choice_idx2]['id'])
+                    stats['preferences'][pref_key] = 1
+                else:
+                    pref_key = '{}>{}'.format(data[choice_idx1]['id'], data[choice_idx2]['id'])
+                    stats['preferences'][pref_key] = 1
+        return stats
 
 
 class Poll(models.Model):
@@ -373,7 +396,32 @@ class Poll(models.Model):
         # Ranked Cumulative Approval (Bucklin)
         init_strict_preference_stats(self.results.rca_result)
 
-
+        # STAR
+        result = self.results.star_result
+        if 'stats' not in result:
+            result['stats'] = {
+                'included': {'total': 0},
+                'score_picks': {'total': 0},
+                'preferences': {'total': 0},
+            }
+        stats = result['stats']
+        for idx, choice in enumerate(self.choices):
+            included_key = '{}'.format(choice.id)
+            if included_key not in stats['included']:
+                stats['included'][included_key] = 0
+            for idx2, choice2 in enumerate(self.choices):
+                if choice.id != choice2.id:
+                    pref_key = '{}>{}'.format(choice.id, choice2.id)
+                    if pref_key not in stats['preferences']:
+                        stats['preferences'][pref_key] = 0
+                    if choice.id > choice2.id:
+                        pref_key2 = '{}={}'.format(choice.id, choice2.id)
+                        if pref_key2 not in stats['preferences']:
+                            stats['preferences'][pref_key2] = 0
+            for score in range(0,6):
+                score_pick_key = '{}-{}'.format(score, choice.id)
+                if score_pick_key not in stats['score_picks']:
+                    stats['score_picks'][score_pick_key] = 0
 
 
     def get_js_poll_model(self, user):
@@ -412,7 +460,9 @@ class Poll(models.Model):
             TYPE_RANKED_CUMULATIVE_APPROVAL: self.results.expand_stats_from_stats_list(
                 self.results.get_rca_statistics_from_ballot(ballot),
                 self.results.rca_result),
-            TYPE_SCORE_THEN_AUTOMATIC_RUNOFF: None, # TODO: Add Stats
+            TYPE_SCORE_THEN_AUTOMATIC_RUNOFF: self.results.expand_stats_from_stats_list(
+                self.results.get_star_statistics_from_ballot(ballot),
+                self.results.star_result),
         }
 
 
