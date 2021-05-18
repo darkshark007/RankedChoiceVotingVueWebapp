@@ -369,6 +369,7 @@ export default {
                         let rank = (1*spl[0])+1;
                         let count = stats.top_n_picks[statKey];
                         let choice = this.choiceIdToNameMap[spl[1]];
+                        if (rank >= (this.pollModel.choices.length)/2+1) continue;
                         if (count/total < 0.5 && rank >= 4) continue;
                         let newStat = getNewStat(topNPicksFactory, count, {'type': 'pick', rank, choice, });
                         this.statsList.push(newStat);

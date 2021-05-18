@@ -57,6 +57,7 @@
 </template>
 
 <script>
+import Common from '../common.js';
 
 export default {
     name: 'result-rcv',
@@ -73,14 +74,7 @@ export default {
     components: {
     },
     computed: {
-        choiceIdToNameMap() {
-            let idToNameMap = {};
-            for (let choiceKey in this.pollModel.choices) {
-                let choice = this.pollModel.choices[choiceKey];
-                idToNameMap[choice['id']] = choice['name'];
-            }
-            return idToNameMap;
-        },
+        choiceIdToNameMap: Common.computed.choiceIdToNameMap,
         majority() {
             return Math.floor(this.resultContext.count * 0.50)+1;
         },

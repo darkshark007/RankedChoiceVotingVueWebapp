@@ -273,6 +273,7 @@ export default {
                 }
                 let statCount = Object.keys(currentCategory).length-1;
                 let categorySimilarity = ((statSum-statCount) / (currentCategory['total']-statCount));
+                if (isNaN(categorySimilarity)) categorySimilarity = 0;
                 let weight = statToWeightMap[categoryKey]
                 categorySum += weight*categorySimilarity;
                 categoryMax += weight;
