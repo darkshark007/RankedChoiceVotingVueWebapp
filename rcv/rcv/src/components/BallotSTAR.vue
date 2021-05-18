@@ -2,13 +2,22 @@
     <v-container class="wrapper">
         <!-- Classic RCV -->
         <v-container v-if="isEdit" align=center class="wrapper">
+            <div class="pa-4">
+                <p align=left>
+                    <b>Instructions:</b>  Score choices from 0-5 Stars.  If you don't have a preference you can give choices the same scores.  Those you leave blank recieve a zero.
+                </p>
+            </div>
             <v-simple-table dense v-if="update">
                 <template v-slot:default>
                 <thead>
                     <tr>
                         <th><!-- Empty Col --></th>
-                        <th :colspan=choices.length class="text-center">
-                            Score
+                        <th :colspan=1 class="text-center">
+                            Worst
+                        </th>
+                        <th :colspan=scoreList.length-2 class="text-center"></th>
+                        <th :colspan=1 class="text-center">
+                            Best
                         </th>
                     </tr>
                     <tr>
@@ -16,7 +25,7 @@
                         <th
                             v-for="choice, idx in scoreList"
                             :key="idx"
-                            class="text-left ballot-rank-text"
+                            class="text-center ballot-rank-text"
                         >
                             {{ choice }}
                         </th>
@@ -106,7 +115,7 @@ export default {
     data() {
         return {
             ballotMatrix: [[]],
-            scoreList: [5,4,3,2,1,0],
+            scoreList: [0,1,2,3,4,5],
             update: 1,
         }
     },

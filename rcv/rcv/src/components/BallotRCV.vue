@@ -2,6 +2,11 @@
     <v-container class="wrapper">
         <!-- Classic RCV -->
         <v-container v-if="isEdit" align=center class="wrapper">
+            <div class="pa-4">
+                <p align=left>
+                    <b>Instructions:</b>  Rank each Choice in order of preference.
+                </p>
+            </div>
             <v-simple-table dense v-if="update">
                 <template v-slot:default>
                 <thead>

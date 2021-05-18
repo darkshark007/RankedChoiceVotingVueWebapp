@@ -2,6 +2,11 @@
     <v-container class="wrapper">
         <!-- Single-Choice Popular Vote (FPTP) -->
         <v-container v-if="isEdit" align=center class="wrapper">
+            <div class="pa-4">
+                <p align=left>
+                    <b>Instructions:</b>  Select the choice you prefer the most.
+                </p>
+            </div>
             <v-radio-group v-model="ballotContext.selected">
                 <v-radio
                     v-for="choice, idx in choices"

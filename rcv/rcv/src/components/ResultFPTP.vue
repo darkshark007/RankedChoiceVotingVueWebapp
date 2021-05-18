@@ -173,7 +173,7 @@ export default {
                     addExplainStage(`Result:<br/>Winner, by Absolute Majority: ${this.choiceIdToNameMap[winners[0]]}`, choiceScoresMap);
                     return;
                 } else {
-                    addExplainStage(`It looks like the largest total is ${percent}%, from ${this.choiceIdToNameMap[winners[0]]}, but it got less than 50% of the votes.`, choiceScoresMap);
+                    addExplainStage(`It looks like the largest total is ${percent}%, from ${this.choiceIdToNameMap[winners[0]]}, but it didn't get more than half the votes.`, choiceScoresMap);
                     addExplainStage(`Result:<br/>Winner, by Simple Majority: ${this.choiceIdToNameMap[winners[0]]}`, choiceScoresMap);
                     return;
                 }

@@ -353,7 +353,7 @@ export default {
                 });
                 this.explainStages.push({
                     ...runoff_stage,
-                    'message': `Result:<br/>Winner, by Preferred Choice: ${winner}`,
+                    'message': `Result:<br/>Winner, by Preferred Choice in the Runoff: ${winner}`,
                 });
                 return;
             } else if ((runoffChoices[0][gt_key] || 0) < (runoffChoices[0][lt_key] || 0)) {
@@ -364,7 +364,7 @@ export default {
                 });
                 this.explainStages.push({
                     ...runoff_stage,
-                    'message': `Result:<br/>Winner, by Preferred Choice: ${winner}`,
+                    'message': `Result:<br/>Winner, by Preferred Choice in the Runoff: ${winner}`,
                 });
                 return;
             } else {

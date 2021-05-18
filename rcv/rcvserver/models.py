@@ -414,7 +414,7 @@ class Poll(models.Model):
                     pref_key = '{}>{}'.format(choice.id, choice2.id)
                     if pref_key not in stats['preferences']:
                         stats['preferences'][pref_key] = 0
-                    if choice.id > choice2.id:
+                    if str(choice.id) > str(choice2.id):
                         pref_key2 = '{}={}'.format(choice.id, choice2.id)
                         if pref_key2 not in stats['preferences']:
                             stats['preferences'][pref_key2] = 0

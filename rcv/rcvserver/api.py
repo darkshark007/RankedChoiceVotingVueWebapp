@@ -99,6 +99,7 @@ def get_ballot_data(request):
             response.status_code = 403
             return response
 
+        current_ballot = None
         for ballot in poll.ballots:
             if ballot.id == ballot_id:
                 current_ballot = ballot
