@@ -44,7 +44,7 @@
                                     Updated: {{ pollModel.updated | displayDate }}<br/>
                                     Public Poll: {{ pollModel.publicPoll | titleCase }}<br/>
                                     Public Ballots: {{ pollModel.publicBallots | titleCase }}<br/>
-                                    Multiple Ballots Per Use: {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
+                                    Multiple Ballots Per User: {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
                                     Randomize Choices: {{ pollModel.randomizeChoices | titleCase }}<br/>
                                 </p>
                                 <p>

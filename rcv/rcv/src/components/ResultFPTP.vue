@@ -123,21 +123,17 @@ export default {
                     'message': message,
                 };
 
-                choiceScoresMap['Exhausted'] = total;
                 data['choiceData'] = [];
                 for (let choiceKey in scoreMap) {
                     data['choiceData'].push({
                         'y': scoreMap[choiceKey] * 100.0 / total,
                         'votes': scoreMap[choiceKey],
                     });
-                    choiceScoresMap['Exhausted'] -= scoreMap[choiceKey];
                 }
 
                 data['choiceList'] = [];
                 for (let choiceKey in scoreMap) {
-                    let choiceName =
-                        (choiceKey === 'Exhausted') ?
-                            'Exhausted' : this.choiceIdToNameMap[choiceKey]
+                    let choiceName = this.choiceIdToNameMap[choiceKey];
                     data['choiceList'].push(choiceName);
                 }
                 this.explainStages.push(data);

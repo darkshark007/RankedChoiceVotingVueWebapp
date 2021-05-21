@@ -307,7 +307,9 @@ export default {
 
                 if (stats.picks) {
                     let picksFactory = function(stat) {
+                        stat.interest *= 0.5;
                         if (stat.count === 0) {
+                            stat.interest *= 0.25;
                             return `<b>No</b> other voters picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
                         } else if (stat.percent > 66.65) {
                             return `<b>${stat.percent}%</b> of other voters agree with you, and also picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;

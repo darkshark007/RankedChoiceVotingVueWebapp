@@ -226,6 +226,7 @@ class Result(models.Model):
             for choice_idx2 in range(choice_idx1+1, len(data)):
                 pref_key = '{}>{}'.format(data[choice_idx1], data[choice_idx2])
                 stats['preferences'][pref_key] = 1
+            # TODO: This doesn't include all of the Top-N preference stats IF the ballot doesn't rank all candidates.  (Add CurrentChoices field to Ballot?)
             for choice_idx2 in range(0, choice_idx1+1):
                 top_n_key = '{}-{}'.format(choice_idx1, data[choice_idx2])
                 stats['top_n_picks'][top_n_key] = 1
@@ -233,7 +234,7 @@ class Result(models.Model):
 
 
     def update_star_result_from_ballot(self, ballot, mult):
-        # TODO: How can this be done in a data-positive way?  If new Choices are added, this may break calculation.
+        # TODO: How can this be done in a data-positive way?  If new Choices are added, this may break calculation.  (Add CurrentChoices field to Ballot?)
         if TYPE_SCORE_THEN_AUTOMATIC_RUNOFF not in ballot.context:
             return
         data = ballot.context[TYPE_SCORE_THEN_AUTOMATIC_RUNOFF]['selected']

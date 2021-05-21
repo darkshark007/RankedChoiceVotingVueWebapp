@@ -45,11 +45,18 @@
                     v-model="pollModel.type"
                 ></v-select>
                 <form-checkbox
+                    title="Show Advanced Settings"
+                    tooltip="Show and modify Advanced controls"
+                    v-model="showAdvanced"
+                />
+                <form-checkbox
+                    v-if="showAdvanced"
                     title="This Poll is Public"
                     tooltip="If active, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
                     v-model="pollModel.publicPoll"
                 />
                 <v-select
+                    v-if="showAdvanced"
                     label="Public Ballots"
                     :items="publicBallotOptions"
                     item-text="name"
@@ -59,17 +66,25 @@
                     persistent-hint
                 ></v-select>
                 <form-checkbox
+                    v-if="showAdvanced"
                     title="Allow Multiple Ballots per User"
                     tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for permitting multiple participants to submit Ballots from a single device."
                     v-model="pollModel.multiBallotsPerUser"
                 />
-                TODO: Checkbox: Show advanced Settings<br/>
-                TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/>
-                TODO: Checkbox: All Choices must be Ranked/Considered<br/>
-                TODO: Checkbox: Disallow users to add new Choices<br/>
-                TODO: Checkbox: Show Results Publicly<br/>
-                TODO: Checkbox: Show Results Before Ballot Creation<br/>
-                TODO: Checkbox: Show Results While Poll Open<br/>
+                <p
+                    v-if="showAdvanced"
+                >
+                    TODO: Dropdown: Limit Number of Rankings<br/>
+                    TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/>
+                    TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/>
+                    TODO: Checkbox: Disallow users to add new Choices<br/>
+                    TODO: Dropdown: <br/>
+                        - Results are always Available<br/>
+                        - Results Unavailable until after Ballot Submission<br/>
+                        - Results Unavailable until after Poll Locked<br/>
+                        - Results Unavailable Publically<br/>
+                    TODO: Checkbox: Show Results While Poll Open<br/>
+                </p>
                 <v-row>
                     <v-col cols=12>
                         <v-divider class="mx-4"></v-divider>
@@ -91,6 +106,7 @@
                     </v-col>
                 </v-row>
                 <form-checkbox
+                    v-if="showAdvanced"
                     title="Randomize Choices"
                     tooltip="If active, Choices will be listed in a random order."
                     v-model="pollModel.randomizeChoices"
@@ -113,8 +129,12 @@
                     switchColor="red"
                     v-model="pollModel.locked"
                 />
-                TODO: Ballot Submission Start Date<br/>
-                TODO: Ballot Submission End Date<br/>
+                <p
+                    v-if="showAdvanced"
+                >
+                    TODO: Ballot Submission Start Date<br/>
+                    TODO: Ballot Submission End Date<br/>
+                </p>
                 <v-row>
                     <v-col cols=12>
                         <v-spacer></v-spacer>
@@ -165,6 +185,7 @@ export default {
             ...Common.data,
             pollModel: Common.getEmptyPollContext(),
             loading: false,
+            showAdvanced: false,
             loadingErrorString: null,
             saving: false,
             saveErrorString: null,
