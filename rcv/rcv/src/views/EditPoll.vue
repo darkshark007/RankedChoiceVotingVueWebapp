@@ -49,31 +49,30 @@
                     item-value="id"
                     v-model="pollModel.type"
                 ></v-select>
-                <form-select
-                    v-if="showAdvanced"
-                    label="Limit Rank Choices"
-                    :items="getRankLimitChoices"
-                    v-model="pollModel.limitRankChoices"
-                    tooltip="If set, limits the number of Choices the Ballot Submitter can rank.  Can be useful for managing Polls with a large number of Choice options.<br/><br/><b>Note:</b> Only applies to some Poll Types"
-                ></form-select>
-                <form-checkbox
-                    v-if="showAdvanced"
-                    title="This Poll is Public"
-                    tooltip="If active, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
-                    v-model="pollModel.publicPoll"
-                />
-                <form-select
-                    v-if="showAdvanced"
-                    label="When should Ballots be Public?"
-                    :items="publicBallotOptions"
-                    v-model="pollModel.publicBallots"
-                />
-                <form-checkbox
-                    v-if="showAdvanced"
-                    title="Allow Multiple Ballots per User"
-                    tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for permitting multiple participants to submit Ballots from a single device."
-                    v-model="pollModel.multiBallotsPerUser"
-                />
+                <template v-if="showAdvanced">
+                    <v-divider class="my-4"></v-divider>
+                    <v-row>
+                        <v-col cols=6>
+                            <h4>Ballot Settings</h4>
+                        </v-col>
+                    </v-row>
+                    <form-select
+                        label="Limit Rank Choices"
+                        :items="getRankLimitChoices"
+                        v-model="pollModel.limitRankChoices"
+                        tooltip="If set, limits the number of Choices the Ballot Submitter can rank.  Can be useful for managing Polls with a large number of Choice options.<br/><br/><b>Note:</b> Only applies to some Poll Types"
+                    ></form-select>
+                    <form-select
+                        label="When should Ballots be Public?"
+                        :items="publicBallotOptions"
+                        v-model="pollModel.publicBallots"
+                    />
+                    <form-checkbox
+                        title="Allow Multiple Ballots per User"
+                        tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for permitting multiple participants to submit Ballots from a single device."
+                        v-model="pollModel.multiBallotsPerUser"
+                    />
+                </template>
                 <p
                     v-if="showAdvanced"
                 >
@@ -83,12 +82,12 @@
                 </p>
                 <v-row>
                     <v-col cols=12>
-                        <v-divider class="mx-4"></v-divider>
+                        <v-divider class="my-4"></v-divider>
                     </v-col>
                 </v-row>
                 <v-row>
                     <v-col cols=6>
-                        <h4>Choices</h4>
+                        <h4>Choice Settings</h4>
                     </v-col>
                     <v-col cols=6>
                         <v-btn
@@ -119,24 +118,34 @@
                         <v-divider class="mx-4"></v-divider>
                     </v-col>
                 </v-row>
-                <form-select
-                    v-if="showAdvanced"
-                    label="When should Results be Publically Available?"
-                    :items="publicResultsOptions"
-                    v-model="pollModel.publicResults"
-                />
+                <template v-if="showAdvanced">
+                    <v-divider class="my-4"></v-divider>
+                    <v-row>
+                        <v-col cols=6>
+                            <h4>Poll Settings</h4>
+                        </v-col>
+                    </v-row>
+                    <form-select
+                        label="When should Results be Publically Available?"
+                        :items="publicResultsOptions"
+                        v-model="pollModel.publicResults"
+                    />
+                    <form-checkbox
+                        title="This Poll is Public"
+                        tooltip="If active, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
+                        v-model="pollModel.publicPoll"
+                    />
+                    <p>
+                        TODO: Ballot Submission Start Date<br/>
+                        TODO: Ballot Submission End Date<br/>
+                    </p>
+                </template>
                 <form-checkbox
                     title="Lock Poll Voting"
                     tooltip="If active, Users will not be able to submit or edit ballots."
                     switchColor="red"
                     v-model="pollModel.locked"
                 />
-                <p
-                    v-if="showAdvanced"
-                >
-                    TODO: Ballot Submission Start Date<br/>
-                    TODO: Ballot Submission End Date<br/>
-                </p>
                 <v-row>
                     <v-col cols=12>
                         <v-spacer></v-spacer>
