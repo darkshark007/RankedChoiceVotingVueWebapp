@@ -17,6 +17,7 @@
         <v-container v-if="type === 'classic_rcv' || type === 'ranked_cumulative_approval'" class="wrapper">
             <ballot-rcv
                 :ballotContext="ballotContext"
+                :pollModel="pollModel"
                 :choices="choices"
                 :isDisplay="isDisplay"
                 :isEdit="isEdit"
@@ -48,6 +49,10 @@ export default {
     name: 'poll-ballot',
     props: {
         ballotContext: {
+            type: Object,
+            required: true,
+        },
+        pollModel: {
             type: Object,
             required: true,
         },

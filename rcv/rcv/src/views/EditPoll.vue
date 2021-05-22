@@ -33,6 +33,11 @@
                     label="Title"
                     v-model="pollModel.name"
                 ></v-text-field>
+                <form-checkbox
+                    title="Show Advanced Settings"
+                    tooltip="Show and modify Advanced Poll controls"
+                    v-model="showAdvanced"
+                />
                 <v-text-field
                     label="Description"
                     v-model="pollModel.description"
@@ -44,11 +49,13 @@
                     item-value="id"
                     v-model="pollModel.type"
                 ></v-select>
-                <form-checkbox
-                    title="Show Advanced Settings"
-                    tooltip="Show and modify Advanced Poll controls"
-                    v-model="showAdvanced"
-                />
+                <form-select
+                    v-if="showAdvanced"
+                    label="Limit Rank Choices"
+                    :items="getRankLimitChoices"
+                    v-model="pollModel.limitRankChoices"
+                    tooltip="If set, limits the number of Choices the Ballot Submitter can rank.  Can be useful for managing Polls with a large number of Choice options.<br/><br/><b>Note:</b> Only applies to some Poll Types"
+                ></form-select>
                 <form-checkbox
                     v-if="showAdvanced"
                     title="This Poll is Public"
@@ -57,7 +64,7 @@
                 />
                 <form-select
                     v-if="showAdvanced"
-                    label="Public Ballots"
+                    label="When should Ballots be Public?"
                     :items="publicBallotOptions"
                     v-model="pollModel.publicBallots"
                 />
@@ -70,7 +77,6 @@
                 <p
                     v-if="showAdvanced"
                 >
-                    TODO: Dropdown: Limit Number of Rankings<br/>
                     TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/>
                     TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/>
                     TODO: Checkbox: Disallow users to add new Choices<br/>
@@ -189,9 +195,9 @@ export default {
             saveErrorString: null,
             saveSuccessString: null,
             publicBallotOptions: [
-                { name: 'Never',      value: 'no',    hint: 'No - Ballots are always hidden, only the Ballot Submitter can see the contents' },
-                { name: 'Optionally', value: 'maybe', hint: 'Maybe - Ballot Submitter can decide whether their Ballot is public or hidden' },
-                { name: 'Always',     value: 'yes',   hint: 'Yes - Ballots are always public, anyone can see the contents of each Ballot' },
+                { name: 'Never',      value: 'no',    hint: 'Ballots are always hidden, only the Ballot Submitter can see the contents' },
+                { name: 'Optionally', value: 'maybe', hint: 'Ballot Submitter can decide whether their Ballot is public or hidden' },
+                { name: 'Always',     value: 'yes',   hint: 'Ballots are always public, anyone can see the contents of each Ballot' },
             ],
             publicResultsOptions: [
                 { name: 'Always',            value: 'always', hint: 'Results are <b>always Available</b> to the Ballot Submitter' },
@@ -201,7 +207,15 @@ export default {
             ],
         };
     },
-    computed: { },
+    computed: {
+        getRankLimitChoices() {
+            let numChoices = Math.max(2, this.pollModel.choices.length-1);
+            let arr = [...Array(numChoices).keys()];
+            let noLimit = { name: 'No Limit', value: -1 };
+            let mapped = arr.map(i => { return { name: `Top-${(i+2)}`, value: +i+2 }; });
+            return [noLimit, ...mapped];
+        },
+    },
     methods: {
         addChoice() {
             this.pollModel.choices.push({});

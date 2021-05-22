@@ -19,7 +19,7 @@
                     <tr>
                         <th><!-- Empty Col --></th>
                         <th 
-                            v-for="choice, idx in choices"
+                            v-for="_, idx in ranks"
                             :key="idx"
                             class="text-left ballot-rank-text"
                         >
@@ -29,25 +29,25 @@
                 </thead>
                 <tbody>
                     <tr
-                        v-for="choice1, idx1 in choices"
-                        :key="idx1"
+                        v-for="choice, rowIdx in choices"
+                        :key="rowIdx"
                     >
-                        <th>{{ choice1.name }}</th>
+                        <th>{{ choice.name }}</th>
                         <th 
-                            v-for="choice2, idx2 in choices"
-                            :key="idx2"
+                            v-for="_, colIdx in ranks"
+                            :key="colIdx"
                             class="text-center ballot-rank-text"
                         >
-                            <v-radio-group v-model="ballotMatrix[idx1][idx2].val">
+                            <v-radio-group v-model="ballotMatrix[rowIdx][colIdx].val">
                                 <v-radio
                                     class="choiceRadioLabel"
                                     :value="true"
-                                    @change="select(idx1, idx2)"
+                                    @change="select(rowIdx, colIdx)"
                                 />
                             </v-radio-group>
                         </th>
                         <th>
-                            <v-btn icon color="indigo" @click="clearBallotMatrixRow(idx1)">
+                            <v-btn icon color="indigo" @click="clearBallotMatrixRow(rowIdx)">
                                 <v-icon>mdi-close</v-icon>
                             </v-btn>
                         </th>
@@ -85,6 +85,10 @@ export default {
             type: Object,
             required: true,
         },
+        pollModel: {
+            type: Object,
+            required: true,
+        },
         choices: {
             type: Array,
             required: true,
@@ -114,6 +118,13 @@ export default {
             update: 1,
         }
     },
+    computed: {
+        ranks() {
+            let count = this.choices.length;
+            if (this.pollModel.limitRankChoices !== -1) count = this.pollModel.limitRankChoices;
+            return [...Array(count).keys()]
+        },
+    },
     methods: {
         getChoiceNameFromId(id) {
             for (let choiceIdx = 0; choiceIdx < this.choices.length; choiceIdx++) {
@@ -125,13 +136,13 @@ export default {
         },
         select(idx1, idx2) {
             let checkColumnRecursive = function(colIdx) {
-                if (colIdx >= this.choices.length) return;
+                if (colIdx >= this.ranks.length) return;
                 for (let rowIter = 0; rowIter < this.choices.length; rowIter++) {
                     if (rowIter === idx1) continue;
                     if (this.ballotMatrix[rowIter][colIdx].val) {
                         checkColumnRecursive(colIdx+1);
                         this.ballotMatrix[rowIter][colIdx].val = false;
-                        if (colIdx+1 < this.choices.length) {
+                        if (colIdx+1 < this.ranks.length) {
                             this.ballotMatrix[rowIter][colIdx+1].val = true;
                         }
                         return
@@ -152,7 +163,7 @@ export default {
             this.onChange();
         },
         clearBallotMatrixRow(rowIdx) {
-            for (let colIter = 0; colIter < this.choices.length; colIter++) {
+            for (let colIter = 0; colIter < this.ranks.length; colIter++) {
                 this.ballotMatrix[rowIdx][colIter].val = false;
             }
             this.calculateSelected();
@@ -161,7 +172,7 @@ export default {
         calculateSelected() {
             // Calculate selected ranking
             this.ballotContext.selected = [];
-            for (let colIter = 0; colIter < this.choices.length; colIter++) {
+            for (let colIter = 0; colIter < this.ranks.length; colIter++) {
                 for (let rowIter = 0; rowIter < this.choices.length; rowIter++) {
                     if (this.ballotMatrix[rowIter][colIter].val) {
                         this.ballotContext.selected.push(this.choices[rowIter].id);
@@ -180,7 +191,7 @@ export default {
             let newTable = [];
             for (let idx1 = 0; idx1 < this.choices.length; idx1++) {
                 newTable.push([]);
-                for (let idx2 = 0; idx2 < this.choices.length; idx2++) {
+                for (let idx2 = 0; idx2 < this.ranks.length; idx2++) {
                     let newVal = getObj();
                     if (oldTable.length > idx1 && oldTable[idx1].length > idx2) {
                         newVal = oldTable[idx1][idx2];

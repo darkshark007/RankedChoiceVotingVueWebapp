@@ -128,6 +128,7 @@
                     />
                     <ballot
                         :ballotContext="getContextForType()"
+                        :pollModel="pollModel"
                         :choices="pollModel.choices"
                         :type="selectedType"
                         :edit="true"

@@ -134,6 +134,7 @@
                                         <div>
                                             <ballot
                                                 :ballotContext="ballot.context[pollModel.type] || getEmptyPollContext()"
+                                                :pollModel="pollModel"
                                                 :choices="pollModel.choices"
                                                 :type="pollModel.type"
                                                 :preview="true"
@@ -175,6 +176,7 @@
                                         <div>
                                             <ballot
                                                 :ballotContext="ballot.context[pollModel.type] || getEmptyPollContext()"
+                                                :pollModel="pollModel"
                                                 :choices="pollModel.choices"
                                                 :type="pollModel.type"
                                                 :preview="true"

@@ -331,6 +331,7 @@ class Poll(models.Model):
     multi_ballots_per_user = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
     randomize_choices = models.BooleanField(default=True)
+    limit_rank_choices = models.IntegerField(default=-1)
 
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
@@ -362,6 +363,7 @@ class Poll(models.Model):
         self.public_results = model.get('publicResults', None)
         self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
+        self.limit_rank_choices  = model.get('limitRankChoices', None)
         self.locked = model.get('locked', None)
         self.init_stats()
         self.save()
@@ -440,6 +442,7 @@ class Poll(models.Model):
             'publicResults': self.public_results,
             'multiBallotsPerUser': self.multi_ballots_per_user,
             'randomizeChoices': self.randomize_choices,
+            'limitRankChoices': self.limit_rank_choices,
             'locked': self.locked,
             'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
         }
@@ -501,6 +504,19 @@ class Poll(models.Model):
 
 
     def update_ballot_from_js(self, model, user):
+        # Validate
+        is_valid = True
+        if self.limit_rank_choices != -1:
+            if len(model['ballot']['context'][TYPE_CLASSIC_RCV]['selected']) > self.limit_rank_choices:
+                is_valid = False
+            if len(model['ballot']['context'][TYPE_RANKED_CUMULATIVE_APPROVAL]['selected']) > self.limit_rank_choices:
+                is_valid = False
+        if not is_valid:
+            response = HttpResponse("Ballot Context is invalid!")
+            response.status_code = 403
+            return response, None
+
+        # Update
         new_ballot = False
         if model['ballot']['id']:
             ballot_id = model['ballot']['id']
@@ -512,14 +528,14 @@ class Poll(models.Model):
             if not current_ballot:
                 response = HttpResponse("Ballot with that ID does not exist!")
                 response.status_code = 403
-                return response
+                return response, None
         else:
             if self.multi_ballots_per_user == False:
                 for ballot in self.ballots:
                     if ballot.user.id == user.id:
                         response = HttpResponse("User can not create another Ballot for this Poll!")
                         response.status_code = 403
-                        return response
+                        return response, None
             current_ballot = Ballot()
             new_ballot = True
             self.ballots.append(current_ballot)
