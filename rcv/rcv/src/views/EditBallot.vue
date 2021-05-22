@@ -134,8 +134,7 @@
                         @onChange="onBallotChange"
                     />
                     <v-row>
-                        <v-col cols=12>
-                            <v-spacer></v-spacer>
+                        <v-col cols=6>
                             <!-- TODO: Refactor button -->
                             <v-btn
                                 color="light-green lighten-4"
@@ -146,6 +145,12 @@
                             >
                                 Save Ballot
                             </v-btn>
+                        </v-col>
+                        <v-col cols=6 v-if="shouldShowResultButton">
+                            <nav-button
+                                :route="'/results/'+pollModel.id"
+                                title="Results"
+                            ></nav-button>
                         </v-col>
                     </v-row>
                     <message-card
@@ -258,6 +263,7 @@ export default {
     },
     computed: {
         choiceIdToNameMap: Common.computed.choiceIdToNameMap,
+        shouldShowResultButton: Common.computed.shouldShowResultButton,
     },
     methods: {
         ballotSimilarity: Common.methods.ballotSimilarity,

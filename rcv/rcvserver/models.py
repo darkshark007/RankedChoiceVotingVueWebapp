@@ -326,7 +326,8 @@ class Poll(models.Model):
     description = models.CharField(max_length=500)
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     public = models.BooleanField(default=False)
-    public_ballots = models.CharField(max_length=5, choices=[('yes','yes'), ('no','no'), ('maybe','maybe')])
+    public_ballots = models.CharField(max_length=5, default='maybe', choices=[('yes','yes'), ('no','no'), ('maybe','maybe')])
+    public_results = models.CharField(max_length=6, default='always', choices=[('always', 'always'),('voting', 'voting'),('closed', 'closed'),('never', 'never')])
     multi_ballots_per_user = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
     randomize_choices = models.BooleanField(default=True)
@@ -358,6 +359,7 @@ class Poll(models.Model):
         self.updated = pendulum.now()
         self.public = model.get('publicPoll', None)
         self.public_ballots = model.get('publicBallots', None)
+        self.public_results = model.get('publicResults', None)
         self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
         self.locked = model.get('locked', None)
@@ -435,6 +437,7 @@ class Poll(models.Model):
             'type': self.type,
             'publicPoll': self.public,
             'publicBallots': self.public_ballots,
+            'publicResults': self.public_results,
             'multiBallotsPerUser': self.multi_ballots_per_user,
             'randomizeChoices': self.randomize_choices,
             'locked': self.locked,
@@ -443,6 +446,36 @@ class Poll(models.Model):
         if user.id == self.creator.id:
             obj['canEdit'] = True
         return obj
+
+
+    def can_get_results(self, user):
+        # Poll Creator or Manager can always see results
+        if user.id == self.creator.id:
+            return True
+
+        result_rule = self.public_results
+
+        # Results are always Available to the voter
+        if result_rule == 'always':
+            return True
+
+        # Results are unavailable to the voter until after they have submitted a Ballot
+        if result_rule == 'voting':
+            for ballot in self.ballots:
+                if ballot.user.id == user.id:
+                    return True
+            return False
+
+        # Results are unavailable until after Poll Closes
+        if result_rule == 'closed':
+            # if self.locked or self.poll_is_closed():
+            #     return True
+            if self.locked:
+                return True # TODO: REMOVE once Poll Closure is supported
+            return False
+
+        # Results are never available Publically, only to Poll creator
+        return False
 
 
     def get_js_result_model(self, user):

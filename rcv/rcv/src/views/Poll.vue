@@ -44,6 +44,7 @@
                                     Updated: {{ pollModel.updated | displayDate }}<br/>
                                     Public Poll: {{ pollModel.publicPoll | titleCase }}<br/>
                                     Public Ballots: {{ pollModel.publicBallots | titleCase }}<br/>
+                                    Public Results: {{ pollModel.publicResults | titleCase }}<br/>
                                     Multiple Ballots Per User: {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
                                     Randomize Choices: {{ pollModel.randomizeChoices | titleCase }}<br/>
                                 </p>
@@ -184,15 +185,17 @@
                             </v-card>
                         </div>
                     </div>
-                    <v-divider class="mx-4"></v-divider>
-                    <v-row align=center>
-                        <v-col class="subheader" cols=6>
-                        <nav-button
-                            :route="'/results/'+id"
-                            title="Results"
-                        ></nav-button>
-                        </v-col>
-                    </v-row>
+                    <template v-if="shouldShowResultButton">
+                        <v-divider class="mx-4"></v-divider>
+                        <v-row align=center>
+                            <v-col class="subheader" cols=6>
+                            <nav-button
+                                :route="'/results/'+id"
+                                title="Results"
+                            ></nav-button>
+                            </v-col>
+                        </v-row>
+                    </template>
                 </v-card>
             </div>
         </v-container>
@@ -229,6 +232,9 @@ export default {
     },
     filters: {
         ...Common.filters,
+    },
+    computed: {
+        shouldShowResultButton: Common.computed.shouldShowResultButton,
     },
     methods: {
         getEmptyPollContext: Common.getEmptyPollContext,

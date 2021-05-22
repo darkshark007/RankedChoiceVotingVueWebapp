@@ -46,7 +46,7 @@
                 ></v-select>
                 <form-checkbox
                     title="Show Advanced Settings"
-                    tooltip="Show and modify Advanced controls"
+                    tooltip="Show and modify Advanced Poll controls"
                     v-model="showAdvanced"
                 />
                 <form-checkbox
@@ -55,16 +55,12 @@
                     tooltip="If active, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
                     v-model="pollModel.publicPoll"
                 />
-                <v-select
+                <form-select
                     v-if="showAdvanced"
                     label="Public Ballots"
                     :items="publicBallotOptions"
-                    item-text="name"
-                    item-value="value"
-                    :hint="publicBallotHint"
                     v-model="pollModel.publicBallots"
-                    persistent-hint
-                ></v-select>
+                />
                 <form-checkbox
                     v-if="showAdvanced"
                     title="Allow Multiple Ballots per User"
@@ -78,12 +74,6 @@
                     TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/>
                     TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/>
                     TODO: Checkbox: Disallow users to add new Choices<br/>
-                    TODO: Dropdown: <br/>
-                        - Results are always Available<br/>
-                        - Results Unavailable until after Ballot Submission<br/>
-                        - Results Unavailable until after Poll Locked<br/>
-                        - Results Unavailable Publically<br/>
-                    TODO: Checkbox: Show Results While Poll Open<br/>
                 </p>
                 <v-row>
                     <v-col cols=12>
@@ -123,6 +113,12 @@
                         <v-divider class="mx-4"></v-divider>
                     </v-col>
                 </v-row>
+                <form-select
+                    v-if="showAdvanced"
+                    label="When should Results be Publically Available?"
+                    :items="publicResultsOptions"
+                    v-model="pollModel.publicResults"
+                />
                 <form-checkbox
                     title="Lock Poll Voting"
                     tooltip="If active, Users will not be able to submit or edit ballots."
@@ -165,6 +161,7 @@ import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
 import Choice from '../components/Choice.vue';
 import FormCheckbox from '../components/FormCheckbox.vue';
+import FormSelect from '../components/FormSelect.vue';
 
 export default {
     name: 'edit-poll-component',
@@ -179,6 +176,7 @@ export default {
         'nav-button': NavButton,
         'poll-choice': Choice,
         'form-checkbox': FormCheckbox,
+        'form-select': FormSelect,
     },
     data: () => {
         return {
@@ -195,18 +193,15 @@ export default {
                 { name: 'Optionally', value: 'maybe', hint: 'Maybe - Ballot Submitter can decide whether their Ballot is public or hidden' },
                 { name: 'Always',     value: 'yes',   hint: 'Yes - Ballots are always public, anyone can see the contents of each Ballot' },
             ],
+            publicResultsOptions: [
+                { name: 'Always',            value: 'always', hint: 'Results are <b>always Available</b> to the Ballot Submitter' },
+                { name: 'After Voting',      value: 'voting', hint: 'Results are <b>unavailable</b> to the Ballot Submitter until after they have submitted a Ballot' },
+                { name: 'After Poll Closes', value: 'closed', hint: 'Results are <b>unavailable</b> until after Poll Closes or is Locked' },
+                { name: 'Never',             value: 'never',  hint: 'Results are never available Publically, only to Poll creator' },
+            ],
         };
     },
-    computed: {
-        publicBallotHint() {
-            for (let key in this.publicBallotOptions) {
-                if (this.publicBallotOptions[key].value === this.pollModel.publicBallots) {
-                    return this.publicBallotOptions[key].hint
-                }
-            }
-            return "";
-        }
-    },
+    computed: { },
     methods: {
         addChoice() {
             this.pollModel.choices.push({});

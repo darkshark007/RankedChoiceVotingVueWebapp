@@ -57,6 +57,7 @@ export default {
             description: '',
             publicPoll: false,
             publicBallots: "maybe",
+            publicResults: "always",
             multiBallotsPerUser: true,
             locked: false,
             randomizeChoices: true,
@@ -247,6 +248,33 @@ export default {
                 idToNameMap[choice['id']] = choice['name'];
             }
             return idToNameMap;
+        },
+        shouldShowResultButton() {
+            // Poll Creator or Manager can always see results
+            if (this.pollModel.canEdit) return true;
+            let resultRule = this.pollModel.publicResults;
+
+            // Results are always Available to the voter
+            if (resultRule === 'always') {
+                return true;
+            }
+
+            // Results are unavailable to the voter until after they have submitted a Ballot
+            if (resultRule === 'voting') {
+                if (this.pollModel.ballots && this.pollModel.ballots.length >= 1) return true;
+                if (this.ballotContext && this.ballotContext.id) return true;
+                return false;
+            }
+
+            // Results are unavailable until after Poll Closes
+            if (resultRule === 'closed') {
+                // if (this.pollModel.locked || this.pollIsClosed) return true;
+                if (this.pollModel.locked) return true; // TODO: REMOVE once Poll Closure is supported
+                return false;
+            }
+
+            // Results are never available Publically, only to Poll creator
+            return false;
         },
     },
 

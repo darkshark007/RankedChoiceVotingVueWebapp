@@ -69,7 +69,12 @@ def get_poll_data(request):
 
         include_results = request.GET.get('includeResults', default=None)
         if include_results:
-            data['results'] = poll.get_js_result_model(user)
+            if poll.can_get_results(user):
+                data['results'] = poll.get_js_result_model(user)
+            else:
+                response = HttpResponse("Poll Results are unavailable")
+                response.status_code = 403
+                return response
 
         response = JsonResponse(data)
 
