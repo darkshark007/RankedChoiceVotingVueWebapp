@@ -48,7 +48,7 @@
                         </v-col>
                         <v-col class="mt-4" cols=3>
                             <nav-button
-                                :route="pollModel.pollRoute"
+                                :route="backRoute"
                                 title="Back"
                                 v-if="pollModel.pollRoute"
                             ></nav-button><!-- TODO: Add confirmation modal if changes? -->
@@ -154,6 +154,10 @@ export default {
             type: String,
             required: false,
         },
+        fromRoute: {
+            type: String,
+            required: false,
+        }
     },
     components: {
         'message-card': MessageCard,
@@ -176,6 +180,10 @@ export default {
     },
     computed: {
         choiceIdToNameMap: Common.computed.choiceIdToNameMap,
+        backRoute() {
+            if (this.fromRoute) return this.fromRoute;
+            return this.pollModel.pollRoute;
+        }
     },
     methods: {
         setPollModel(id) {

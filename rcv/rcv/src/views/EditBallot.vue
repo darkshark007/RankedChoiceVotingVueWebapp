@@ -24,11 +24,6 @@
                     <v-card-title>
                         {{ pollModel.name }}
                         <v-spacer></v-spacer>
-                        <nav-button
-                            :route="pollModel.pollRoute"
-                            title="Back"
-                            v-if="pollModel.pollRoute"
-                        ></nav-button><!-- TODO: Add confirmation modal if changes? -->
                     </v-card-title>
                     <v-card-subtitle align=left>
                         {{ pollModel.description }}
@@ -43,6 +38,13 @@
                                     Updated: {{ pollModel.updated | displayDate }}
                                 </p>
                             </v-card-text>
+                        </v-col>
+                        <v-col class="mt-4" cols=3>
+                            <nav-button
+                                :route="pollModel.pollRoute"
+                                title="Back"
+                                v-if="pollModel.pollRoute"
+                            ></nav-button><!-- TODO: Add confirmation modal if changes? -->
                         </v-col>
                     </v-row>
                     <div><v-divider class="ma-4"></v-divider></div>
@@ -159,7 +161,7 @@
                         </v-col>
                         <v-col cols=6>
                             <nav-button
-                                :route="'/results/'+pollModel.id"
+                                :route="{ name: 'results', params: {'id': pollid, 'fromRoute': `/editBallots/${pollid}/${ballotid}`}}"
                                 title="Results"
                                 :disabled="!shouldShowResultButton"
                             ></nav-button>

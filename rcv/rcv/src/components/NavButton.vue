@@ -28,7 +28,7 @@ export default {
     name: 'nav-button',
     props: {
         route: {
-            type: String,
+            type: [Object, String],
             required: true,
         },
         title: {

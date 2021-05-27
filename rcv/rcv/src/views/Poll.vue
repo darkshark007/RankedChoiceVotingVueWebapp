@@ -191,7 +191,7 @@
                         <v-row justify=center>
                             <v-col class="text-center">
                             <nav-button
-                                :route="'/results/'+id"
+                                :route="{ name: 'results', params: {'id': id, 'fromRoute': `/poll/${id}`}}"
                                 title="Results"
                                 :disabled="!shouldShowResultButton"
                             ></nav-button>
@@ -242,6 +242,7 @@ export default {
     computed: {
         shouldShowResultButton: Common.computed.shouldShowResultButton,
         pollStatusMessage: Common.computed.pollStatusMessage,
+        pollIsOpen: Common.computed.pollIsOpen,
     },
     methods: {
         getEmptyPollContext: Common.getEmptyPollContext,
