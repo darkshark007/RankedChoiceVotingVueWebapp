@@ -50,7 +50,6 @@
                                 </p>
                                 <p>
                                     <font :color="pollModel.locked ? 'red' : ''">Poll Locked: {{ pollModel.locked | titleCase }}</font>
-
                                 </p>
                             </v-card-text>
                         </v-col>
@@ -104,7 +103,7 @@
                         <v-col class="subheader" cols=4>
                             <nav-button
                                 :route="pollModel.editBallots"
-                                :disabled="(!pollModel.multiBallotsPerUser && pollModel.ballots.length >= 1) || (pollModel.locked)"
+                                :disabled="(!pollModel.multiBallotsPerUser && pollModel.ballots.length >= 1) || (pollModel.locked) || (!pollIsOpen)"
                                 icon="mdi-plus"
                             ></nav-button>
                         </v-col>
@@ -187,15 +186,19 @@
                             </v-card>
                         </div>
                     </div>
-                    <template v-if="shouldShowResultButton">
-                        <v-divider class="mx-4"></v-divider>
-                        <v-row align=center>
-                            <v-col class="subheader" cols=6>
+                    <template>
+                        <v-divider class="my-4"></v-divider>
+                        <v-row justify=center>
+                            <v-col class="text-center">
                             <nav-button
                                 :route="'/results/'+id"
                                 title="Results"
+                                :disabled="!shouldShowResultButton"
                             ></nav-button>
                             </v-col>
+                        </v-row>
+                        <v-row justify=center>
+                            <span class="text-center">{{ pollStatusMessage }}</span>
                         </v-row>
                     </template>
                 </v-card>
@@ -227,6 +230,7 @@ export default {
     },
     data: () => {
         return {
+            ...Common.data,
             pollModel: Common.getEmptyPollContext(),
             loading: false,
             errorString: null,
@@ -237,6 +241,7 @@ export default {
     },
     computed: {
         shouldShowResultButton: Common.computed.shouldShowResultButton,
+        pollStatusMessage: Common.computed.pollStatusMessage,
     },
     methods: {
         getEmptyPollContext: Common.getEmptyPollContext,

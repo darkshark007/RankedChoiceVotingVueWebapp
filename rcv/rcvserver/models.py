@@ -332,6 +332,8 @@ class Poll(models.Model):
     locked = models.BooleanField(default=False)
     randomize_choices = models.BooleanField(default=True)
     limit_rank_choices = models.IntegerField(default=-1)
+    ballot_start = models.IntegerField(default=None)
+    ballot_end = models.IntegerField(default=None)
 
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
@@ -363,7 +365,9 @@ class Poll(models.Model):
         self.public_results = model.get('publicResults', None)
         self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
-        self.limit_rank_choices  = model.get('limitRankChoices', None)
+        self.limit_rank_choices = model.get('limitRankChoices', None)
+        self.ballot_start = model.get('ballotStart', None)
+        self.ballot_end = model.get('ballotEnd', None)
         self.locked = model.get('locked', None)
         self.init_stats()
         self.save()
@@ -440,6 +444,8 @@ class Poll(models.Model):
             'publicPoll': self.public,
             'publicBallots': self.public_ballots,
             'publicResults': self.public_results,
+            'ballotStart': self.ballot_start,
+            'ballotEnd': self.ballot_end,
             'multiBallotsPerUser': self.multi_ballots_per_user,
             'randomizeChoices': self.randomize_choices,
             'limitRankChoices': self.limit_rank_choices,
@@ -471,14 +477,25 @@ class Poll(models.Model):
 
         # Results are unavailable until after Poll Closes
         if result_rule == 'closed':
-            # if self.locked or self.poll_is_closed():
-            #     return True
-            if self.locked:
-                return True # TODO: REMOVE once Poll Closure is supported
+            if self.locked or not self.poll_is_open():
+                return True
             return False
 
         # Results are never available Publically, only to Poll creator
         return False
+
+
+    def poll_is_open(self):
+        now = pendulum.now()
+        if self.ballot_start:
+            start = pendulum.from_timestamp(self.ballot_start)
+            if now < start:
+                return False
+        if self.ballot_end:
+            end = pendulum.from_timestamp(self.ballot_end)
+            if now > end:
+                return False
+        return True
 
 
     def get_js_result_model(self, user):
@@ -505,6 +522,16 @@ class Poll(models.Model):
 
     def update_ballot_from_js(self, model, user):
         # Validate
+        if self.locked:
+            response = HttpResponse("This poll is locked.  Ballot changes cannot be made")
+            response.status_code = 403
+            return response, None
+
+        if not self.poll_is_open():
+            response = HttpResponse("This poll is Closed.  Ballot changes cannot be made")
+            response.status_code = 403
+            return response, None
+
         is_valid = True
         if self.limit_rank_choices != -1:
             if len(model['ballot']['context'][TYPE_CLASSIC_RCV]['selected']) > self.limit_rank_choices:
@@ -515,6 +542,8 @@ class Poll(models.Model):
             response = HttpResponse("Ballot Context is invalid!")
             response.status_code = 403
             return response, None
+
+
 
         # Update
         new_ballot = False

@@ -28,7 +28,8 @@
                         v-if="pollModel.pollRoute"
                     ></nav-button><!-- TODO: Add confirmation modal if changes? -->
                 </v-card-title>
-                <v-divider class="mx-4"></v-divider>
+                Open: {{ pollStatusMessage }}
+                <v-divider class="my-4"/>
                 <v-text-field
                     label="Title"
                     v-model="pollModel.name"
@@ -50,7 +51,7 @@
                     v-model="pollModel.type"
                 ></v-select>
                 <template v-if="showAdvanced">
-                    <v-divider class="my-4"></v-divider>
+                    <v-divider class="my-4"/>
                     <v-row>
                         <v-col cols=6>
                             <h4>Ballot Settings</h4>
@@ -64,6 +65,7 @@
                     ></form-select>
                     <form-select
                         label="When should Ballots be Public?"
+                        tooltip="When should Ballots be Public?"
                         :items="publicBallotOptions"
                         v-model="pollModel.publicBallots"
                     />
@@ -80,11 +82,7 @@
                     TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/>
                     TODO: Checkbox: Disallow users to add new Choices<br/>
                 </p>
-                <v-row>
-                    <v-col cols=12>
-                        <v-divider class="my-4"></v-divider>
-                    </v-col>
-                </v-row>
+                <v-divider class="my-4"/>
                 <v-row>
                     <v-col cols=6>
                         <h4>Choice Settings</h4>
@@ -113,13 +111,8 @@
                     :edit="true"
                     @remove="removeChoice(cand)"
                 ></poll-choice>
-                <v-row>
-                    <v-col cols=12>
-                        <v-divider class="mx-4"></v-divider>
-                    </v-col>
-                </v-row>
+                <v-divider class="my-4"/>
                 <template v-if="showAdvanced">
-                    <v-divider class="my-4"></v-divider>
                     <v-row>
                         <v-col cols=6>
                             <h4>Poll Settings</h4>
@@ -127,28 +120,36 @@
                     </v-row>
                     <form-select
                         label="When should Results be Publically Available?"
+                        tooltip="When should Results be Publically Available?"
                         :items="publicResultsOptions"
                         v-model="pollModel.publicResults"
                     />
                     <form-checkbox
-                        title="This Poll is Public"
+                        :title="pollModel.publicPoll ? 'This Poll is Public' : 'This Poll is Private'"
                         tooltip="If active, this Poll will be searchable and visible to anyone on the Polls page.<br/><br/><b>Note:</b> All polls are automatically visible to anyone with the link."
                         v-model="pollModel.publicPoll"
                     />
-                    <p>
-                        TODO: Ballot Submission Start Date<br/>
-                        TODO: Ballot Submission End Date<br/>
-                    </p>
+                    <form-datetime
+                        label="Ballot Start"
+                        tooltip="If set, this is the date/time <b>AFTER</b> which Ballots will be able to be created/edited."
+                        v-model="pollModel.ballotStart"
+                        clearable
+                    />
+                    <form-datetime
+                        label="Ballot End"
+                        tooltip="If set, this is the date/time <b>AFTER</b> which Ballots will <b>NO LONGER</b> be able to be created/edited."
+                        v-model="pollModel.ballotEnd"
+                        clearable
+                    />
                 </template>
                 <form-checkbox
-                    title="Lock Poll Voting"
+                    :title="pollModel.locked ? 'Poll Voting is Locked' : 'Poll Voting is Open'"
                     tooltip="If active, Users will not be able to submit or edit ballots."
                     switchColor="red"
                     v-model="pollModel.locked"
                 />
                 <v-row>
                     <v-col cols=12>
-                        <v-spacer></v-spacer>
                         <!-- TODO: Refactor button -->
                         <v-btn
                             color="light-green lighten-4"
@@ -177,6 +178,7 @@ import NavButton from '../components/NavButton.vue';
 import Choice from '../components/Choice.vue';
 import FormCheckbox from '../components/FormCheckbox.vue';
 import FormSelect from '../components/FormSelect.vue';
+import FormDatetime from '../components/FormDatetime.vue';
 
 export default {
     name: 'edit-poll-component',
@@ -192,6 +194,7 @@ export default {
         'poll-choice': Choice,
         'form-checkbox': FormCheckbox,
         'form-select': FormSelect,
+        'form-datetime': FormDatetime,
     },
     data: () => {
         return {
@@ -217,6 +220,8 @@ export default {
         };
     },
     computed: {
+        pollIsOpen: Common.computed.pollIsOpen,
+        pollStatusMessage: Common.computed.pollStatusMessage,
         getRankLimitChoices() {
             let numChoices = Math.max(2, this.pollModel.choices.length-1);
             let arr = [...Array(numChoices).keys()];

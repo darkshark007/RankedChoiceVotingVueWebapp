@@ -136,21 +136,32 @@
                     />
                     <v-row>
                         <v-col cols=6>
-                            <!-- TODO: Refactor button -->
-                            <v-btn
-                                color="light-green lighten-4"
-                                elevation="2"
-                                :loading="savingBallot"
-                                :disabled="pollModel.locked"
-                                @click="saveBallot"
-                            >
-                                Save Ballot
-                            </v-btn>
+                            <v-tooltip bottom max-width="300px">
+                                <template v-slot:activator="{ on, attrs }">
+                                    <!-- TODO: Refactor button -->
+                                    <div
+                                        v-bind="attrs"
+                                        v-on="on"
+                                    >
+                                        <v-btn
+                                            color="light-green lighten-4"
+                                            elevation="2"
+                                            :loading="savingBallot"
+                                            :disabled="pollModel.locked || !pollIsOpen"
+                                            @click="saveBallot"
+                                        >
+                                            Save Ballot
+                                        </v-btn>
+                                    </div>
+                                </template>
+                                <span v-html="pollStatusMessage">{{ pollStatusMessage }}</span>
+                            </v-tooltip>
                         </v-col>
-                        <v-col cols=6 v-if="shouldShowResultButton">
+                        <v-col cols=6>
                             <nav-button
                                 :route="'/results/'+pollModel.id"
                                 title="Results"
+                                :disabled="!shouldShowResultButton"
                             ></nav-button>
                         </v-col>
                     </v-row>
@@ -159,6 +170,7 @@
                         errorStringBase="Error Saving Ballot: "
                         :successString="saveBallotSuccessString"
                     ></message-card>
+                    <div class="ma-4" v-html="pollStatusMessage">{{ pollStatusMessage }}</div>
                 </div>
                 <template v-if="statsList.length > 0">
                     <div><v-divider class="ma-4"></v-divider></div>
@@ -240,6 +252,7 @@ export default {
     },
     data: () => {
         return {
+            ...Common.data,
             pollTypeList: Common.data.pollTypeList,
             pollModel: Common.getEmptyPollContext(),
             ballotContext: Common.getEmptyBallotContext(),
@@ -263,6 +276,8 @@ export default {
         displayDate: Common.filters.displayDate,
     },
     computed: {
+        pollIsOpen: Common.computed.pollIsOpen,
+        pollStatusMessage: Common.computed.pollStatusMessage,
         choiceIdToNameMap: Common.computed.choiceIdToNameMap,
         shouldShowResultButton: Common.computed.shouldShowResultButton,
     },

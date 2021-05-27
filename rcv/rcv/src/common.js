@@ -60,6 +60,8 @@ export default {
             publicResults: "always",
             multiBallotsPerUser: true,
             limitRankChoices: -1,
+            ballotStart: null,
+            ballotEnd: null,
             locked: false,
             randomizeChoices: true,
             choices: [],
@@ -222,6 +224,7 @@ export default {
 
     // Data/Constants
     data: {
+        common__now: -1,
         pollTypeList: function() {
             let mapping = window.POLL_TYPES.map((typ) => {
                 return {
@@ -242,6 +245,66 @@ export default {
     },
 
     computed: {
+        pollIsOpen() {
+            if (!this.__nowInterval) {
+                let updateFunc = function() {
+                    this.common__now = ~~(new Date()/1000);
+                }.bind(this);
+                this.__nowInterval = setInterval(updateFunc, 1000);
+            }
+            if (this.pollModel.ballotStart) {
+                if (this.common__now < this.pollModel.ballotStart) {
+                    return false
+                }
+            }
+            if (this.pollModel.ballotEnd) {
+                if (this.common__now > this.pollModel.ballotEnd) {
+                    return false;
+                }
+            }
+            return true;
+        },
+        pollStatusMessage() {
+            if (!this.__nowInterval) {
+                let updateFunc = function() {
+                    this.common__now = ~~(new Date()/1000);
+                }.bind(this);
+                this.__nowInterval = setInterval(updateFunc, 1000);
+            }
+            function getTimeStamp(diff) {
+                let seconds = diff % 60;
+                diff = (diff - seconds) / 60;
+                if (diff === 0) return `${seconds}sec`;
+                if (seconds < 10) seconds = `0${seconds}`;
+                let minutes = diff % 60;
+                diff = (diff - minutes) / 60;
+                if (diff === 0) return `${minutes}:${seconds}`;
+                if (minutes < 10) minutes = `0${minutes}`;
+                let hours = diff % 24;
+                diff = (diff - hours) / 24;
+                if (diff === 0) return `${hours} hours`;
+                let days = diff % 365;
+                diff = (diff - days) / 365;
+                if (diff === 0) return `${days} days`;
+                return "Calculating...";
+            }
+            if (this.pollModel.locked) {
+                return "Poll is Locked!";
+            }
+            if (this.pollModel.ballotStart) {
+                if (this.common__now < this.pollModel.ballotStart) {
+                    return `Poll will open in ${getTimeStamp(this.pollModel.ballotStart-this.common__now)}!`
+                }
+            }
+            if (this.pollModel.ballotEnd) {
+                if (this.common__now > this.pollModel.ballotEnd) {
+                    return "Poll is Closed!"
+                } else {
+                    return `Poll will close in ${getTimeStamp(this.pollModel.ballotEnd-this.common__now)}!`
+                }
+            }
+            return "Poll is Open"
+        },
         choiceIdToNameMap() {
             let idToNameMap = {};
             for (let choiceKey in this.pollModel.choices) {
@@ -269,8 +332,7 @@ export default {
 
             // Results are unavailable until after Poll Closes
             if (resultRule === 'closed') {
-                // if (this.pollModel.locked || this.pollIsClosed) return true;
-                if (this.pollModel.locked) return true; // TODO: REMOVE once Poll Closure is supported
+                if (this.pollModel.locked || !this.pollIsOpen) return true;
                 return false;
             }
 

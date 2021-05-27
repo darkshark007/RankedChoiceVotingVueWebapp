@@ -162,10 +162,6 @@ def create_or_update_ballot(request):
         #     response = HttpResponse("User does not have permission to modify that Poll")
         #     response.status_code = 403
         #     return response
-        if poll.locked:
-            response = HttpResponse("This poll is locked.  Ballot changes cannot be made")
-            response.status_code = 403
-            return response
     else:
         response = HttpResponse("No PollId found on Request")
         response.status_code = 403
