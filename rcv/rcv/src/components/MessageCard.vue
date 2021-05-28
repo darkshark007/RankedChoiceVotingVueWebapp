@@ -1,8 +1,7 @@
 <template>
     <div ref="target">
         <v-card
-            class="wrapper message-card"
-            max-width="500px"
+            class="wrapper appWidth message-card"
             align="center"
             v-if="displayedError"
         >
@@ -16,8 +15,7 @@
             </v-row>
         </v-card>
         <v-card
-            class="wrapper message-card"
-            max-width="500px"
+            class="wrapper appWidth message-card"
             align="center"
             v-if="displayedSuccess"
         >

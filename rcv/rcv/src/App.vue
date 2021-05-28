@@ -46,6 +46,10 @@ export default {
     padding: 15px;
 }
 
+.appWidth {
+    max-width: 590px;
+}
+
 .route-item {
     text-align: left;
     text-decoration: none;

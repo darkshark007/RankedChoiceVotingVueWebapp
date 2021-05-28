@@ -2,9 +2,8 @@
     <div id="editPoll" align="center">
         <v-container>
             <v-card
-                class="wrapper"
+                class="wrapper appWidth"
                 id="loading-card"
-                max-width="500px"
                 align="center"
                 v-if="loading"
                 :loading="loading"
@@ -17,15 +16,13 @@
                 v-if="!loading"
             >
                 <v-card
-                    class="wrapper"
-                    max-width="500px"
+                    class="wrapper appWidth"
                     v-if="!pollModel.id"
                 >
                     Poll with that ID was not found.
                 </v-card>
                 <v-card
-                    class="wrapper"
-                    max-width="500px"
+                    class="wrapper appWidth"
                     v-else
                 >
                     <v-card-title>
@@ -36,7 +33,7 @@
                     </v-card-subtitle>
                     <v-divider class="mx-4"></v-divider>
                     <v-row>
-                        <v-col cols=9>
+                        <v-col cols=12>
                             <v-card-text align=left>
                                 <p>
                                     <b>Type:</b> {{ pollModel.type | displayPollType }}<br/>

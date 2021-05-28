@@ -2,9 +2,8 @@
     <div id="myPolls" align="center">
         <v-container>
             <v-card
-                class="wrapper"
+                class="wrapper appWidth"
                 id="loading-card"
-                max-width="500px"
                 v-if="loading"
                 :loading="loading"
             ></v-card>
@@ -13,19 +12,17 @@
                 errorStringBase="Error loading Results: "
             ></message-card>
             <v-card
-                max-width="500px"
+                class="appWidth"
                 v-if="!loading"
             >
                 <v-card
-                    class="wrapper"
-                    max-width="500px"
+                    class="wrapper appWidth"
                     v-if="!pollModel.id"
                 >
                     Poll with that ID was not found.
                 </v-card>
                 <v-card
-                    class="wrapper"
-                    max-width="500px"
+                    class="wrapper appWidth"
                     v-else
                 >
                     <v-card-title>

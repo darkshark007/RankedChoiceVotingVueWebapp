@@ -2,9 +2,8 @@
     <div id="myPolls" align="center">
         <v-container>
             <v-card
-                class="wrapper"
+                class="wrapper appWidth"
                 id="loading-card"
-                max-width="500px"
                 v-if="loading"
                 :loading="loading"
             ></v-card>
@@ -13,8 +12,7 @@
                 errorStringBase="Error loading Polls: "
             ></message-card>
             <v-card
-                class="wrapper"
-                max-width="500px"
+                class="wrapper appWidth"
                 v-if="!loading"
             >
                 <v-card-title>
@@ -38,8 +36,7 @@
                 </div>
             </v-card>
             <v-card
-                class="wrapper"
-                max-width="500px"
+                class="wrapper appWidth"
                 v-if="!loading"
             >
                 <v-card-title>
