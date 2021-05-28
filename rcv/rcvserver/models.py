@@ -477,6 +477,11 @@ class Poll(models.Model):
 
         # Results are unavailable until after Poll Closes
         if result_rule == 'closed':
+            if self.ballot_start:
+                now = pendulum.now()
+                start = pendulum.from_timestamp(self.ballot_start)
+                if now < start:
+                    return False
             if self.locked or not self.poll_is_open():
                 return True
             return False

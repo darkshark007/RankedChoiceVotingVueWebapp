@@ -32,13 +32,27 @@
                         {{ pollModel.description }}
                     </v-card-subtitle>
                     <v-divider class="mx-4"></v-divider>
-                    <v-row>
-                        <v-col cols=12>
-                            <v-card-text align=left>
-                                <p>
+                    <v-row class="mb-0 pb-0">
+                        <v-col cols=9 class="mb-0 pb-0">
+                            <v-card-text align=left class="mb-0 pb-0">
+                                <p class="mb-0 pb-0">
                                     <b>Type:</b> {{ pollModel.type | displayPollType }}<br/>
                                     <b>Created:</b> {{ pollModel.created | displayDate }}<br/>
                                     <b>Updated:</b> {{ pollModel.updated | displayDate }}<br/>
+                                </p>
+                            </v-card-text>
+                        </v-col>
+                        <v-col class="mt-4 mb-0 pb-0" cols=3 v-if=pollModel.canEdit>
+                            <nav-button
+                                :route="pollModel.editRoute"
+                                title="Edit"
+                            ></nav-button>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-0 pt-0">
+                        <v-col cols=12 class="mt-0 pt-0">
+                            <v-card-text align=left class="mt-0 pt-0">
+                                <p class="mt-0 pt-0">
                                     <b>Public Poll:</b> {{ pollModel.publicPoll | titleCase }}<br/>
                                     <b>Public Ballots:</b> {{ pollModel.publicBallots | titleCase }}<br/>
                                     <b>Public Results:</b> {{ pollModel.publicResults | titleCase }}<br/>
@@ -56,12 +70,6 @@
                                     </template>
                                 </p>
                             </v-card-text>
-                        </v-col>
-                        <v-col class="mt-4" cols=3 v-if=pollModel.canEdit>
-                            <nav-button
-                                :route="pollModel.editRoute"
-                                title="Edit"
-                            ></nav-button>
                         </v-col>
                     </v-row>
                     <v-divider class="mx-4"></v-divider>
@@ -124,6 +132,15 @@
                                 :disabled="(!pollModel.multiBallotsPerUser && pollModel.ballots.length >= 1) || (pollModel.locked) || (!pollIsOpen)"
                                 icon="mdi-plus"
                             ></nav-button>
+                        </v-col>
+                    </v-row>
+                    <v-row v-if="pollModel.ballots.length === 0" class="pt-0 mt-0">
+                        <v-col cols=12 class="pt-0 mt-0">
+                            <v-card-text align=left class="pt-0 mt-0">
+                                <p class="pt-0 mt-0">
+                                    You haven't created any Ballots yet!
+                                </p>
+                            </v-card-text>
                         </v-col>
                     </v-row>
                     <div v-for="ballot, idx in pollModel.ballots" :key="'ballot-'+idx">

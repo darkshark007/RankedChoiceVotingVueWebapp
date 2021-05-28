@@ -57,6 +57,7 @@ def get_poll_data(request):
             return response
 
         data = poll.get_js_poll_model(user)
+        userCanSeeResults = poll.can_get_results(user)
         include_my_ballots = request.GET.get('includeMyBallots', default=None)
         if include_my_ballots:
             data['ballots'] = []
@@ -64,12 +65,12 @@ def get_poll_data(request):
             for ballot in poll.ballots:
                 if ballot.user.id == user.id:
                     data['ballots'].append(ballot.get_js_ballot_model())
-                elif poll.public_ballots != 'no' and (poll.public_ballots == 'yes' or ballot.public):
+                elif userCanSeeResults and poll.public_ballots != 'no' and (poll.public_ballots == 'yes' or ballot.public):
                     data['ballotsPublic'].append(ballot.get_js_ballot_model())
 
         include_results = request.GET.get('includeResults', default=None)
         if include_results:
-            if poll.can_get_results(user):
+            if userCanSeeResults:
                 data['results'] = poll.get_js_result_model(user)
             else:
                 response = HttpResponse("Poll Results are unavailable")

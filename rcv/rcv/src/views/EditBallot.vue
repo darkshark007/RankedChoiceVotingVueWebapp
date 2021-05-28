@@ -129,7 +129,7 @@
                     ></message-card>
                     <div class="ma-4" v-html="pollStatusMessage">{{ pollStatusMessage }}</div>
                 </div>
-                <template v-if="statsList.length > 0">
+                <template v-if="statsList.length > 0 && shouldShowResultButton">
                     <div><v-divider class="ma-4"></v-divider></div>
                     <v-row>
                     </v-row>
