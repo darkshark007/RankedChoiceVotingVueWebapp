@@ -28,7 +28,6 @@
                         v-if="pollModel.pollRoute"
                     ></nav-button><!-- TODO: Add confirmation modal if changes? -->
                 </v-card-title>
-                Open: {{ pollStatusMessage }}
                 <v-divider class="my-4"/>
                 <v-text-field
                     label="Title"
@@ -57,6 +56,7 @@
                             <h4>Ballot Settings</h4>
                         </v-col>
                     </v-row>
+                    TODO: This should be an input, not a select
                     <form-select
                         label="Limit Rank Choices"
                         :items="getRankLimitChoices"
@@ -78,9 +78,10 @@
                 <p
                     v-if="showAdvanced"
                 >
+                    TODO: Move Choice Addition to Poll Page, not ballot page.
                     TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/>
                     TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/>
-                    TODO: Checkbox: Disallow users to add new Choices<br/>
+                    TODO: Checkbox: Select when Users can add new Choices<br/>
                 </p>
                 <v-divider class="my-4"/>
                 <v-row>

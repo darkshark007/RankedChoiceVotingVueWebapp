@@ -332,6 +332,8 @@ export default {
 
             // Results are unavailable until after Poll Closes
             if (resultRule === 'closed') {
+                this.common__now = ~~(new Date()/1000);
+                if (this.pollModel.ballotStart && this.common__now < this.pollModel.ballotStart) return false;
                 if (this.pollModel.locked || !this.pollIsOpen) return true;
                 return false;
             }

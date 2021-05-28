@@ -39,17 +39,24 @@
                         <v-col cols=9>
                             <v-card-text align=left>
                                 <p>
-                                    Type: {{ pollModel.type | displayPollType }}<br/>
-                                    Created: {{ pollModel.created | displayDate }}<br/>
-                                    Updated: {{ pollModel.updated | displayDate }}<br/>
-                                    Public Poll: {{ pollModel.publicPoll | titleCase }}<br/>
-                                    Public Ballots: {{ pollModel.publicBallots | titleCase }}<br/>
-                                    Public Results: {{ pollModel.publicResults | titleCase }}<br/>
-                                    Multiple Ballots Per User: {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
-                                    Randomize Choices: {{ pollModel.randomizeChoices | titleCase }}<br/>
+                                    <b>Type:</b> {{ pollModel.type | displayPollType }}<br/>
+                                    <b>Created:</b> {{ pollModel.created | displayDate }}<br/>
+                                    <b>Updated:</b> {{ pollModel.updated | displayDate }}<br/>
+                                    <b>Public Poll:</b> {{ pollModel.publicPoll | titleCase }}<br/>
+                                    <b>Public Ballots:</b> {{ pollModel.publicBallots | titleCase }}<br/>
+                                    <b>Public Results:</b> {{ pollModel.publicResults | titleCase }}<br/>
+                                    <b>Multiple Ballots Per User:</b> {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
+                                    <b>Randomize Choices:</b> {{ pollModel.randomizeChoices | titleCase }}<br/>
                                 </p>
                                 <p>
-                                    <font :color="pollModel.locked ? 'red' : ''">Poll Locked: {{ pollModel.locked | titleCase }}</font>
+                                    <font :color="pollModel.locked ? 'red' : ''"><b>Poll Locked:</b> {{ pollModel.locked | titleCase }}</font><br/>
+                                    <font :color="!pollIsOpen ? 'red' : ''"><b>Poll Status:</b> {{ pollStatusMessage | titleCase }}</font><br/>
+                                    <template v-if="pollModel.ballotStart">
+                                        <b class="pl-4">Voting Opens:</b> {{ new Date(pollModel.ballotStart*1000).toLocaleString() }}<br/>
+                                    </template>
+                                    <template v-if="pollModel.ballotEnd">
+                                        <b class="pl-4">Voting Closes:</b> {{ new Date(pollModel.ballotEnd*1000).toLocaleString() }}<br/>
+                                    </template>
                                 </p>
                             </v-card-text>
                         </v-col>

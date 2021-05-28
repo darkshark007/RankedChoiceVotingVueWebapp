@@ -25,6 +25,8 @@ SECRET_KEY = 'n(o#z@=i@$4hh0)h4o#t0dp7tql&rn4jd4$qw4m-j8fd@ica1c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+SESSION_COOKIE_AGE = 3153600000
+
 ALLOWED_HOSTS = [
     'localhost:8000',
     'localhost',
