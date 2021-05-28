@@ -50,49 +50,6 @@
                     <div><v-divider class="ma-4"></v-divider></div>
                     <v-row>
                         <v-col class="subheader" cols=8>
-                            <h4>Add new Choices</h4>
-                        </v-col>
-                        <v-col cols=2>
-                            <v-btn
-                                fab
-                                small
-                                color="light-green lighten-4"
-                                :disabled="pollModel.locked"
-                                @click="addChoice"
-                            >
-                                <v-icon color="indigo">mdi-plus</v-icon>
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-                    <poll-choice 
-                        v-for="choice, idx in newChoices"
-                        :key="idx"
-                        :choice="choice"
-                        :edit="true"
-                        @remove="removeChoice(choice)"
-                    ></poll-choice>
-                    <v-row v-if="newChoices.length > 0">
-                        <v-col cols=12>
-                            <v-spacer></v-spacer>
-                            <!-- TODO: Refactor button -->
-                            <v-btn
-                                color="light-green lighten-4"
-                                elevation="2"
-                                :loading="savingChoices"
-                                @click="saveChoices"
-                            >
-                                Save New Choices
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-                    <message-card
-                        :errorString=saveChoicesErrorString
-                        errorStringBase="Error Saving New Choices: "
-                        :successString=saveChoicesSuccessString
-                    ></message-card>
-                    <div><v-divider class="ma-4"></v-divider></div>
-                    <v-row>
-                        <v-col class="subheader" cols=8>
                             <h4>Ballot</h4>
                         </v-col>
                         <v-col cols=2 v-if="generated">
@@ -228,7 +185,6 @@
 import Common from '../common.js';
 import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
-import Choice from '../components/Choice.vue';
 import Ballot from '../components/Ballot.vue';
 import FormCheckbox from '../components/FormCheckbox.vue';
 
@@ -249,7 +205,6 @@ export default {
         'message-card': MessageCard,
         'nav-button': NavButton,
         'form-checkbox': FormCheckbox,
-        'poll-choice': Choice,
         'ballot': Ballot,
     },
     data: () => {
@@ -264,9 +219,6 @@ export default {
             displayStats: [],
             loading: 0,
             errorString: null,
-            savingChoices: false,
-            saveChoicesSuccessString: null,
-            saveChoicesErrorString: null,
             savingBallot: false,
             saveBallotSuccessString: null,
             saveBallotErrorString: null,
@@ -465,14 +417,6 @@ export default {
             }
         },
         nextStats: Common.methods.nextStats,
-        addChoice() {
-            let new_choice = Common.getEmptyChoiceContext();
-            this.newChoices.push(new_choice);
-        },
-        removeChoice(choice) {
-            let choiceIdx = this.newChoices.indexOf(choice);
-            this.newChoices.splice(choiceIdx, 1);
-        },
         getContextForType() {
             this.updateGeneratedBallots();
 
@@ -488,30 +432,6 @@ export default {
                 return this.ballotContext.context[this.selectedType];
             }
             return Common.getEmptyBallotContext();
-        },
-        saveChoices() {
-            let data = {
-                ...this.pollModel,
-                choices: [
-                    ...this.pollModel.choices,
-                    ...this.newChoices,
-                ],
-            };
-            this.savingChoices = true;
-            this.saveChoicesErrorString = null;
-            this.saveChoicesSuccessString = null;
-            Common.savePoll(data)
-                    .then(data => {
-                        this.saveChoicesSuccessString = "New Choices Saved!";
-                        this.pollModel = data;
-                        this.newChoices = [];
-                    })
-                    .catch((error) => {
-                        this.saveChoicesErrorString = error;
-                    })
-                    .finally(() => {
-                        this.savingChoices = false;
-                    });
         },
         saveBallot() {
             // Validate

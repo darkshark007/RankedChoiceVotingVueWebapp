@@ -15,7 +15,7 @@
                 <span v-html="tooltip">{{ tooltip }}</span>
             </v-tooltip>
         </v-col>
-        <v-col >
+        <v-col>
             <v-switch
                 v-model=local
                 inset

@@ -69,33 +69,47 @@
                     </v-row>
                     <v-divider class="mx-4"></v-divider>
                     <v-row>
-                        <v-col class="subheader">
+                        <v-col class="subheader" cols=8>
                             <h4>Choices</h4>
                         </v-col>
+                        <v-col cols=2>
+                            <v-btn
+                                fab
+                                small
+                                color="light-green lighten-4"
+                                :disabled="pollModel.locked"
+                                @click="addChoice"
+                            >
+                                <v-icon color="indigo">mdi-plus</v-icon>
+                            </v-btn>
+                        </v-col>
                     </v-row>
-                    <!--
-                    <v-card
-                        v-for="cand, idx in pollModel.choices" 
+                    <poll-choice
+                        v-for="choice, idx in newChoices"
                         :key="idx"
-                        class="ma-4"
-                        elevation=2
-                    >
-                        <v-row align=center class="ma-2">
-                            <v-col cols=1>
-                                <v-icon color="indigo" class="ma-2">mdi-star-outline</v-icon>
-                            </v-col>
+                        :choice="choice"
+                        :edit="true"
+                        @remove="removeChoice(choice)"
+                    ></poll-choice>
+                    <v-row v-if="newChoices.length > 0">
+                        <v-col cols=12>
                             <v-spacer></v-spacer>
-                            <v-col cols=10 align=left>
-                                <div v-if="cand.name">
-                                    <b>{{ cand.name }}</b>
-                                </div>
-                                <div v-if="cand.description">
-                                    <i>{{ cand.description }}</i>
-                                </div>
-                            </v-col>
-                        </v-row>
-                    </v-card>
-                    -->
+                            <!-- TODO: Refactor button -->
+                            <v-btn
+                                color="light-green lighten-4"
+                                elevation="2"
+                                :loading="savingChoices"
+                                @click="saveChoices"
+                            >
+                                Save New Choices
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                    <message-card
+                        :errorString=saveChoicesErrorString
+                        errorStringBase="Error Saving New Choices: "
+                        :successString=saveChoicesSuccessString
+                    ></message-card>
                     <poll-choice
                         v-for="cand, idx in pollModel.choices" 
                         :key="'choice-'+idx"
@@ -239,6 +253,10 @@ export default {
         return {
             ...Common.data,
             pollModel: Common.getEmptyPollContext(),
+            newChoices: [],
+            savingChoices: false,
+            saveChoicesErrorString: null,
+            saveChoicesSuccessString: null,
             loading: false,
             errorString: null,
         };
@@ -253,6 +271,38 @@ export default {
     },
     methods: {
         getEmptyPollContext: Common.getEmptyPollContext,
+        addChoice() {
+            let newChoice = Common.getEmptyChoiceContext();
+            this.newChoices.push(newChoice);
+        },
+        removeChoice(choice) {
+            let choiceIdx = this.newChoices.indexOf(choice);
+            this.newChoices.splice(choiceIdx, 1);
+        },
+        saveChoices() {
+            let data = {
+                ...this.pollModel,
+                choices: [
+                    ...this.pollModel.choices,
+                    ...this.newChoices,
+                ],
+            };
+            this.savingChoices = true;
+            this.saveChoicesErrorString = null;
+            this.saveChoicesSuccessString = null;
+            Common.savePoll(data)
+                    .then(data => {
+                        this.saveChoicesSuccessString = "New Choices Saved!";
+                        this.pollModel = data;
+                        this.newChoices = [];
+                    })
+                    .catch((error) => {
+                        this.saveChoicesErrorString = error;
+                    })
+                    .finally(() => {
+                        this.savingChoices = false;
+                    });
+        },
         setPollModel(id) {
             this.pollModel = Common.getEmptyPollContext()
             if (id) {

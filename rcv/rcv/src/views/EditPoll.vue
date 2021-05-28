@@ -78,10 +78,10 @@
                 <p
                     v-if="showAdvanced"
                 >
-                    TODO: Move Choice Addition to Poll Page, not ballot page.
                     TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/>
                     TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/>
                     TODO: Checkbox: Select when Users can add new Choices<br/>
+                    TODO: Limit amount of Choices users can add?<br/>
                 </p>
                 <v-divider class="my-4"/>
                 <v-row>
