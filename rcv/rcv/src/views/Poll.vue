@@ -28,7 +28,7 @@
                     <v-card-title>
                         {{ pollModel.name }}
                     </v-card-title>
-                    <v-card-subtitle align=left>
+                    <v-card-subtitle class="descriptionText" align=left>
                         {{ pollModel.description }}
                     </v-card-subtitle>
                     <v-divider class="mx-4"></v-divider>
@@ -74,10 +74,11 @@
                     </v-row>
                     <v-divider class="mx-4"></v-divider>
                     <v-row>
-                        <v-col class="subheader" cols=8>
+                        <v-col class="subheader" cols=6>
                             <h4>Choices</h4>
                         </v-col>
-                        <v-col cols=2>
+                        <v-spacer/>
+                        <v-col class="subheader" cols=4>
                             <v-btn
                                 fab
                                 small
@@ -123,7 +124,7 @@
                     <v-divider class="mx-4"></v-divider>
                     <v-row align=center>
                         <v-col class="subheader" cols=6>
-                            <h4>My Ballots</h4>
+                            <h4>{{ pollModel.ballots.length > 1 ? 'My Ballots' : 'My Ballot'}}</h4>
                         </v-col>
                         <v-spacer></v-spacer>
                         <v-col class="subheader" cols=4>
@@ -221,21 +222,24 @@
                             </v-card>
                         </div>
                     </div>
-                    <template>
-                        <v-divider class="my-4"></v-divider>
-                        <v-row justify=center>
-                            <v-col class="text-center">
-                            <nav-button
-                                :route="{ name: 'results', params: {'id': id, 'fromRoute': `/poll/${id}`}}"
-                                title="Results"
-                                :disabled="!shouldShowResultButton"
-                            ></nav-button>
-                            </v-col>
-                        </v-row>
-                        <v-row justify=center>
-                            <span class="text-center">{{ pollStatusMessage }}</span>
-                        </v-row>
-                    </template>
+                    <v-divider class="my-4"></v-divider>
+                    <v-row align=center>
+                        <v-col class="subheader" cols=6>
+                            <h4>Total Ballots: {{ pollModel.totalBallots }} </h4>
+                        </v-col>
+                    </v-row>
+                    <v-row justify=center>
+                        <v-col class="text-center">
+                        <nav-button
+                            :route="{ name: 'results', params: {'id': id, 'fromRoute': `/poll/${id}`}}"
+                            title="Results"
+                            :disabled="!shouldShowResultButton"
+                        ></nav-button>
+                        </v-col>
+                    </v-row>
+                    <v-row justify=center>
+                        <span class="text-center">{{ pollStatusMessage }}</span>
+                    </v-row>
                 </v-card>
             </div>
         </v-container>

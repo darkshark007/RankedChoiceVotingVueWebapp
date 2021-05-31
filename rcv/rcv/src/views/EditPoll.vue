@@ -36,10 +36,12 @@
                     tooltip="Show and modify Advanced Poll controls"
                     v-model="showAdvanced"
                 />
-                <v-text-field
+                <v-textarea
                     label="Description"
                     v-model="pollModel.description"
-                ></v-text-field>
+                    rows="1"
+                    auto-grow
+                ></v-textarea>
                 <v-select
                     label="Poll Type"
                     :items="pollTypeList"

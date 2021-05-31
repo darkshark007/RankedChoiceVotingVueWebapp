@@ -1,7 +1,7 @@
 <template>
     <div id="menu-top">
         <v-card
-        class="mx-auto overflow-hidden"
+            class="mx-auto overflow-hidden"
         >
             <v-app-bar
                 color="green darken-4"

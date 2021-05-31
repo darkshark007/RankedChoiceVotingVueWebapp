@@ -6,7 +6,6 @@
             fab
             small
             color="light-green lighten-4"
-            class="ma-3"
         >
             <v-icon color="indigo">{{icon}}</v-icon>
         </v-btn>
@@ -63,8 +62,6 @@ export default {
 
 <style scoped>
 .nav-button {
-    margin-left: 5px;
-    margin-right: 5px;
     text-decoration: none;
 }
 </style>

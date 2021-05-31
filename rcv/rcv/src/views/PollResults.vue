@@ -28,7 +28,7 @@
                     <v-card-title>
                         {{ pollModel.name }}
                     </v-card-title>
-                    <v-card-subtitle align=left>
+                    <v-card-subtitle class="descriptionText" align=left>
                         {{ pollModel.description }}
                     </v-card-subtitle>
                     <v-divider class="mx-4"></v-divider>

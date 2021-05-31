@@ -30,13 +30,15 @@
 
                     <!-- Description -->
                     <div v-if="!isEdit && choice.description">
-                        <i>{{ choice.description }}</i>
+                        <span class="descriptionText">{{ choice.description }}</span>
                     </div>
-                    <v-text-field
+                    <v-textarea
                         v-if="isEdit" 
                         label="Description"
                         v-model="choice.description"
-                    ></v-text-field>
+                        rows="1"
+                        auto-grow
+                    ></v-textarea>
 
                 </v-col>
             </v-row>

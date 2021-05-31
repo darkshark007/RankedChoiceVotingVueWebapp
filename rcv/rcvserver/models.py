@@ -454,6 +454,7 @@ class Poll(models.Model):
         }
         if user.id == self.creator.id:
             obj['canEdit'] = True
+        obj['totalBallots'] = len(self.ballots)
         return obj
 
 

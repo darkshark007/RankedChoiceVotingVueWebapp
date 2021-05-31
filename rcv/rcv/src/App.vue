@@ -41,6 +41,11 @@ export default {
     padding-left: 50px;
 }
 
+.descriptionText {
+    font-style: italic;
+    white-space: pre-line;
+}
+
 .wrapper {
     text-align: center;
     padding: 15px;

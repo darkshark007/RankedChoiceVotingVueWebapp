@@ -18,7 +18,7 @@
                 <v-card-title>
                     My Polls
                 </v-card-title>
-                <v-divider class="mx-4"></v-divider>
+                <v-divider class="my-4"></v-divider>
                 <div v-if="polls.length === 0">
                     You don't have any Polls yet!
                 </div>
@@ -42,7 +42,7 @@
                 <v-card-title>
                     Public Polls
                 </v-card-title>
-                <v-divider class="mx-4"></v-divider>
+                <v-divider class="my-4"></v-divider>
                 <div v-if="publicPolls.length === 0">
                     There are no Public polls!
                 </div>
