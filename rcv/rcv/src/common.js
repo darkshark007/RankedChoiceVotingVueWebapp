@@ -166,6 +166,7 @@ export default {
         return {
             name: '',
             description: '',
+            creator: '',
         };
     },
 

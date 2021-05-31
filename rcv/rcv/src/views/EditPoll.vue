@@ -106,11 +106,11 @@
                     v-model="pollModel.randomizeChoices"
                 />
                 <poll-choice 
-                    v-for="cand, idx in pollModel.choices"
+                    v-for="choice, idx in pollModel.choices"
                     :key="idx"
-                    :choice="cand"
-                    :edit="true"
-                    @remove="removeChoice(cand)"
+                    :choice="choice"
+                    :propEdit="true"
+                    @remove="removeChoice(choice)"
                 ></poll-choice>
                 <v-divider class="my-4"/>
                 <template v-if="showAdvanced">
@@ -235,9 +235,9 @@ export default {
         addChoice() {
             this.pollModel.choices.push({});
         },
-        removeChoice(cand) {
-            let candIdx = this.pollModel.choices.indexOf(cand);
-            this.pollModel.choices.splice(candIdx, 1);
+        removeChoice(choice) {
+            let choiceIdx = this.pollModel.choices.indexOf(choice);
+            this.pollModel.choices.splice(choiceIdx, 1);
         },
         savePoll() {
             this.saving = true;

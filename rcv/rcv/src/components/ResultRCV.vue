@@ -230,7 +230,7 @@ export default {
                             break;
                         }
                     } else {
-                        addExplainStage(`It looks all the remaining candidates are tied!`, choiceScoresMap, round);
+                        addExplainStage(`It looks all the remaining choices are tied!`, choiceScoresMap, round);
                         addExplainStage(`Result:<br/>Tie`, choiceScoresMap, round);
                         break;
                     }

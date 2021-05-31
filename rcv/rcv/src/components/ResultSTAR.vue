@@ -152,7 +152,7 @@ export default {
 
             // Build Score Explain Stage
             let score_stage = {
-                'message': 'Score Then Automatic Runoff (STAR) is a Score based system that runs in two stages.  Each candidate is scored 0-5, and then their score is added up across all Ballots',
+                'message': 'Score Then Automatic Runoff (STAR) is a Score based system that runs in two stages.  Each choice is scored 0-5, and then their score is added up across all Ballots',
                 'round': 'Scoring',
                 'yMax': this.resultContext.count*5,
             };
@@ -174,7 +174,7 @@ export default {
 
             let select2Stage = {
                 ...score_stage,
-                'message': 'Next, we select 2 candidates with the highest scores to go to the Runoff round.',
+                'message': 'Next, we select 2 choices with the highest scores to go to the Runoff round.',
             }
             this.explainStages.push(select2Stage);
             let sortedByScore = Object.keys(results)

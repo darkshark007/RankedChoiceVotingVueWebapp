@@ -9,7 +9,17 @@
 
                 <!-- Icon -->
                 <v-col cols=1>
-                    <v-icon v-if="!isEdit" color="indigo" class="ma-2">mdi-star-outline</v-icon>
+                    <template v-if="isDisplay && editable">
+                            <v-btn
+                                fab
+                                small
+                                color="light-green lighten-4"
+                                @click="startEdit"
+                            >
+                                <v-icon color="indigo" class="ma-2">mdi-pencil-outline</v-icon>
+                            </v-btn>
+                    </template>
+                    <v-icon v-if="isDisplay && !editable" color="indigo" class="ma-2">mdi-star-outline</v-icon>
                     <v-btn v-if="isEdit" icon color="indigo" @click="$emit('remove')">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>                
@@ -72,12 +82,17 @@ export default {
             type: Object,
             required: true,
         },
-        edit: {
+        propEdit: {
             type: Boolean,
             required: false,
             default: false,
         },
         preview: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        editable: {
             type: Boolean,
             required: false,
             default: false,
@@ -95,6 +110,15 @@ export default {
             return !this.edit && this.preview;
         },
     },
+    methods: {
+        startEdit() {
+            this.edit = true;
+            this.$emit('onEdit');
+        },
+    },
+    created() {
+        this.edit = this.propEdit;
+    },
     mounted() {
         // Model definition
         if (!this.choice.name)
@@ -103,8 +127,15 @@ export default {
             this.choice.description = "";
     },
     data: () => {
-        return {}
+        return {
+            'edit': false,
+        }
     },
+    watch: {
+        choice() {
+            this.edit = this.propEdit;
+        }
+    }
 };
 </script>
 

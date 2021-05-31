@@ -234,7 +234,7 @@ export default {
                 let best = true;
                 let bestWinner = null;
                 let bestRound = 1;
-                addExplainStage(`We may be able to resolve the tie by looking at previous rounds.  Did any of the choices defeat all the other tie candiates outright at higher rankings?`, choiceScoresMap, topN);
+                addExplainStage(`We may be able to resolve the tie by looking at previous rounds.  Did any of the choices defeat all the other tie choices outright at higher rankings?`, choiceScoresMap, topN);
                 for (; bestRound <= topN; bestRound++) {
                     choiceScoresMap = {};
                     for (let choiceKey in choiceScoresByRoundMap[bestRound]) {
@@ -249,7 +249,7 @@ export default {
                             if (bestWinner === otherChoiceKey) continue;
                             if (choiceScoresMap[winner[otherChoiceKey]] >= choiceScoresMap[winner[bestWinner]]) {
                                 best = false;
-                                addExplainStage(`It looks like ${this.choiceIdToNameMap[winner[bestWinner]]} was not more popular than all the other tied candidates...`, choiceScoresMap, bestRound+"*");
+                                addExplainStage(`It looks like ${this.choiceIdToNameMap[winner[bestWinner]]} was not more popular than all the other tied choices...`, choiceScoresMap, bestRound+"*");
                                 break;
                             }
                         }

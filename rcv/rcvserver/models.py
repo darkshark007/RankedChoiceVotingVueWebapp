@@ -27,32 +27,6 @@ TYPE_CHOICES = (
 
 # Create your models here.
 
-class Choice(models.Model):
-    '''
-    (OUTDATED)
-    Sample Data Structure:
-        Choice({
-            'id': ObjectId('606115f19696a4dc0e8f3f57'),
-            'name': "Bobby Fischer",
-        })
-    '''
-    id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
-    name = models.CharField(max_length=40)
-    description = models.CharField(max_length=500)
-
-
-    def __getitem__(self, name):
-       return getattr(self, name, None)
-
-
-    def get_js_choice_model(self):
-        obj = {
-            'id': str(self.id),
-            'name': self.name,
-            'description': self.description,
-        }
-        return obj
-
 class User(models.Model):
     '''
     (OUTDATED)
@@ -88,6 +62,34 @@ class User(models.Model):
         return user
 
 
+class Choice(models.Model):
+    '''
+    (OUTDATED)
+    Sample Data Structure:
+        Choice({
+            'id': ObjectId('606115f19696a4dc0e8f3f57'),
+            'name': "Bobby Fischer",
+        })
+    '''
+    id = models.CharField(max_length=24, default=ObjectId, primary_key=True)
+    name = models.CharField(max_length=40)
+    description = models.CharField(max_length=500)
+    creator = models.EmbeddedField(model_container=User, default=User)
+
+    def __getitem__(self, name):
+       return getattr(self, name, None)
+
+
+    def get_js_choice_model(self, user):
+        obj = {
+            'id': str(self.id),
+            'name': self.name,
+            'description': self.description,
+        }
+        if user.id == self.creator.id:
+            obj['created'] = True
+        return obj
+
 
 class Ballot(models.Model):
     '''
@@ -117,7 +119,6 @@ class Ballot(models.Model):
             'context': self.context,
         }
         return obj
-
 
 
 class Result(models.Model):
@@ -344,7 +345,7 @@ class Poll(models.Model):
        return getattr(self, name, None)
 
 
-    def update_from_js_poll_model(self, model):
+    def update_from_js_poll_model(self, model, user):
         self.name = model.get('name', None)
         self.description = model.get('description', None)
         self.type = model.get('type', None)
@@ -355,6 +356,7 @@ class Poll(models.Model):
                 cand_obj = old_choices_map[cand.get('id')]
             else:
                 cand_obj = Choice()
+                cand_obj.creator = user
             cand_obj.name = cand.get('name', None)
             cand_obj.description = cand.get('description', None)
             new_choices.append(cand_obj)
@@ -450,7 +452,7 @@ class Poll(models.Model):
             'randomizeChoices': self.randomize_choices,
             'limitRankChoices': self.limit_rank_choices,
             'locked': self.locked,
-            'choices': list(map(lambda cand: cand.get_js_choice_model(), self.choices)),
+            'choices': list(map(lambda choice: choice.get_js_choice_model(user), self.choices)),
         }
         if user.id == self.creator.id:
             obj['canEdit'] = True

@@ -31,7 +31,7 @@ def create_or_update_poll(request):
         poll = Poll()
         poll.results = Result()
         poll.creator = user
-    poll.update_from_js_poll_model(request_json)
+    poll.update_from_js_poll_model(request_json, user)
 
     # Return
     data = poll.get_js_poll_model(user)

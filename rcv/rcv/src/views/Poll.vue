@@ -94,10 +94,10 @@
                         v-for="choice, idx in newChoices"
                         :key="idx"
                         :choice="choice"
-                        :edit="true"
+                        :propEdit="true"
                         @remove="removeChoice(choice)"
                     ></poll-choice>
-                    <v-row v-if="newChoices.length > 0">
+                    <v-row v-if="choiceEdited || newChoices.length > 0">
                         <v-col cols=12>
                             <v-spacer></v-spacer>
                             <!-- TODO: Refactor button -->
@@ -107,19 +107,22 @@
                                 :loading="savingChoices"
                                 @click="saveChoices"
                             >
-                                Save New Choices
+                                Save Choices
                             </v-btn>
                         </v-col>
                     </v-row>
                     <message-card
                         :errorString=saveChoicesErrorString
-                        errorStringBase="Error Saving New Choices: "
+                        errorStringBase="Error Saving Choices: "
                         :successString=saveChoicesSuccessString
                     ></message-card>
                     <poll-choice
-                        v-for="cand, idx in pollModel.choices" 
+                        v-for="choice, idx in pollModel.choices" 
                         :key="'choice-'+idx"
-                        :choice="cand"
+                        :choice="choice"
+                        :editable="choice.created"
+                        @onEdit="choiceEdited = true"
+                        @remove="removeChoice(choice)"
                     ></poll-choice>
                     <v-divider class="mx-4"></v-divider>
                     <v-row align=center>
@@ -273,6 +276,7 @@ export default {
             pollModel: Common.getEmptyPollContext(),
             newChoices: [],
             savingChoices: false,
+            choiceEdited: false,
             saveChoicesErrorString: null,
             saveChoicesSuccessString: null,
             loading: false,
@@ -295,7 +299,9 @@ export default {
         },
         removeChoice(choice) {
             let choiceIdx = this.newChoices.indexOf(choice);
-            this.newChoices.splice(choiceIdx, 1);
+            if (choiceIdx !== -1) this.newChoices.splice(choiceIdx, 1);
+            choiceIdx = this.pollModel.choices.indexOf(choice);
+            if (choiceIdx !== -1) this.pollModel.choices.splice(choiceIdx, 1);
         },
         saveChoices() {
             let data = {
@@ -310,7 +316,8 @@ export default {
             this.saveChoicesSuccessString = null;
             Common.savePoll(data)
                     .then(data => {
-                        this.saveChoicesSuccessString = "New Choices Saved!";
+                        this.saveChoicesSuccessString = "Choices Saved!";
+                        this.choiceEdited = false;
                         this.pollModel = data;
                         this.newChoices = [];
                     })

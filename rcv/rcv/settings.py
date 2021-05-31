@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '0.0.0.0',
     # '24c8a8f27c9d.ngrok.io',
+    '2857045a8ecd.ngrok.io',
     # '1b2ad9ddebd69b.localhost.run',
     'loving-dew-34657.pktriot.net',
 ]
@@ -57,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware', # TODO: Disabled while Forwarding to a Tunnel!  Remove once fully hosted
 ]
 
 ROOT_URLCONF = 'rcv.urls'
