@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     'loving-dew-34657.pktriot.net',
 
     # Deployed Environments
-    'c2277d1.online-server.cloud'
+    'c2277d1.online-server.cloud',
     '70.35.200.250',
     'multipolls.app',
 ]
