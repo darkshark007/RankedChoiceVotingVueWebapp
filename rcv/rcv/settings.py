@@ -30,6 +30,7 @@ SESSION_COOKIE_AGE = 3153600000
 ALLOWED_HOSTS = [
     'localhost:8000',
     'localhost',
+    '70.35.200.250',
     '0.0.0.0',
     # '24c8a8f27c9d.ngrok.io',
     '2857045a8ecd.ngrok.io',
