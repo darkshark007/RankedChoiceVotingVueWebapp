@@ -28,14 +28,20 @@ DEBUG = True
 SESSION_COOKIE_AGE = 3153600000
 
 ALLOWED_HOSTS = [
+    # Local environments
     'localhost:8000',
     'localhost',
-    '70.35.200.250',
     '0.0.0.0',
-    # '24c8a8f27c9d.ngrok.io',
-    '2857045a8ecd.ngrok.io',
+
+    # Tunneled environments
+    # '2857045a8ecd.ngrok.io',
     # '1b2ad9ddebd69b.localhost.run',
     'loving-dew-34657.pktriot.net',
+
+    # Deployed Environments
+    'c2277d1.online-server.cloud'
+    '70.35.200.250',
+    'multipolls.app',
 ]
 
 
