@@ -23,38 +23,38 @@ export default {
           };
     },
     computed: {
-        isRedirecting() {
-            let loc = window.location;
-            if (loc.ancestorOrigins && loc.ancestorOrigins[0] === 'https://multipolls.app') return true;
-            return false;
-        }
+        // isRedirecting() {
+        //     let loc = window.location;
+        //     if (loc.ancestorOrigins && loc.ancestorOrigins[0] === 'https://multipolls.app') return true;
+        //     return false;
+        // }
     },
     mounted() {
-        if (this.isRedirecting) {
-            console.log(window.location);
-            console.log(window);
-        }
+        // if (this.isRedirecting) {
+        //     console.log(window.location);
+        //     console.log(window);
+        // }
     },
-    watch: {
-        $route(to, from) {
-            if (this.isRedirecting) {
-                // react to route changes...
-                let newUrl = `${window.location.ancestorOrigins[0]}/#${to.fullPath}`;
-                let newUrlFragment = `/#${to.fullPath}`;
-                let newHash = `#${to.fullPath}`;
-                console.log(newUrl, newUrlFragment, newHash);
-                // console.log('New Url: ')
-                // console.log(newUrl);
-                // history.pushState({},"MultiPolls",newUrl);
-                // window.parent.history.pushState({},"MultiPolls",newUrlFragment);
-                // console.log(newUrlFragment);
-                // window.parent.location.href = newUrl;
-                // window.top.location.hash = newHash;
-                window.open(newUrl, "_top", null, true);
+    // watch: {
+    //     $route(to, from) {
+    //         if (this.isRedirecting) {
+    //             // react to route changes...
+    //             let newUrl = `${window.location.ancestorOrigins[0]}/#${to.fullPath}`;
+    //             let newUrlFragment = `/#${to.fullPath}`;
+    //             let newHash = `#${to.fullPath}`;
+    //             console.log(newUrl, newUrlFragment, newHash);
+    //             // console.log('New Url: ')
+    //             // console.log(newUrl);
+    //             // history.pushState({},"MultiPolls",newUrl);
+    //             // window.parent.history.pushState({},"MultiPolls",newUrlFragment);
+    //             // console.log(newUrlFragment);
+    //             // window.parent.location.href = newUrl;
+    //             // window.top.location.hash = newHash;
+    //             window.open(newUrl, "_top", null, true);
 
-            }
-        },
-    },
+    //         }
+    //     },
+    // },
 }
 </script>
 
