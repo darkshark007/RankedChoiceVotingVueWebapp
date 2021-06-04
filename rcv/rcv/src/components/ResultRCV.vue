@@ -145,19 +145,20 @@ export default {
             let total = this.resultContext.count;
             let majority = Math.floor(total * 0.50)+1;
             let addExplainStage = function(message, scoreMap, round) {
+                scoreMap = {...scoreMap};
                 let data = {
                     'message': message,
                     'round': round,
                 };
 
-                choiceScoresMap['Exhausted'] = total;
+                scoreMap['Exhausted'] = total;
                 data['choiceData'] = [];
                 for (let choiceKey in scoreMap) {
                     data['choiceData'].push({
                         'y': scoreMap[choiceKey] * 100.0 / total,
                         'votes': scoreMap[choiceKey],
                     });
-                    choiceScoresMap['Exhausted'] -= scoreMap[choiceKey];
+                    scoreMap['Exhausted'] -= scoreMap[choiceKey];
                 }
 
                 data['choiceList'] = [];

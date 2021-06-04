@@ -12,8 +12,12 @@
                 <thead>
                     <tr>
                         <th><!-- Empty Col --></th>
-                        <th :colspan=choices.length class="text-center">
-                            Choice Rank
+                        <th :colspan=1 class="text-center">
+                            Best
+                        </th>
+                        <th v-if="ranks.length > 2" :colspan=ranks.length-2 class="text-center"></th>
+                        <th :colspan=1 class="text-center">
+                            Worst
                         </th>
                     </tr>
                     <tr>
@@ -21,7 +25,7 @@
                         <th 
                             v-for="_, idx in ranks"
                             :key="idx"
-                            class="text-left ballot-rank-text"
+                            class="text-center ballot-rank-text"
                         >
                             {{ idx+1 }}
                         </th>
