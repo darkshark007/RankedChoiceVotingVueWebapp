@@ -254,6 +254,11 @@ export default {
     transform: rotate(-90deg);
 } */
 
+.choiceRadioLabel {
+    align-content: center;
+    justify-content: center;
+}
+
 .wrapper {
     padding: 0px;
 }

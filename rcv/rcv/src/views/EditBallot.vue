@@ -67,7 +67,7 @@
                         </v-col>
                     </v-row>
                     <v-text-field
-                        label="Name"
+                        label="Name or Ballot Label"
                         v-model="ballotContext.name"
                     ></v-text-field>
                     <v-select

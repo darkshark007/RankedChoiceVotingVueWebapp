@@ -188,6 +188,7 @@ export default {
             addExplainStage('First, we tally up all of the First-Rank choices...', choiceScoresMap, round);
             let winner = null;
             while (!winner) {
+                if (round > this.pollModel.choices.length + 2) throw 'Error, infinite loop detected calculating Result';
                 addExplainStage(`Then we check again to see if any of the Choices have more than 50% of the total vote...`, choiceScoresMap, round)
                 for (let choiceKey in choiceScoresMap) {
                     if (choiceScoresMap[choiceKey] >= majority) {

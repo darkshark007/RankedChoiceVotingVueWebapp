@@ -63,9 +63,10 @@
                         :rules="[validateLimitRankChoices]"
                     >
                     </form-text>
+                    <!-- TODO: Add option for ballots-public-to-creator only? -->
                     <form-select
                         label="When should Ballots be Public?"
-                        tooltip="When should Ballots be Public?"
+                        tooltip="When should Ballots be Public?<br/><br/>• <b>Never</b> - Ballots are always hidden, only the Ballot Submitter can see the contents<br/>• <b>Optionally</b> - Ballot Submitter can decide whether their Ballot is public or hidden<br/>• <b>Always</b> - Ballots are always public, anyone can see the contents of each Ballot<br/>"
                         :items="publicBallotOptions"
                         v-model="pollModel.publicBallots"
                     />
@@ -75,14 +76,10 @@
                         v-model="pollModel.multiBallotsPerUser"
                     />
                 </template>
-                <p
-                    v-if="showAdvanced"
-                >
-                    TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/>
-                    TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/>
-                    TODO: Checkbox: Select when Users can add new Choices<br/>
-                    TODO: Limit amount of Choices users can add?<br/>
-                </p>
+                <!-- TODO: Limit amount of Choices users can add?<br/> -->
+                <!-- TODO: Checkbox: Select when Users can add new Choices<br/> -->
+                <!-- TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/> -->
+                <!-- TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/> -->
                 <v-divider class="my-4"/>
                 <v-row>
                     <v-col cols=6>
@@ -121,7 +118,7 @@
                     </v-row>
                     <form-select
                         label="When should Results be Publically Available?"
-                        tooltip="When should Results be Publically Available?"
+                        tooltip="When should Results be Publically Available?<br/><br/>• <b>Always</b> - Results are <b>always Available</b> to the Ballot Submitter<br/>• <b>After Voting</b> - Results are <b>unavailable</b> to the Ballot Submitter until after they have submitted a Ballot<br/>• <b>After Poll Closes</b> - Results are <b>unavailable</b> until after Poll Closes or is Locked<br/>• <b>Never</b> - Results are never available Publically, only to Poll creator<br/>"
                         :items="publicResultsOptions"
                         v-model="pollModel.publicResults"
                     />
@@ -234,16 +231,7 @@ export default {
             let choiceIdx = this.pollModel.choices.indexOf(choice);
             this.pollModel.choices.splice(choiceIdx, 1);
         },
-        validateLimitRankChoices(value) {
-            if (value === null) return true;
-
-            let nF = Number.parseFloat(value);
-            let nI = Number.parseInt(value);
-            if (isNaN(nI)) return "Must be a number!";
-            if ((nF - nI) != 0) return "Must be an Integer!";
-            if (nI < 2) return "Must be empty, or a positive integer greater than 1!";
-            return true;
-        },
+        validateLimitRankChoices: Common.methods.validateLimitRankChoices,
         savePoll() {
             this.saving = true;
             this.saveErrorString = null;

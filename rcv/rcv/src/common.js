@@ -30,6 +30,11 @@ export default {
     },
     savePoll(pollModel) {
         return new Promise((resolve, reject) => {
+            // Validate Poll Data
+            if (this.methods.validateLimitRankChoices(pollModel.limitRankChoices) !== true) {
+                reject('Invalid setting for Limit Rank Choice!');
+            }
+
             Utils.post(window['API'].create_or_update_poll, pollModel)
             .then(response => {
                 if (response.status === 200) {
@@ -385,6 +390,16 @@ export default {
                 this.displayStats.push(nextStat);
                 this.statsList.push(nextStat);
             }
+        },
+        validateLimitRankChoices(value) {
+            if (value === null) return true;
+
+            let nF = Number.parseFloat(value);
+            let nI = Number.parseInt(value);
+            if (isNaN(nI)) return "Must be a number!";
+            if ((nF - nI) != 0) return "Must be an Integer!";
+            if (nI < 2) return "Must be empty, or a positive integer greater than 1!";
+            return true;
         },
     },
 };

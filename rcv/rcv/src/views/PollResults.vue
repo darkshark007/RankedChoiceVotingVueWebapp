@@ -63,7 +63,7 @@
                             ></v-select>
                         </v-col>
                     </v-row>
-                    <v-container class="wrapper">
+                    <v-container class="wrapper" v-if="totalBallots > 0">
                         <!-- Single-Choice Popular Vote -->
                         <v-container v-if="type === 'fptp'" class="wrapper">
                             <result-fptp
@@ -93,7 +93,10 @@
                             />
                         </v-container>
                     </v-container>
-                    <template v-if="statsList.length > 0">
+                    <v-container class="wrapper" v-else>
+                        <p>No ballots have been submitted yet.</p>
+                    </v-container>
+                    <template v-if="statsList.length > 0 && totalBallots > 0">
                         <div><v-divider class="ma-4"></v-divider></div>
                         <v-row>
                         </v-row>

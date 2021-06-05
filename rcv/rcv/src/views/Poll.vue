@@ -90,6 +90,18 @@
                             </v-btn>
                         </v-col>
                     </v-row>
+                    <v-row v-if="newChoices.length+pollModel.choices.length === 0" class="pt-0 mt-0">
+                        <v-col cols=12 class="pt-0 mt-0">
+                            <v-card-text align=left class="pt-0 mt-0">
+                                <p class="pt-0 mt-0">
+                                    No Choices have been added yet!
+                                </p>
+                                <p class="pt-0 mt-0">
+                                    Click the (+) button to get started!
+                                </p>
+                            </v-card-text>
+                        </v-col>
+                    </v-row>
                     <poll-choice
                         v-for="choice, idx in newChoices"
                         :key="idx"
