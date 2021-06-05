@@ -59,7 +59,7 @@ export default {
             publicBallots: "maybe",
             publicResults: "always",
             multiBallotsPerUser: true,
-            limitRankChoices: -1,
+            limitRankChoices: null,
             ballotStart: null,
             ballotEnd: null,
             locked: false,

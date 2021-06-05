@@ -142,7 +142,10 @@
                         <v-col cols=12 class="pt-0 mt-0">
                             <v-card-text align=left class="pt-0 mt-0">
                                 <p class="pt-0 mt-0">
-                                    You haven't created any Ballots yet!  Click the (+) button to get started!
+                                    You haven't created any Ballots yet!
+                                </p>
+                                <p class="pt-0 mt-0">
+                                    Click the (+) button to get started!
                                 </p>
                             </v-card-text>
                         </v-col>

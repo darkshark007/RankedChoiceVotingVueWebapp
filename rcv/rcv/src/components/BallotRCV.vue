@@ -125,7 +125,7 @@ export default {
     computed: {
         ranks() {
             let count = this.choices.length;
-            if (this.pollModel.limitRankChoices !== -1) count = this.pollModel.limitRankChoices;
+            if (this.pollModel.limitRankChoices !== null) count = this.pollModel.limitRankChoices;
             return [...Array(count).keys()]
         },
     },

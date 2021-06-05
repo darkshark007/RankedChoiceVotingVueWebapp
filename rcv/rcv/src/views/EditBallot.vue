@@ -116,7 +116,7 @@
                         </v-col>
                         <v-col cols=6>
                             <nav-button
-                                :route="{ name: 'results', params: {'id': pollid, 'fromRoute': `/editBallots/${pollid}/${ballotid}`}}"
+                                :route="getBackRoute"
                                 title="Results"
                                 :disabled="!shouldShowResultButton"
                             ></nav-button>
@@ -232,6 +232,13 @@ export default {
         pollStatusMessage: Common.computed.pollStatusMessage,
         choiceIdToNameMap: Common.computed.choiceIdToNameMap,
         shouldShowResultButton: Common.computed.shouldShowResultButton,
+        getBackRoute() {
+            let context = { name: 'results', params: {'id': this.pollid, 'fromRoute': `/editBallots/${this.pollid}`}};
+            if (this.ballotid) {
+                context.params.fromRoute += `/${this.ballotid}`;
+            }
+            return context;
+        },
     },
     methods: {
         ballotSimilarity: Common.methods.ballotSimilarity,

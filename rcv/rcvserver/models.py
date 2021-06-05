@@ -332,7 +332,7 @@ class Poll(models.Model):
     multi_ballots_per_user = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
     randomize_choices = models.BooleanField(default=True)
-    limit_rank_choices = models.IntegerField(default=-1)
+    limit_rank_choices = models.IntegerField(default=None)
     ballot_start = models.IntegerField(default=None)
     ballot_end = models.IntegerField(default=None)
 
@@ -541,7 +541,7 @@ class Poll(models.Model):
             return response, None
 
         is_valid = True
-        if self.limit_rank_choices != -1:
+        if self.limit_rank_choices != None:
             if len(model['ballot']['context'][TYPE_CLASSIC_RCV]['selected']) > self.limit_rank_choices:
                 is_valid = False
             if len(model['ballot']['context'][TYPE_RANKED_CUMULATIVE_APPROVAL]['selected']) > self.limit_rank_choices:
@@ -579,7 +579,6 @@ class Poll(models.Model):
             current_ballot.user = user
 
         if not new_ballot:
-            # TODO: Update Results/statistics data
             self.results.update_fptp_result_from_ballot(current_ballot, -1)
             self.results.update_rcv_result_from_ballot(current_ballot, -1)
             self.results.update_rca_result_from_ballot(current_ballot, -1)
@@ -589,7 +588,6 @@ class Poll(models.Model):
         current_ballot.context = model['ballot']['context']
         current_ballot.public = model['ballot']['publicBallot']
 
-        # TODO: Update Results/statistics data
         self.results.update_fptp_result_from_ballot(current_ballot, 1)
         self.results.update_rcv_result_from_ballot(current_ballot, 1)
         self.results.update_rca_result_from_ballot(current_ballot, 1)

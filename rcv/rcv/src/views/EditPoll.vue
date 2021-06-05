@@ -56,13 +56,13 @@
                             <h4>Ballot Settings</h4>
                         </v-col>
                     </v-row>
-                    TODO: This should be an input, not a select
-                    <form-select
-                        label="Limit Rank Choices"
-                        :items="getRankLimitChoices"
+                    <form-text
+                        title="Limit Rank Choices"
                         v-model="pollModel.limitRankChoices"
                         tooltip="If set, limits the number of Choices the Ballot Submitter can rank.  Can be useful for managing Polls with a large number of Choice options.<br/><br/><b>Note:</b> Only applies to some Poll Types"
-                    ></form-select>
+                        :rules="[validateLimitRankChoices]"
+                    >
+                    </form-text>
                     <form-select
                         label="When should Ballots be Public?"
                         tooltip="When should Ballots be Public?"
@@ -178,6 +178,7 @@ import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
 import Choice from '../components/Choice.vue';
 import FormCheckbox from '../components/FormCheckbox.vue';
+import FormText from '../components/FormText.vue';
 import FormSelect from '../components/FormSelect.vue';
 import FormDatetime from '../components/FormDatetime.vue';
 
@@ -196,6 +197,7 @@ export default {
         'form-checkbox': FormCheckbox,
         'form-select': FormSelect,
         'form-datetime': FormDatetime,
+        'form-text': FormText,
     },
     data: () => {
         return {
@@ -223,13 +225,6 @@ export default {
     computed: {
         pollIsOpen: Common.computed.pollIsOpen,
         pollStatusMessage: Common.computed.pollStatusMessage,
-        getRankLimitChoices() {
-            let numChoices = Math.max(2, this.pollModel.choices.length-1);
-            let arr = [...Array(numChoices).keys()];
-            let noLimit = { name: 'No Limit', value: -1 };
-            let mapped = arr.map(i => { return { name: `Top-${(i+2)}`, value: +i+2 }; });
-            return [noLimit, ...mapped];
-        },
     },
     methods: {
         addChoice() {
@@ -238,6 +233,16 @@ export default {
         removeChoice(choice) {
             let choiceIdx = this.pollModel.choices.indexOf(choice);
             this.pollModel.choices.splice(choiceIdx, 1);
+        },
+        validateLimitRankChoices(value) {
+            if (value === null) return true;
+
+            let nF = Number.parseFloat(value);
+            let nI = Number.parseInt(value);
+            if (isNaN(nI)) return "Must be a number!";
+            if ((nF - nI) != 0) return "Must be an Integer!";
+            if (nI < 2) return "Must be empty, or a positive integer greater than 1!";
+            return true;
         },
         savePoll() {
             this.saving = true;
