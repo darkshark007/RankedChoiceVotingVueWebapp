@@ -333,6 +333,7 @@ class Poll(models.Model):
     locked = models.BooleanField(default=False)
     randomize_choices = models.BooleanField(default=True)
     limit_rank_choices = models.IntegerField(default=None)
+    limit_choices_added = models.IntegerField(default=None)
     ballot_start = models.IntegerField(default=None)
     ballot_end = models.IntegerField(default=None)
 
@@ -368,6 +369,7 @@ class Poll(models.Model):
         self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
         self.limit_rank_choices = model.get('limitRankChoices', None)
+        self.limit_choices_added = model.get('limitChoicesAdded', None)
         self.ballot_start = model.get('ballotStart', None)
         self.ballot_end = model.get('ballotEnd', None)
         self.locked = model.get('locked', None)
@@ -451,6 +453,7 @@ class Poll(models.Model):
             'multiBallotsPerUser': self.multi_ballots_per_user,
             'randomizeChoices': self.randomize_choices,
             'limitRankChoices': self.limit_rank_choices,
+            'limitChoicesAdded': self.limit_choices_added,
             'locked': self.locked,
             'choices': list(map(lambda choice: choice.get_js_choice_model(user), self.choices)),
         }

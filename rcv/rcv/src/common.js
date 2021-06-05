@@ -34,6 +34,9 @@ export default {
             if (this.methods.validateLimitRankChoices(pollModel.limitRankChoices) !== true) {
                 reject('Invalid setting for Limit Rank Choice!');
             }
+            if (this.methods.validateLimitChoicesAdded(pollModel.limitChoicesAdded) !== true) {
+                reject('Invalid setting for Limit Choices Added!');
+            }
 
             Utils.post(window['API'].create_or_update_poll, pollModel)
             .then(response => {
@@ -65,6 +68,7 @@ export default {
             publicResults: "always",
             multiBallotsPerUser: true,
             limitRankChoices: null,
+            limitChoicesAdded: null,
             ballotStart: null,
             ballotEnd: null,
             locked: false,
@@ -319,6 +323,16 @@ export default {
             }
             return idToNameMap;
         },
+        shouldActivateChoiceAddButton() {
+            if (this.pollModel.locked) return false;
+            if (this.pollModel.limitChoicesAdded) {
+                let count = 0;
+                count += this.pollModel.choices.filter((c) => c.created).length;
+                if (this.newChoices) count += this.newChoices.length;
+                if (count >= this.pollModel.limitChoicesAdded) return false;
+            }
+            return true;
+        },
         shouldShowResultButton() {
             // Poll Creator or Manager can always see results
             if (this.pollModel.canEdit) return true;
@@ -399,6 +413,16 @@ export default {
             if (isNaN(nI)) return "Must be a number!";
             if ((nF - nI) != 0) return "Must be an Integer!";
             if (nI < 2) return "Must be empty, or a positive integer greater than 1!";
+            return true;
+        },
+        validateLimitChoicesAdded(value) {
+            if (value === null) return true;
+
+            let nF = Number.parseFloat(value);
+            let nI = Number.parseInt(value);
+            if (isNaN(nI)) return "Must be a number!";
+            if ((nF - nI) != 0) return "Must be an Integer!";
+            if (nI < 1) return "Must be empty, or a positive integer greater than 0!";
             return true;
         },
     },

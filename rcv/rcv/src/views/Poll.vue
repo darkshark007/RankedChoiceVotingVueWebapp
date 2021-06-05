@@ -83,7 +83,7 @@
                                 fab
                                 small
                                 color="light-green lighten-4"
-                                :disabled="pollModel.locked"
+                                :disabled="!shouldActivateChoiceAddButton"
                                 @click="addChoice"
                             >
                                 <v-icon color="indigo">mdi-plus</v-icon>
@@ -303,11 +303,13 @@ export default {
     },
     computed: {
         shouldShowResultButton: Common.computed.shouldShowResultButton,
+        shouldActivateChoiceAddButton: Common.computed.shouldActivateChoiceAddButton,
         pollStatusMessage: Common.computed.pollStatusMessage,
         pollIsOpen: Common.computed.pollIsOpen,
     },
     methods: {
         getEmptyPollContext: Common.getEmptyPollContext,
+
         addChoice() {
             let newChoice = Common.getEmptyChoiceContext();
             this.newChoices.push(newChoice);

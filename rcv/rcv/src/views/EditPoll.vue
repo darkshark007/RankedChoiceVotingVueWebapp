@@ -61,8 +61,7 @@
                         v-model="pollModel.limitRankChoices"
                         tooltip="If set, limits the number of Choices the Ballot Submitter can rank.  Can be useful for managing Polls with a large number of Choice options.<br/><br/><b>Note:</b> Only applies to some Poll Types"
                         :rules="[validateLimitRankChoices]"
-                    >
-                    </form-text>
+                    />
                     <!-- TODO: Add option for ballots-public-to-creator only? -->
                     <form-select
                         label="When should Ballots be Public?"
@@ -96,12 +95,6 @@
                         </v-btn>
                     </v-col>
                 </v-row>
-                <form-checkbox
-                    v-if="showAdvanced"
-                    title="Randomize Choices"
-                    tooltip="If active, Choices will be listed in a random order."
-                    v-model="pollModel.randomizeChoices"
-                />
                 <poll-choice 
                     v-for="choice, idx in pollModel.choices"
                     :key="idx"
@@ -109,6 +102,19 @@
                     :propEdit="true"
                     @remove="removeChoice(choice)"
                 ></poll-choice>
+                <template v-if="showAdvanced">
+                    <form-checkbox
+                        title="Randomize Choices"
+                        tooltip="If active, Choices will be listed in a random order."
+                        v-model="pollModel.randomizeChoices"
+                    />
+                    <form-text
+                        title="Limit number of Choices users can add"
+                        v-model="pollModel.limitChoicesAdded"
+                        tooltip="If set, limits the number of Choices the Ballot Submitter can add to the Poll."
+                        :rules="[validateLimitChoicesAdded]"
+                    />
+                </template>
                 <v-divider class="my-4"/>
                 <template v-if="showAdvanced">
                     <v-row>
@@ -232,6 +238,7 @@ export default {
             this.pollModel.choices.splice(choiceIdx, 1);
         },
         validateLimitRankChoices: Common.methods.validateLimitRankChoices,
+        validateLimitChoicesAdded: Common.methods.validateLimitChoicesAdded,
         savePoll() {
             this.saving = true;
             this.saveErrorString = null;
