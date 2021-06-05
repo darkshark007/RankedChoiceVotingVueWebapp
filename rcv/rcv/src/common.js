@@ -69,6 +69,7 @@ export default {
             multiBallotsPerUser: true,
             limitRankChoices: null,
             limitChoicesAdded: null,
+            usersCanAddChoices: "never",
             ballotStart: null,
             ballotEnd: null,
             locked: false,
@@ -303,17 +304,17 @@ export default {
             }
             if (this.pollModel.ballotStart) {
                 if (this.common__now < this.pollModel.ballotStart) {
-                    return `Poll will open in ${getTimeStamp(this.pollModel.ballotStart-this.common__now)}!`
+                    return `Poll will open in ${getTimeStamp(this.pollModel.ballotStart-this.common__now)}!`;
                 }
             }
             if (this.pollModel.ballotEnd) {
                 if (this.common__now > this.pollModel.ballotEnd) {
-                    return "Poll is Closed!"
+                    return "Poll is Closed!";
                 } else {
-                    return `Poll will close in ${getTimeStamp(this.pollModel.ballotEnd-this.common__now)}!`
+                    return `Poll will close in ${getTimeStamp(this.pollModel.ballotEnd-this.common__now)}!`;
                 }
             }
-            return "Poll is Open"
+            return "Poll is Open";
         },
         choiceIdToNameMap() {
             let idToNameMap = {};
@@ -323,7 +324,22 @@ export default {
             }
             return idToNameMap;
         },
+        shouldShowChoiceAddButton() {
+            if (this.pollModel.canEdit) return true;
+            if (this.pollModel.locked) return false;
+            if (this.pollModel.usersCanAddChoices === 'never') return false;
+            if (this.pollModel.usersCanAddChoices === 'open') {
+                this.common__now = ~~(new Date()/1000);
+                if (this.common__now < this.pollModel.ballotStart) {
+                    return true;
+                }
+                return false;
+            }
+            if (this.pollModel.usersCanAddChoices === 'always') return true;
+            return true;
+        },
         shouldActivateChoiceAddButton() {
+            if (this.pollModel.canEdit) return true;
             if (this.pollModel.locked) return false;
             if (this.pollModel.limitChoicesAdded) {
                 let count = 0;

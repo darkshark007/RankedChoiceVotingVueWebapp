@@ -58,6 +58,15 @@
                                     <b>Public Results:</b> {{ pollModel.publicResults | titleCase }}<br/>
                                     <b>Multiple Ballots Per User:</b> {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
                                     <b>Randomize Choices:</b> {{ pollModel.randomizeChoices | titleCase }}<br/>
+                                    <template v-if="pollModel.usersCanAddChoices !== 'never'">
+                                        <b>Users can add Choices:</b> {{ pollModel.usersCanAddChoices | titleCase }}<br/>
+                                    </template>
+                                    <template v-if="pollModel.limitRankChoices">
+                                        <b>Max Choices Rankable:</b> {{ pollModel.limitRankChoices }}<br/>
+                                    </template>
+                                    <template v-if="pollModel.limitChoicesAdded">
+                                        <b>Max Choices User can Add:</b> {{ pollModel.limitChoicesAdded }}<br/>
+                                    </template>
                                 </p>
                                 <p>
                                     <font :color="pollModel.locked ? 'red' : ''"><b>Poll Locked:</b> {{ pollModel.locked | titleCase }}</font><br/>
@@ -78,7 +87,7 @@
                             <h4>Choices</h4>
                         </v-col>
                         <v-spacer/>
-                        <v-col class="subheader" cols=4>
+                        <v-col class="subheader" cols=4 v-if="shouldShowChoiceAddButton">
                             <v-btn
                                 fab
                                 small
@@ -96,7 +105,7 @@
                                 <p class="pt-0 mt-0">
                                     No Choices have been added yet!
                                 </p>
-                                <p class="pt-0 mt-0">
+                                <p v-if="shouldShowChoiceAddButton && shouldActivateChoiceAddButton" class="pt-0 mt-0">
                                     Click the (+) button to get started!
                                 </p>
                             </v-card-text>
@@ -109,7 +118,7 @@
                         :propEdit="true"
                         @remove="removeChoice(choice)"
                     ></poll-choice>
-                    <v-row v-if="choiceEdited || newChoices.length > 0">
+                    <v-row v-if="(choiceEdited || newChoices.length > 0) && shouldShowChoiceAddButton">
                         <v-col cols=12>
                             <v-spacer></v-spacer>
                             <!-- TODO: Refactor button -->
@@ -132,7 +141,7 @@
                         v-for="choice, idx in pollModel.choices" 
                         :key="'choice-'+idx"
                         :choice="choice"
-                        :editable="choice.created"
+                        :editable="choice.created && shouldShowChoiceAddButton"
                         @onEdit="choiceEdited = true"
                         @remove="removeChoice(choice)"
                     ></poll-choice>
@@ -304,6 +313,7 @@ export default {
     computed: {
         shouldShowResultButton: Common.computed.shouldShowResultButton,
         shouldActivateChoiceAddButton: Common.computed.shouldActivateChoiceAddButton,
+        shouldShowChoiceAddButton: Common.computed.shouldShowChoiceAddButton,
         pollStatusMessage: Common.computed.pollStatusMessage,
         pollIsOpen: Common.computed.pollIsOpen,
     },
@@ -335,7 +345,11 @@ export default {
                     .then(data => {
                         this.saveChoicesSuccessString = "Choices Saved!";
                         this.choiceEdited = false;
-                        this.pollModel = data;
+                        this.pollModel = {
+                            ...data,
+                            ballots: this.pollModel.ballots,
+                            ballotsPublic: this.pollModel.ballotsPublic,
+                        };
                         this.newChoices = [];
                     })
                     .catch((error) => {

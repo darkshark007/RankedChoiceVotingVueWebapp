@@ -12,6 +12,7 @@
                 :errorString=loadingErrorString
                 errorStringBase="Error loading Poll: "
             ></message-card>
+            <!-- TODO: Add Recycle button/API, Linked Polls section -->
             <v-card
                 class="wrapper appWidth"
                 align="center"
@@ -75,8 +76,6 @@
                         v-model="pollModel.multiBallotsPerUser"
                     />
                 </template>
-                <!-- TODO: Limit amount of Choices users can add?<br/> -->
-                <!-- TODO: Checkbox: Select when Users can add new Choices<br/> -->
                 <!-- TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/> -->
                 <!-- TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/> -->
                 <v-divider class="my-4"/>
@@ -107,6 +106,12 @@
                         title="Randomize Choices"
                         tooltip="If active, Choices will be listed in a random order."
                         v-model="pollModel.randomizeChoices"
+                    />
+                    <form-select
+                        label="When can Ballot Submitters add choices to the poll?"
+                        tooltip="When can Ballot Submitters add choices to the poll?<br/><br/>• <b>Never</b> - Ballot Submitters can never add choices, only the creator<br/>• <b>Before Poll Opens</b> - Ballot Submitters can only add choices before voting opens<br/>• <b>Always</b> - Ballot Submitters can always add new choices<br/>"
+                        :items="userAddChoicesOptions"
+                        v-model="pollModel.usersCanAddChoices"
                     />
                     <form-text
                         title="Limit number of Choices users can add"
@@ -222,6 +227,11 @@ export default {
                 { name: 'After Voting',      value: 'voting', hint: 'Results are <b>unavailable</b> to the Ballot Submitter until after they have submitted a Ballot' },
                 { name: 'After Poll Closes', value: 'closed', hint: 'Results are <b>unavailable</b> until after Poll Closes or is Locked' },
                 { name: 'Never',             value: 'never',  hint: 'Results are never available Publically, only to Poll creator' },
+            ],
+            userAddChoicesOptions: [
+                { name: 'Never',             value: 'never',  hint: 'Ballot Submitters can never add choices, only the creator' },
+                { name: 'Before Poll Opens', value: 'open',   hint: 'Ballot Submitters can only add choices before voting opens' },
+                { name: 'Always',            value: 'always', hint: 'Ballot Submitters can always add new choices' },
             ],
         };
     },

@@ -329,6 +329,7 @@ class Poll(models.Model):
     public = models.BooleanField(default=False)
     public_ballots = models.CharField(max_length=5, default='maybe', choices=[('yes','yes'), ('no','no'), ('maybe','maybe')])
     public_results = models.CharField(max_length=6, default='always', choices=[('always', 'always'),('voting', 'voting'),('closed', 'closed'),('never', 'never')])
+    users_can_add_choices = models.CharField(max_length=6, default='never', choices=[('always', 'always'),('open', 'open'),('never', 'never')])
     multi_ballots_per_user = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
     randomize_choices = models.BooleanField(default=True)
@@ -366,6 +367,7 @@ class Poll(models.Model):
         self.public = model.get('publicPoll', None)
         self.public_ballots = model.get('publicBallots', None)
         self.public_results = model.get('publicResults', None)
+        self.users_can_add_choices = model.get('usersCanAddChoices', None)
         self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
         self.limit_rank_choices = model.get('limitRankChoices', None)
@@ -448,6 +450,7 @@ class Poll(models.Model):
             'publicPoll': self.public,
             'publicBallots': self.public_ballots,
             'publicResults': self.public_results,
+            'usersCanAddChoices': self.users_can_add_choices,
             'ballotStart': self.ballot_start,
             'ballotEnd': self.ballot_end,
             'multiBallotsPerUser': self.multi_ballots_per_user,
