@@ -19,6 +19,7 @@ def index(request):
                 'get_poll_data': '/api/get_poll_data/',
                 'get_ballot_data': '/api/get_ballot_data/',
                 'get_my_polls': '/api/get_my_polls/',
+                'recycle_poll': '/api/recycle_poll/',
             },
             'POLL_TYPES': TYPE_CHOICES,
         }

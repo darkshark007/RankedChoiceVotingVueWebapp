@@ -12,7 +12,6 @@
                 :errorString=loadingErrorString
                 errorStringBase="Error loading Poll: "
             ></message-card>
-            <!-- TODO: Add Recycle button/API, Linked Polls section -->
             <v-card
                 class="wrapper appWidth"
                 align="center"
@@ -116,7 +115,7 @@
                     <form-text
                         title="Limit number of Choices users can add"
                         v-model="pollModel.limitChoicesAdded"
-                        tooltip="If set, limits the number of Choices the Ballot Submitter can add to the Poll."
+                        tooltip="If set, limits the maximum number of Choices the Ballot Submitter can contribute to the Poll to the given number."
                         :rules="[validateLimitChoicesAdded]"
                     />
                 </template>
@@ -170,12 +169,39 @@
                         </v-btn>
                     </v-col>
                 </v-row>
+                <message-card
+                    :errorString=saveErrorString
+                    errorStringBase="Error Saving Poll: "
+                    :successString=saveSuccessString
+                ></message-card>
+                <template v-if="showAdvanced">
+                    <v-divider class="my-4"/>
+                    <p>
+                        Recycle the poll to archive the existing Ballots and Results and reset this Poll for a new round of Ballots.
+                    </p>
+                    <p>
+                        This is useful for creating re-usable or recurring Polls with a static URL.
+                    </p>
+                    <v-row>
+                        <v-col cols=12>
+                            <!-- TODO: Refactor button -->
+                            <v-btn
+                                color="light-green lighten-4"
+                                elevation="2"
+                                :loading="recycling"
+                                @click="recyclePoll"
+                            >
+                                Recycle Poll
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                    <message-card
+                        :errorString=recycleErrorString
+                        errorStringBase="Error Saving Poll: "
+                        :successString=recycleSuccessString
+                    ></message-card>
+                </template>
             </v-card>
-            <message-card
-                :errorString=saveErrorString
-                errorStringBase="Error Saving Poll: "
-                :successString=saveSuccessString
-            ></message-card>
         </v-container>
     </div>
 </template>
@@ -217,6 +243,9 @@ export default {
             saving: false,
             saveErrorString: null,
             saveSuccessString: null,
+            recycling: false,
+            recycleErrorString: null,
+            recycleSuccessString: null,
             publicBallotOptions: [
                 { name: 'Never',      value: 'no',    hint: 'Ballots are always hidden, only the Ballot Submitter can see the contents' },
                 { name: 'Optionally', value: 'maybe', hint: 'Ballot Submitter can decide whether their Ballot is public or hidden' },
@@ -269,6 +298,25 @@ export default {
                     })
                     .finally(() => {
                         this.saving = false;
+                    });
+        },
+        recyclePoll() {
+            this.recycling = true;
+            this.recycleErrorString = null;
+            this.recycleSuccessString = null;
+            Common.recyclePoll(this.pollModel)
+                    .then(data => {
+                        this.recycleSuccessString = "Recycle Successful!";
+                        this.pollModel = {
+                            ...Common.getEmptyPollContext(),
+                            ...data,
+                        };
+                    })
+                    .catch((error) => {
+                        this.recycleErrorString = error;
+                    })
+                    .finally(() => {
+                        this.recycling = false;
                     });
         },
         setPollModel(id) {

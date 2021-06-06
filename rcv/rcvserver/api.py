@@ -1,4 +1,5 @@
 import json
+import pendulum
 
 from bson import ObjectId
 from django.http import JsonResponse, HttpResponse
@@ -39,10 +40,65 @@ def create_or_update_poll(request):
     return response
 
 
+def recycle_poll(request):
+    request_data = json.loads(request.POST.get('json', default=None))
+    if not request_data:
+        response = HttpResponse("Invalid Request data")
+        response.status_code = 400
+        return response
+
+    user = User.get_user_from_request(request)
+    poll_id = request_data.get('id')
+    if not ObjectId.is_valid(poll_id):
+        response = HttpResponse("Given Id is not valid ObjectId")
+        response.status_code = 400
+        return response
+
+    if poll_id:
+        try:
+            poll = Poll.objects.get(id=poll_id)
+        except Poll.DoesNotExist:
+            response = HttpResponse("Given Poll does not exist")
+            response.status_code = 403
+            return response
+
+        timestamp = pendulum.now()
+
+        # Clone the old Poll
+        new_id = ObjectId()
+        poll.id = new_id
+        poll.save()
+
+        recycled_poll = Poll.objects.get(id=new_id)
+        recycled_poll.parent = str(poll_id)
+        recycled_poll.updated = timestamp
+        recycled_poll.locked = True
+        recycled_poll.save()
+
+        poll = Poll.objects.get(id=poll_id)
+        poll.created = timestamp
+        poll.updated = timestamp
+        poll.ballots = []
+        poll.results = Result()
+        poll.init_stats()
+        poll.save()
+
+    return get_poll_data(request)
+
+
 # API Endpoint for Getting Poll Data for the FrontEnd
 def get_poll_data(request):
+    request_data = getattr(request, request.method)
+    request_json = request_data.get('json', default=None)
+    if request_json:
+        request_data = json.loads(request_json)
+    if not request_data:
+        response = HttpResponse("Invalid Request data")
+        response.status_code = 400
+        return response
+
     user = User.get_user_from_request(request)
-    poll_id = request.GET.get('id', default=None)
+    poll_id = request_data.get('id')
     if not ObjectId.is_valid(poll_id):
         response = HttpResponse("Given Id is not valid ObjectId")
         response.status_code = 400
@@ -57,25 +113,35 @@ def get_poll_data(request):
             return response
 
         data = poll.get_js_poll_model(user)
-        userCanSeeResults = poll.can_get_results(user)
-        include_my_ballots = request.GET.get('includeMyBallots', default=None)
+        user_can_see_results = poll.can_get_results(user)
+        include_my_ballots = request_data.get('includeMyBallots')
         if include_my_ballots:
             data['ballots'] = []
             data['ballotsPublic'] = []
             for ballot in poll.ballots:
                 if ballot.user.id == user.id:
                     data['ballots'].append(ballot.get_js_ballot_model())
-                elif userCanSeeResults and poll.public_ballots != 'no' and (poll.public_ballots == 'yes' or ballot.public):
+                elif user_can_see_results and poll.public_ballots != 'no' and (poll.public_ballots == 'yes' or ballot.public):
                     data['ballotsPublic'].append(ballot.get_js_ballot_model())
 
-        include_results = request.GET.get('includeResults', default=None)
+        include_results = request_data.get('includeResults')
         if include_results:
-            if userCanSeeResults:
+            if user_can_see_results:
                 data['results'] = poll.get_js_result_model(user)
             else:
                 response = HttpResponse("Poll Results are unavailable")
                 response.status_code = 403
                 return response
+
+        include_old_polls = request_data.get('includeOldPolls')
+        if include_old_polls:
+            data['oldPolls'] = []
+            for old_poll in Poll.objects.filter(parent=poll_id):
+                data['oldPolls'].append({
+                    'id': str(old_poll.id),
+                    'created': old_poll.created,
+                    'name': old_poll.name,
+                })
 
         response = JsonResponse(data)
 
@@ -133,9 +199,9 @@ def get_ballot_data(request):
 def get_my_polls(request):
     user = User.get_user_from_request(request)
 
-    user_polls = Poll.objects.filter(creator__exact={'id': user.id})
+    user_polls = Poll.objects.filter(creator__exact={'id': user.id}, parent=None)
     found_ids = set(map(lambda poll: str(poll.id), user_polls))
-    public_polls = Poll.objects.filter(public=True).exclude(id__in=found_ids)
+    public_polls = Poll.objects.filter(public=True, parent=None).exclude(id__in=found_ids)
     # TODO: Find Polls with User Ballots in them
     data = {
         'polls': list(map(lambda poll: poll.get_js_poll_model(user), user_polls)),

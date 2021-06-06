@@ -22,6 +22,7 @@ from rcvserver.api import (
     get_ballot_data,
     get_my_polls,
     create_or_update_ballot,
+    recycle_poll,
 )
 
 urlpatterns = [
@@ -31,5 +32,6 @@ urlpatterns = [
     url(r'^api/get_poll_data/', get_poll_data),
     url(r'^api/get_ballot_data/', get_ballot_data),
     url(r'^api/get_my_polls/', get_my_polls),
+    url(r'^api/recycle_poll/', recycle_poll),
     url(r'^$', index, name='index'),
 ]

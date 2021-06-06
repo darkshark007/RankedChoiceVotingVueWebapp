@@ -28,17 +28,12 @@ export default {
                 });
         });
     },
-    savePoll(pollModel) {
+    recyclePoll(pollModel) {
         return new Promise((resolve, reject) => {
-            // Validate Poll Data
-            if (this.methods.validateLimitRankChoices(pollModel.limitRankChoices) !== true) {
-                reject('Invalid setting for Limit Rank Choice!');
+            let data = {
+                'id': pollModel.id,
             }
-            if (this.methods.validateLimitChoicesAdded(pollModel.limitChoicesAdded) !== true) {
-                reject('Invalid setting for Limit Choices Added!');
-            }
-
-            Utils.post(window['API'].create_or_update_poll, pollModel)
+            Utils.post(window['API'].recycle_poll, data)
             .then(response => {
                 if (response.status === 200) {
                     return response.json()
@@ -298,6 +293,9 @@ export default {
                 diff = (diff - days) / 365;
                 if (diff === 0) return `${days} days`;
                 return "Calculating...";
+            }
+            if (this.pollModel.recycled) {
+                return "Poll is Recycled!";
             }
             if (this.pollModel.locked) {
                 return "Poll is Locked!";

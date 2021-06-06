@@ -319,7 +319,8 @@ class Poll(models.Model):
         })
     '''
 
-    id = models.ObjectIdField(default=ObjectId)
+    id = models.ObjectIdField(default=ObjectId, primary_key=True)
+    parent = models.CharField(max_length=24, default=None)
     creator = models.EmbeddedField(model_container=User, default=User)
     created = models.DateTimeField(default=pendulum.now)
     updated = models.DateTimeField(default=pendulum.now)
@@ -463,6 +464,9 @@ class Poll(models.Model):
         if user.id == self.creator.id:
             obj['canEdit'] = True
         obj['totalBallots'] = len(self.ballots)
+        if self.parent:
+            obj['recycled'] = True
+            obj['parent'] = self.parent
         return obj
 
 

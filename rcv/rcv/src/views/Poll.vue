@@ -26,6 +26,12 @@
                     v-else
                 >
                     <v-card-title>
+                        <nav-button
+                            v-if="pollModel.recycled"
+                            :route="`/poll/${pollModel.parent}`"
+                            icon="mdi-recycle-variant"
+                            class="pr-2"
+                        ></nav-button>
                         {{ pollModel.name }}
                     </v-card-title>
                     <v-card-subtitle class="descriptionText" align=left>
@@ -165,7 +171,7 @@
                                 <p class="pt-0 mt-0">
                                     You haven't created any Ballots yet!
                                 </p>
-                                <p class="pt-0 mt-0">
+                                <p class="pt-0 mt-0" v-if="(!pollModel.locked) && pollIsOpen">
                                     Click the (+) button to get started!
                                 </p>
                             </v-card-text>
@@ -267,6 +273,24 @@
                     <v-row justify=center>
                         <span class="text-center">{{ pollStatusMessage }}</span>
                     </v-row>
+                    <template v-if="pollModel.oldPolls.length > 0">
+                        <v-divider class="my-4"></v-divider>
+                        <v-row align=center>
+                            <v-col class="subheader" cols=6>
+                                <h4>Old Polls</h4>
+                            </v-col>
+                        </v-row>
+                        <div
+                            v-for="(oldPoll, idx) in pollModel.oldPolls"
+                            :key="'oldpoll-'+idx"
+                        >
+                            <v-card class="pa-4 ma-2" elevation=2>
+                                <router-link :to="`/poll/${oldPoll.id}`" class="route-item">
+                                    <p class="ma-0 pa-0"><b>{{ oldPoll.created | displayDate }}</b> - <i>{{ oldPoll.name }}</i></p>
+                                </router-link>
+                            </v-card>
+                        </div>
+                    </template>
                 </v-card>
             </div>
         </v-container>
@@ -319,7 +343,6 @@ export default {
     },
     methods: {
         getEmptyPollContext: Common.getEmptyPollContext,
-
         addChoice() {
             let newChoice = Common.getEmptyChoiceContext();
             this.newChoices.push(newChoice);
@@ -363,7 +386,7 @@ export default {
             this.pollModel = Common.getEmptyPollContext()
             if (id) {
                 this.loading = true;
-                Common.getPollData({'id': id, includeMyBallots: true})
+                Common.getPollData({'id': id, includeMyBallots: true, includeOldPolls: true})
                     .then(data => {
                         this.pollModel = data;
                     })
@@ -379,6 +402,11 @@ export default {
     mounted() {
         this.setPollModel(this.id);
     },
+    watch: {
+        "$route.params.id"(newId) {
+            this.setPollModel(newId);
+        },
+    }
 };
 </script>
 
