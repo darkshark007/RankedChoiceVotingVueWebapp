@@ -91,6 +91,7 @@ export default {
             publicBallots: "maybe",
             publicResults: "always",
             multiBallotsPerUser: true,
+            allowUsersToSeeArchivedPolls: true,
             limitRankChoices: null,
             limitChoicesAdded: null,
             usersCanAddChoices: "never",

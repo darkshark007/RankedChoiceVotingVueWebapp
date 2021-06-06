@@ -75,7 +75,6 @@
                         v-model="pollModel.multiBallotsPerUser"
                     />
                 </template>
-                <!-- TODO: Checkbox: Allow users to see old polls<br/> -->
                 <!-- TODO: Add confirmation modal for Recycle<br/> -->
                 <!-- TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/> -->
                 <!-- TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/> -->
@@ -184,6 +183,11 @@
                     <p>
                         This is useful for creating re-usable or recurring Polls with a static URL.
                     </p>
+                    <form-checkbox
+                        title="Allow Users to see Archived Polls"
+                        tooltip="If active, All users will be able to see old/archived polls.  If disabled, only the Poll Creator can see old/archived polls."
+                        v-model="pollModel.allowUsersToSeeArchivedPolls"
+                    />
                     <v-row>
                         <v-col cols=12>
                             <!-- TODO: Refactor button -->

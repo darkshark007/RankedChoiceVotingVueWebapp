@@ -136,12 +136,13 @@ def get_poll_data(request):
         include_old_polls = request_data.get('includeOldPolls')
         if include_old_polls:
             data['oldPolls'] = []
-            for old_poll in Poll.objects.filter(parent=poll_id):
-                data['oldPolls'].append({
-                    'id': str(old_poll.id),
-                    'created': old_poll.created,
-                    'name': old_poll.name,
-                })
+            if poll.allow_users_to_see_archived_polls == True or poll.creator.id == user.id:
+                for old_poll in Poll.objects.filter(parent=poll_id):
+                    data['oldPolls'].append({
+                        'id': str(old_poll.id),
+                        'created': old_poll.created,
+                        'name': old_poll.name,
+                    })
 
         response = JsonResponse(data)
 
