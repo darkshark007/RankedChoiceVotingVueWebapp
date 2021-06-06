@@ -75,7 +75,6 @@
                         v-model="pollModel.multiBallotsPerUser"
                     />
                 </template>
-                <!-- TODO: Add confirmation modal for Recycle<br/> -->
                 <!-- TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/> -->
                 <!-- TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/> -->
                 <v-divider class="my-4"/>
@@ -209,6 +208,35 @@
                 </template>
             </v-card>
         </v-container>
+        <v-dialog
+            v-model="confirmationDialog"
+            persistent
+            max-width="290"
+        >
+            <v-card>
+                <v-card-title class="text-h5">
+                    {{ confirmationDialogContext.title }}
+                </v-card-title>
+                <v-card-text>{{ confirmationDialogContext.text }}</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        :color="`${confirmationDialogContext.button1Color} darken-1`"
+                        text
+                        @click=confirmationDialogContext.button1Handler
+                    >
+                        {{ confirmationDialogContext.button1Text }}
+                    </v-btn>
+                    <v-btn
+                        :color="`${confirmationDialogContext.button2Color} darken-1`"
+                        text
+                        @click=confirmationDialogContext.button2Handler
+                        >
+                        {{ confirmationDialogContext.button2Text }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -252,6 +280,8 @@ export default {
             recycling: false,
             recycleErrorString: null,
             recycleSuccessString: null,
+            confirmationDialog: false,
+            confirmationDialogContext: {},
             publicBallotOptions: [
                 { name: 'Never',      value: 'no',    hint: 'Ballots are always hidden, only the Ballot Submitter can see the contents' },
                 { name: 'Optionally', value: 'maybe', hint: 'Ballot Submitter can decide whether their Ballot is public or hidden' },
@@ -275,6 +305,8 @@ export default {
         pollStatusMessage: Common.computed.pollStatusMessage,
     },
     methods: {
+        validateLimitRankChoices: Common.methods.validateLimitRankChoices,
+        validateLimitChoicesAdded: Common.methods.validateLimitChoicesAdded,
         addChoice() {
             this.pollModel.choices.push({});
         },
@@ -282,8 +314,6 @@ export default {
             let choiceIdx = this.pollModel.choices.indexOf(choice);
             this.pollModel.choices.splice(choiceIdx, 1);
         },
-        validateLimitRankChoices: Common.methods.validateLimitRankChoices,
-        validateLimitChoicesAdded: Common.methods.validateLimitChoicesAdded,
         savePoll() {
             this.saving = true;
             this.saveErrorString = null;
@@ -307,6 +337,24 @@ export default {
                     });
         },
         recyclePoll() {
+            this.openConfirmationDialog({
+                // Default context
+                'title': 'Recycle Poll',
+                'text': 'Are you sure you want to recycle this poll?  The current Ballots/Results will be archived and this poll will be reset with its current settings.',
+                'button1Text': 'Cancel',
+                'button1Color': 'red',
+                'button1Handler': () => {
+                    this.confirmationDialog = false;
+                },
+                'button2Text': 'Recycle',
+                'button2Color': 'green',
+                'button2Handler': () => {
+                    this.confirmationDialog = false;
+                    this.recyclePollConfirm();
+                },
+            });
+        },
+        recyclePollConfirm() {
             this.recycling = true;
             this.recycleErrorString = null;
             this.recycleSuccessString = null;
@@ -343,6 +391,23 @@ export default {
                     .finally(() => {
                         this.loading = false;
                     });
+            }
+        },
+        openConfirmationDialog(context) {
+            this.confirmationDialog = true;
+            this.confirmationDialogContext = {
+                // Default context
+                'title': 'Confirm',
+                'text': '',
+                'button1Text': 'Cancel',
+                'button1Color': 'red',
+                'button1Handler': () => {},
+                'button2Text': 'OK',
+                'button2Color': 'green',
+                'button2Handler': () => {},
+
+                // Custom Context
+                ...context,
             }
         },
     },
