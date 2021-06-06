@@ -75,6 +75,8 @@
                         v-model="pollModel.multiBallotsPerUser"
                     />
                 </template>
+                <!-- TODO: Checkbox: Allow users to see old polls<br/> -->
+                <!-- TODO: Add confirmation modal for Recycle<br/> -->
                 <!-- TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/> -->
                 <!-- TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/> -->
                 <v-divider class="my-4"/>

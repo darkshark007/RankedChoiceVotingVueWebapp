@@ -28,6 +28,35 @@ export default {
                 });
         });
     },
+    savePoll(pollModel) {
+        return new Promise((resolve, reject) => {
+            // Validate Poll Data
+            if (this.methods.validateLimitRankChoices(pollModel.limitRankChoices) !== true) {
+                reject('Invalid setting for Limit Rank Choice!');
+            }
+            if (this.methods.validateLimitChoicesAdded(pollModel.limitChoicesAdded) !== true) {
+                reject('Invalid setting for Limit Choices Added!');
+            }
+
+            Utils.post(window['API'].create_or_update_poll, pollModel)
+            .then(response => {
+                if (response.status === 200) {
+                    return response.json()
+                        .then(data => {
+                            resolve(this.processPollData(data));
+                        });
+                } else {
+                    return response.text()
+                        .then(text => {
+                            reject(text);
+                        });
+                }
+            })
+            .catch((error) => {
+                reject(error);
+            });
+        });
+    },
     recyclePoll(pollModel) {
         return new Promise((resolve, reject) => {
             let data = {
