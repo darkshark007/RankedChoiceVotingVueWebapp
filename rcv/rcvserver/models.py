@@ -333,6 +333,7 @@ class Poll(models.Model):
     users_can_add_choices = models.CharField(max_length=6, default='never', choices=[('always', 'always'),('open', 'open'),('never', 'never')])
     multi_ballots_per_user = models.BooleanField(default=True)
     allow_users_to_see_archived_polls = models.BooleanField(default=True)
+    allow_users_to_edit_ballots = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
     randomize_choices = models.BooleanField(default=True)
     limit_rank_choices = models.IntegerField(default=None)
@@ -373,6 +374,7 @@ class Poll(models.Model):
         self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
         self.allow_users_to_see_archived_polls = model.get('allowUsersToSeeArchivedPolls', True)
+        self.allow_users_to_edit_ballots = model.get('allowUsersToEditBallots', True)
         self.limit_rank_choices = model.get('limitRankChoices', None)
         self.limit_choices_added = model.get('limitChoicesAdded', None)
         self.ballot_start = model.get('ballotStart', None)
@@ -458,6 +460,7 @@ class Poll(models.Model):
             'ballotEnd': self.ballot_end,
             'multiBallotsPerUser': self.multi_ballots_per_user,
             'allowUsersToSeeArchivedPolls': self.allow_users_to_see_archived_polls,
+            'allowUsersToEditBallots': self.allow_users_to_edit_ballots,
             'randomizeChoices': self.randomize_choices,
             'limitRankChoices': self.limit_rank_choices,
             'limitChoicesAdded': self.limit_choices_added,
@@ -564,11 +567,13 @@ class Poll(models.Model):
             response.status_code = 403
             return response, None
 
-
-
         # Update
         new_ballot = False
         if model['ballot']['id']:
+            if not self.allow_users_to_edit_ballots:
+                response = HttpResponse("Ballots cannot be edited after saving!")
+                response.status_code = 400
+                return response, None
             ballot_id = model['ballot']['id']
             current_ballot = None
             for ballot in self.ballots:

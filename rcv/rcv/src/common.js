@@ -92,6 +92,7 @@ export default {
             publicResults: "always",
             multiBallotsPerUser: true,
             allowUsersToSeeArchivedPolls: true,
+            allowUsersToEditBallots: true,
             limitRankChoices: null,
             limitChoicesAdded: null,
             usersCanAddChoices: "never",
@@ -261,6 +262,8 @@ export default {
     // Data/Constants
     data: {
         common__now: -1,
+        confirmationDialog: false,
+        confirmationDialogContext: {},
         pollTypeList: function() {
             let mapping = window.POLL_TYPES.map((typ) => {
                 return {
@@ -351,6 +354,9 @@ export default {
                 idToNameMap[choice['id']] = choice['name'];
             }
             return idToNameMap;
+        },
+        canEditBallot() {
+            return this.pollModel.allowUsersToEditBallots;
         },
         shouldShowChoiceAddButton() {
             if (this.pollModel.canEdit) return true;
@@ -468,6 +474,23 @@ export default {
             if ((nF - nI) != 0) return "Must be an Integer!";
             if (nI < 1) return "Must be empty, or a positive integer greater than 0!";
             return true;
+        },
+        openConfirmationDialog(context) {
+            this.confirmationDialog = true;
+            this.confirmationDialogContext = {
+                // Default context
+                'title': 'Confirm',
+                'text': '',
+                'button1Text': 'Cancel',
+                'button1Color': 'red',
+                'button1Handler': () => {},
+                'button2Text': 'OK',
+                'button2Color': 'green',
+                'button2Handler': () => {},
+
+                // Custom Context
+                ...context,
+            }
         },
     },
 };

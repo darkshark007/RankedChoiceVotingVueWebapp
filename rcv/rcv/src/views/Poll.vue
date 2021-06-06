@@ -63,6 +63,7 @@
                                     <b>Public Ballots:</b> {{ pollModel.publicBallots | titleCase }}<br/>
                                     <b>Public Results:</b> {{ pollModel.publicResults | titleCase }}<br/>
                                     <b>Multiple Ballots Per User:</b> {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
+                                    <b>User can Edit their Ballot:</b> {{ pollModel.allowUsersToEditBallots | titleCase }}<br/>
                                     <b>Randomize Choices:</b> {{ pollModel.randomizeChoices | titleCase }}<br/>
                                     <template v-if="pollModel.usersCanAddChoices !== 'never'">
                                         <b>Users can add Choices:</b> {{ pollModel.usersCanAddChoices | titleCase }}<br/>
@@ -178,7 +179,15 @@
                         </v-col>
                     </v-row>
                     <div v-for="ballot, idx in pollModel.ballots" :key="'ballot-'+idx">
-                        <router-link :to="ballot.route" class="route-item">
+                        <router-link
+                            :to="ballot.route"
+                            class="route-item"
+                            :class="{
+                                'disabled': !canEditBallot,
+                            }"
+                            :disabled="!canEditBallot"
+                            :event="!canEditBallot ? ['none'] : ['click']"
+                        >
                             <v-card
                                 class="ma-4"
                                 elevation=2
@@ -340,6 +349,7 @@ export default {
         shouldShowChoiceAddButton: Common.computed.shouldShowChoiceAddButton,
         pollStatusMessage: Common.computed.pollStatusMessage,
         pollIsOpen: Common.computed.pollIsOpen,
+        canEditBallot: Common.computed.canEditBallot,
     },
     methods: {
         getEmptyPollContext: Common.getEmptyPollContext,
@@ -411,4 +421,7 @@ export default {
 </script>
 
 <style scoped>
+.disabled {
+    cursor: not-allowed;
+}
 </style>

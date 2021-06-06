@@ -91,6 +91,11 @@
                         :edit="true"
                         @onChange="onBallotChange"
                     />
+                    <v-row v-if="!canEditBallot" justify=center>
+                        <v-col cols=6 class="red--text">
+                            <b>Warning</b>: Ballots for this Poll cannot be edited once submitted!
+                        </v-col>
+                    </v-row>
                     <v-row>
                         <v-col cols=6>
                             <v-tooltip bottom max-width="300px">
@@ -104,7 +109,7 @@
                                             color="light-green lighten-4"
                                             elevation="2"
                                             :loading="savingBallot"
-                                            :disabled="pollModel.locked || !pollIsOpen"
+                                            :disabled="pollModel.locked || !pollIsOpen || (!canEditBallot && ballotContext.id !== null)"
                                             @click="saveBallot"
                                         >
                                             Save Ballot
@@ -176,6 +181,10 @@
                 </template>
             </v-card>
         </v-container>
+        <dialog-confirmation
+            :active="confirmationDialog"
+            :context="confirmationDialogContext"
+        />
     </div>
 </template>
 
@@ -185,6 +194,7 @@ import MessageCard from '../components/MessageCard.vue';
 import NavButton from '../components/NavButton.vue';
 import Ballot from '../components/Ballot.vue';
 import FormCheckbox from '../components/FormCheckbox.vue';
+import DialogConfirmation from '../components/DialogConfirmation.vue';
 
 
 export default {
@@ -204,6 +214,7 @@ export default {
         'nav-button': NavButton,
         'form-checkbox': FormCheckbox,
         'ballot': Ballot,
+        'dialog-confirmation': DialogConfirmation,
     },
     data: () => {
         return {
@@ -232,6 +243,7 @@ export default {
         pollStatusMessage: Common.computed.pollStatusMessage,
         choiceIdToNameMap: Common.computed.choiceIdToNameMap,
         shouldShowResultButton: Common.computed.shouldShowResultButton,
+        canEditBallot: Common.computed.canEditBallot,
         getBackRoute() {
             let context = { name: 'results', params: {'id': this.pollid, 'fromRoute': `/editBallots/${this.pollid}`}};
             if (this.ballotid) {
@@ -242,6 +254,8 @@ export default {
     },
     methods: {
         ballotSimilarity: Common.methods.ballotSimilarity,
+        nextStats: Common.methods.nextStats,
+        openConfirmationDialog: Common.methods.openConfirmationDialog,
         processStats() {
             this.statsList = [];
             if (!this.pollModel || !this.ballotContext || !this.ballotContext.stats) return;
@@ -421,7 +435,6 @@ export default {
                 this.nextStats();
             }
         },
-        nextStats: Common.methods.nextStats,
         getContextForType() {
             this.updateGeneratedBallots();
 
@@ -439,6 +452,31 @@ export default {
             return Common.getEmptyBallotContext();
         },
         saveBallot() {
+            if (this.canEditBallot) {
+                this.saveBallotConfirm();
+            } else {
+                this.saveBallotDialog();
+            }
+        },
+        saveBallotDialog() {
+            this.openConfirmationDialog({
+                // Default context
+                'title': 'Save Ballot',
+                'text': 'Are you sure you want to save your Ballot settings?  The current Poll configuration disables modifying Ballots once saved.',
+                'button1Text': 'Cancel',
+                'button1Color': 'red',
+                'button1Handler': () => {
+                    this.confirmationDialog = false;
+                },
+                'button2Text': 'Save',
+                'button2Color': 'green',
+                'button2Handler': () => {
+                    this.confirmationDialog = false;
+                    this.saveBallotConfirm();
+                },
+            });
+        },
+        saveBallotConfirm() {
             // Validate
             let errors = false;
             this.saveBallotErrorString = null;

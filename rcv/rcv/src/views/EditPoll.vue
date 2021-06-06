@@ -56,6 +56,11 @@
                             <h4>Ballot Settings</h4>
                         </v-col>
                     </v-row>
+                    <form-checkbox
+                        title="Allow Ballot Submitters to edit ballots after they submitted"
+                        tooltip="If disabled, Users will <b>not</b> be able to edit their ballots once submitted.<br/><br/>If enabled (default), users will be able to re-open their submitted ballots and change their submissions."
+                        v-model="pollModel.allowUsersToEditBallots"
+                    />
                     <form-text
                         title="Limit Rank Choices"
                         v-model="pollModel.limitRankChoices"
@@ -177,7 +182,7 @@
                 <template v-if="showAdvanced">
                     <v-divider class="my-4"/>
                     <p>
-                        Recycle the poll to archive the existing Ballots and Results and reset this Poll for a new round of Ballots.
+                        Recycle this poll to archive the existing Ballots and Results and reset this Poll for a new round of Ballots.
                     </p>
                     <p>
                         This is useful for creating re-usable or recurring Polls with a static URL.
@@ -208,35 +213,10 @@
                 </template>
             </v-card>
         </v-container>
-        <v-dialog
-            v-model="confirmationDialog"
-            persistent
-            max-width="290"
-        >
-            <v-card>
-                <v-card-title class="text-h5">
-                    {{ confirmationDialogContext.title }}
-                </v-card-title>
-                <v-card-text>{{ confirmationDialogContext.text }}</v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                        :color="`${confirmationDialogContext.button1Color} darken-1`"
-                        text
-                        @click=confirmationDialogContext.button1Handler
-                    >
-                        {{ confirmationDialogContext.button1Text }}
-                    </v-btn>
-                    <v-btn
-                        :color="`${confirmationDialogContext.button2Color} darken-1`"
-                        text
-                        @click=confirmationDialogContext.button2Handler
-                        >
-                        {{ confirmationDialogContext.button2Text }}
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <dialog-confirmation
+            :active="confirmationDialog"
+            :context="confirmationDialogContext"
+        />
     </div>
 </template>
 
@@ -249,6 +229,7 @@ import FormCheckbox from '../components/FormCheckbox.vue';
 import FormText from '../components/FormText.vue';
 import FormSelect from '../components/FormSelect.vue';
 import FormDatetime from '../components/FormDatetime.vue';
+import DialogConfirmation from '../components/DialogConfirmation.vue';
 
 export default {
     name: 'edit-poll-component',
@@ -266,6 +247,7 @@ export default {
         'form-select': FormSelect,
         'form-datetime': FormDatetime,
         'form-text': FormText,
+        'dialog-confirmation': DialogConfirmation,
     },
     data: () => {
         return {
@@ -280,8 +262,6 @@ export default {
             recycling: false,
             recycleErrorString: null,
             recycleSuccessString: null,
-            confirmationDialog: false,
-            confirmationDialogContext: {},
             publicBallotOptions: [
                 { name: 'Never',      value: 'no',    hint: 'Ballots are always hidden, only the Ballot Submitter can see the contents' },
                 { name: 'Optionally', value: 'maybe', hint: 'Ballot Submitter can decide whether their Ballot is public or hidden' },
@@ -307,6 +287,7 @@ export default {
     methods: {
         validateLimitRankChoices: Common.methods.validateLimitRankChoices,
         validateLimitChoicesAdded: Common.methods.validateLimitChoicesAdded,
+        openConfirmationDialog: Common.methods.openConfirmationDialog,
         addChoice() {
             this.pollModel.choices.push({});
         },
@@ -391,23 +372,6 @@ export default {
                     .finally(() => {
                         this.loading = false;
                     });
-            }
-        },
-        openConfirmationDialog(context) {
-            this.confirmationDialog = true;
-            this.confirmationDialogContext = {
-                // Default context
-                'title': 'Confirm',
-                'text': '',
-                'button1Text': 'Cancel',
-                'button1Color': 'red',
-                'button1Handler': () => {},
-                'button2Text': 'OK',
-                'button2Color': 'green',
-                'button2Handler': () => {},
-
-                // Custom Context
-                ...context,
             }
         },
     },
