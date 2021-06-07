@@ -6,6 +6,9 @@
                 <p align=left>
                     <b>Instructions:</b>  Score choices from 0-5 Stars.  If you don't have a preference you can give choices the same scores.  Those you leave blank recieve a zero.
                 </p>
+                <p align=left v-if="pollModel.ballotsMustBeFull">
+                    * Ballot must be fully ranked! (But this currently isn't enforced)
+                </p>
             </div>
             <v-simple-table dense v-if="update">
                 <template v-slot:default>
@@ -86,6 +89,10 @@ export default {
     name: 'rcv-poll-ballot',
     props: {
         ballotContext: {
+            type: Object,
+            required: true,
+        },
+        pollModel: {
             type: Object,
             required: true,
         },

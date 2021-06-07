@@ -93,6 +93,7 @@ export default {
             multiBallotsPerUser: true,
             allowUsersToSeeArchivedPolls: true,
             allowUsersToEditBallots: true,
+            ballotsMustBeFull: false,
             limitRankChoices: null,
             limitChoicesAdded: null,
             usersCanAddChoices: "never",

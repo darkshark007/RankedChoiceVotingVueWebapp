@@ -5,6 +5,7 @@
         <v-container v-if="type === 'fptp'" class="wrapper">
             <ballot-fptp
                 :ballotContext="ballotContext"
+                :pollModel="pollModel"
                 :choices="choices"
                 :isDisplay="isDisplay"
                 :isEdit="isEdit"
@@ -30,6 +31,7 @@
         <v-container v-if="type === 'star_vote'" class="wrapper">
             <ballot-star
                 :ballotContext="ballotContext"
+                :pollModel="pollModel"
                 :choices="choices"
                 :isDisplay="isDisplay"
                 :isEdit="isEdit"

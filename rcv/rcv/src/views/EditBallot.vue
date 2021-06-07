@@ -617,6 +617,9 @@ export default {
                 if (tempSelected.length === 0 && this.ballotContext.context[fptp] && !this.ballotContext.context[fptp].generated) {
                     tempSelected = [this.ballotContext.context[fptp].selected];
                 }
+                if (this.pollModel.limitRankChoices) {
+                    tempSelected = tempSelected.splice(0,this.pollModel.limitRankChoices);
+                }
                 if (this.ballotContext.context[rcv].selected.join('_') !== tempSelected.join('_')) {
                     this.ballotContext.context[rcv].selected = tempSelected;
                 }
@@ -639,6 +642,9 @@ export default {
                 }
                 if (tempSelected.length === 0 && this.ballotContext.context[fptp] && !this.ballotContext.context[fptp].generated) {
                     tempSelected = [this.ballotContext.context[fptp].selected];
+                }
+                if (this.pollModel.limitRankChoices) {
+                    tempSelected = tempSelected.splice(0,this.pollModel.limitRankChoices);
                 }
                 if (this.ballotContext.context[rca].selected.join('_') !== tempSelected.join('_')) {
                     this.ballotContext.context[rca].selected = tempSelected;

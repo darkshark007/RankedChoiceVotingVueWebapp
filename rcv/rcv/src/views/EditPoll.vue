@@ -79,9 +79,13 @@
                         tooltip="If active, Users will be able to submit multiple ballots.  Otherwise, they will be restricted to a single ballot.<br/><br/>Useful for permitting multiple participants to submit Ballots from a single device."
                         v-model="pollModel.multiBallotsPerUser"
                     />
+                    <form-checkbox
+                        title="Ballots must be full"
+                        tooltip="If active, Ballots must be completely filled up, meaning each choice must be ranked.<br/><br/>If the number of choices rankable is limited, then the number of choices up to the limit must be ranked instead."
+                        v-model="pollModel.ballotsMustBeFull"
+                    />
                 </template>
-                <!-- TODO: Checkbox: Disallow Users to edit Ballots once submitted<br/> -->
-                <!-- TODO: Checkbox: Full Ballot - All Choices must be Ranked/Considered<br/> -->
+                <!-- TODO: Remove STAR generated choices, add Available Choices to Ballot, verify STAR Fully Ranked validation works, add Limit-Ranked-Choices validation to STAR<br/> -->
                 <v-divider class="my-4"/>
                 <v-row>
                     <v-col cols=6>

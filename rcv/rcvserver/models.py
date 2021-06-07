@@ -332,6 +332,7 @@ class Poll(models.Model):
     public_results = models.CharField(max_length=6, default='always', choices=[('always', 'always'),('voting', 'voting'),('closed', 'closed'),('never', 'never')])
     users_can_add_choices = models.CharField(max_length=6, default='never', choices=[('always', 'always'),('open', 'open'),('never', 'never')])
     multi_ballots_per_user = models.BooleanField(default=True)
+    ballots_must_be_full = models.BooleanField(default=False)
     allow_users_to_see_archived_polls = models.BooleanField(default=True)
     allow_users_to_edit_ballots = models.BooleanField(default=True)
     locked = models.BooleanField(default=False)
@@ -373,6 +374,7 @@ class Poll(models.Model):
         self.users_can_add_choices = model.get('usersCanAddChoices', None)
         self.randomize_choices = model.get('randomizeChoices', None)
         self.multi_ballots_per_user = model.get('multiBallotsPerUser', None)
+        self.ballots_must_be_full = model.get('ballotsMustBeFull', None)
         self.allow_users_to_see_archived_polls = model.get('allowUsersToSeeArchivedPolls', True)
         self.allow_users_to_edit_ballots = model.get('allowUsersToEditBallots', True)
         self.limit_rank_choices = model.get('limitRankChoices', None)
@@ -459,6 +461,7 @@ class Poll(models.Model):
             'ballotStart': self.ballot_start,
             'ballotEnd': self.ballot_end,
             'multiBallotsPerUser': self.multi_ballots_per_user,
+            'ballotsMustBeFull': self.ballots_must_be_full,
             'allowUsersToSeeArchivedPolls': self.allow_users_to_see_archived_polls,
             'allowUsersToEditBallots': self.allow_users_to_edit_ballots,
             'randomizeChoices': self.randomize_choices,
@@ -548,12 +551,12 @@ class Poll(models.Model):
         # Validate
         if self.locked:
             response = HttpResponse("This poll is locked.  Ballot changes cannot be made")
-            response.status_code = 403
+            response.status_code = 400
             return response, None
 
         if not self.poll_is_open():
             response = HttpResponse("This poll is Closed.  Ballot changes cannot be made")
-            response.status_code = 403
+            response.status_code = 400
             return response, None
 
         is_valid = True
@@ -563,8 +566,29 @@ class Poll(models.Model):
             if len(model['ballot']['context'][TYPE_RANKED_CUMULATIVE_APPROVAL]['selected']) > self.limit_rank_choices:
                 is_valid = False
         if not is_valid:
-            response = HttpResponse("Ballot Context is invalid!")
-            response.status_code = 403
+            response = HttpResponse("Ballot Context is invalid!  Too many choices ranked!")
+            response.status_code = 400
+            return response, None
+
+        if self.ballots_must_be_full:
+            limit = len(self.choices)
+            if self.limit_rank_choices:
+                limit = self.limit_rank_choices
+            ctx = model['ballot']['context'][TYPE_CLASSIC_RCV]
+            if not ctx['generated'] and len(ctx['selected']) < limit:
+                is_valid = False
+            ctx = model['ballot']['context'][TYPE_RANKED_CUMULATIVE_APPROVAL]
+            if not ctx['generated'] and len(ctx['selected']) < limit:
+                is_valid = False
+            ctx = model['ballot']['context'][TYPE_SCORE_THEN_AUTOMATIC_RUNOFF]
+            if not ctx['generated'] and len(ctx['selected']) < len(self.choices):
+                is_valid = False
+            ctx = model['ballot']['context'][TYPE_FIRST_PAST_THE_POST]
+            if not ctx['generated'] and len(ctx['selected']) < 1:
+                is_valid = False
+        if not is_valid:
+            response = HttpResponse("Ballot Context is invalid!  Ballot must be full!")
+            response.status_code = 400
             return response, None
 
         # Update

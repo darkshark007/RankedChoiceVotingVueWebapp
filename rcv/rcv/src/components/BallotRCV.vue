@@ -6,6 +6,12 @@
                 <p align=left>
                     <b>Instructions:</b>  Rank each Choice in order of preference.
                 </p>
+                <p align=left v-if="pollModel.limitRankChoices">
+                    * A maximum of <b>{{ pollModel.limitRankChoices }}</b> choices can be ranked.
+                </p>
+                <p align=left v-if="pollModel.ballotsMustBeFull">
+                    * Ballot must be fully ranked!
+                </p>
             </div>
             <v-simple-table dense v-if="update">
                 <template v-slot:default>

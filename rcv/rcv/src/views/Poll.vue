@@ -62,6 +62,9 @@
                                     <b>Public Poll:</b> {{ pollModel.publicPoll | titleCase }}<br/>
                                     <b>Public Ballots:</b> {{ pollModel.publicBallots | titleCase }}<br/>
                                     <b>Public Results:</b> {{ pollModel.publicResults | titleCase }}<br/>
+                                    <template v-if="pollModel.ballotsMustBeFull">
+                                        <b>Ballots must be Full:</b> {{ pollModel.ballotsMustBeFull | titleCase }}<br/>
+                                    </template>
                                     <b>Multiple Ballots Per User:</b> {{ pollModel.multiBallotsPerUser | titleCase }}<br/>
                                     <b>User can Edit their Ballot:</b> {{ pollModel.allowUsersToEditBallots | titleCase }}<br/>
                                     <b>Randomize Choices:</b> {{ pollModel.randomizeChoices | titleCase }}<br/>

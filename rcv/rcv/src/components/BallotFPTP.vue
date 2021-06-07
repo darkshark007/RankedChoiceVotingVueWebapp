@@ -6,6 +6,9 @@
                 <p align=left>
                     <b>Instructions:</b>  Select the choice you prefer the most.
                 </p>
+                <p align=left v-if="pollModel.ballotsMustBeFull">
+                    * Ballot must have a selection!
+                </p>
             </div>
             <v-radio-group v-model="ballotContext.selected">
                 <v-radio
@@ -51,6 +54,10 @@ export default {
     name: 'fptp-poll-ballot',
     props: {
         ballotContext: {
+            type: Object,
+            required: true,
+        },
+        pollModel: {
             type: Object,
             required: true,
         },
