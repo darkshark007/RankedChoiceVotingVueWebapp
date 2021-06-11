@@ -12,11 +12,12 @@
                 errorStringBase="Error loading Polls: "
             ></message-card>
             <v-card
-                class="wrapper appWidth"
+                class="wrapper appWidth ma-4"
+                elevation=3
                 v-if="!loading"
             >
                 <v-card-title>
-                    My Polls
+                    Your Polls
                 </v-card-title>
                 <v-divider class="my-4"></v-divider>
                 <div v-if="polls.length === 0">
@@ -36,7 +37,30 @@
                 </div>
             </v-card>
             <v-card
-                class="wrapper appWidth"
+                class="wrapper appWidth ma-4"
+                elevation=3
+                v-if="!loading && ballotPolls.length > 0"
+            >
+                <v-card-title>
+                    Polls You have Participated In
+                </v-card-title>
+                <v-divider class="my-4"></v-divider>
+                <div v-for="poll, idx in ballotPolls" :key="idx">
+                    <router-link :to="poll.route" class="route-item">
+                        <v-row align=center>
+                            <v-col cols=1>
+                                <v-icon class="ma-3">mdi-chart-box</v-icon>
+                            </v-col>
+                            <v-col cols=10>
+                                <v-card-text>{{ poll.name }}</v-card-text>
+                            </v-col>
+                        </v-row>
+                    </router-link>
+                </div>
+            </v-card>
+            <v-card
+                class="wrapper appWidth ma-4"
+                elevation=3
                 v-if="!loading"
             >
                 <v-card-title>
@@ -78,6 +102,7 @@ export default {
             loading: false,
             polls: [],
             publicPolls: [],
+            ballotPolls: [],
         };
     },
     methods: {
@@ -96,6 +121,11 @@ export default {
                                 this.publicPolls = data.public.sort((a, b) => (a.updated > b.updated) ? -1 : 1);
                                 for (let pollIdx = 0; pollIdx < this.publicPolls.length; pollIdx++) {
                                     let current = this.publicPolls[pollIdx];
+                                    current.route = `/poll/${current.id}`;
+                                }
+                                this.ballotPolls = data.ballots.sort((a, b) => (a.updated > b.updated) ? -1 : 1);
+                                for (let pollIdx = 0; pollIdx < this.ballotPolls.length; pollIdx++) {
+                                    let current = this.ballotPolls[pollIdx];
                                     current.route = `/poll/${current.id}`;
                                 }
                             });

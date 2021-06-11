@@ -202,11 +202,12 @@ def get_my_polls(request):
 
     user_polls = Poll.objects.filter(creator__exact={'id': user.id}, parent=None)
     found_ids = set(map(lambda poll: str(poll.id), user_polls))
+    ballot_polls = Poll.objects.filter(ballots={'user.id': user.id}).exclude(id__in=found_ids)
+    found_ids = found_ids | set(map(lambda poll: str(poll.id), ballot_polls))
     public_polls = Poll.objects.filter(public=True, parent=None).exclude(id__in=found_ids)
-    # TODO: Find Polls with User Ballots in them
     data = {
         'polls': list(map(lambda poll: poll.get_js_poll_model(user), user_polls)),
-        'ballots': None,
+        'ballots': list(map(lambda poll: poll.get_js_poll_model(user), ballot_polls)),
         'public': list(map(lambda poll: poll.get_js_poll_model(user), public_polls)),
     }
 
