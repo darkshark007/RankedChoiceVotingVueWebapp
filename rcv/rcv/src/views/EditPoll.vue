@@ -356,7 +356,11 @@ export default {
             this.pollModel = {
                 ...this.pollModel,
                 ...oldPoll.model,
+
+                // Don't overwrite these settings
                 'id': this.pollModel.id,
+                'created': this.pollModel.created,
+                'updated': this.pollModel.updated,
             };
         },
         savePoll() {
@@ -364,23 +368,23 @@ export default {
             this.saveErrorString = null;
             this.saveSuccessString = null;
             Common.savePoll(this.pollModel)
-                    .then(data => {
-                        this.saveSuccessString = "Save Successful!";
-                        this.pollModel = {
-                            ...Common.getEmptyPollContext(),
-                            ...this.pollModel,
-                            ...data,
-                        };
-                        if (!this.id) {
-                            this.$router.push({name: 'editPollWithId', params: { id: data.id } });
-                        }
-                    })
-                    .catch((error) => {
-                        this.saveErrorString = error;
-                    })
-                    .finally(() => {
-                        this.saving = false;
-                    });
+                .then(data => {
+                    this.saveSuccessString = "Save Successful!";
+                    this.pollModel = {
+                        ...Common.getEmptyPollContext(),
+                        ...this.pollModel,
+                        ...data,
+                    };
+                    if (!this.id) {
+                        this.$router.push({name: 'editPollWithId', params: { id: data.id } });
+                    }
+                })
+                .catch((error) => {
+                    this.saveErrorString = error;
+                })
+                .finally(() => {
+                    this.saving = false;
+                });
         },
         recyclePoll() {
             this.openConfirmationDialog({
@@ -405,20 +409,20 @@ export default {
             this.recycleErrorString = null;
             this.recycleSuccessString = null;
             Common.recyclePoll(this.pollModel, {'includeOldPolls': true})
-                    .then(data => {
-                        this.recycleSuccessString = "Recycle Successful!";
-                        this.pollModel = {
-                            ...Common.getEmptyPollContext(),
-                            ...this.pollModel,
-                            ...data,
-                        };
-                    })
-                    .catch((error) => {
-                        this.recycleErrorString = error;
-                    })
-                    .finally(() => {
-                        this.recycling = false;
-                    });
+                .then(data => {
+                    this.recycleSuccessString = "Recycle Successful!";
+                    this.pollModel = {
+                        ...Common.getEmptyPollContext(),
+                        ...this.pollModel,
+                        ...data,
+                    };
+                })
+                .catch((error) => {
+                    this.recycleErrorString = error;
+                })
+                .finally(() => {
+                    this.recycling = false;
+                });
         },
         setPollModel(id) {
             this.pollModel = Common.getEmptyPollContext()
