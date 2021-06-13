@@ -289,7 +289,7 @@
                         <v-divider class="my-4"></v-divider>
                         <v-row align=center>
                             <v-col class="subheader" cols=6>
-                                <h4>Old Polls</h4>
+                                <h4>Previous Polls</h4>
                             </v-col>
                         </v-row>
                         <div

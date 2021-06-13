@@ -168,9 +168,13 @@ export default {
         value: {
             immediate: true,
             handler(n) {
-                if (!n) return;
                 if (n === this.lastDate) return;
                 this.lastDate = n;
+                if (!n) {
+                    this.localTime = '';
+                    this.localDate = '';
+                    return;
+                }
                 let converted = this.UTCToDate(n);
                 let year = `${converted.getFullYear()}`;
                 let month = `${+converted.getMonth()+1}`;

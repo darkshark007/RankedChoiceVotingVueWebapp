@@ -57,11 +57,12 @@ export default {
             });
         });
     },
-    recyclePoll(pollModel) {
+    recyclePoll(pollModel, data) {
         return new Promise((resolve, reject) => {
-            let data = {
+            data = {
                 'id': pollModel.id,
-            }
+                ...data,
+            };
             Utils.post(window['API'].recycle_poll, data)
             .then(response => {
                 if (response.status === 200) {

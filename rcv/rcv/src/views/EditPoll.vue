@@ -214,6 +214,38 @@
                         errorStringBase="Error Saving Poll: "
                         :successString=recycleSuccessString
                     ></message-card>
+                    <template v-if="pollModel.oldPolls.length > 0">
+                        <v-divider class="my-4"></v-divider>
+                        <v-row align=center>
+                            <v-col class="subheader" cols=6>
+                                <h4>Previous Polls</h4>
+                            </v-col>
+                        </v-row>
+                        <div
+                            v-for="(oldPoll, idx) in pollModel.oldPolls"
+                            :key="'oldpoll-'+idx"
+                        >
+                            <v-card class="pa-4 ma-2" elevation=2>
+                                <v-row no-gutters align=center>
+                                    <v-col class="flex-grow-0 flex-shrink-1 pr-2">
+                                        <v-btn
+                                            fab
+                                            x-small
+                                            color="light-green lighten-4"
+                                            @click="duplicateSettings(oldPoll)"
+                                        >
+                                            <v-icon color="indigo">mdi-content-duplicate</v-icon>
+                                        </v-btn>
+                                    </v-col>
+                                    <v-col class="flex-grow-1 flex-shrink-1">
+                                        <router-link :to="`/poll/${oldPoll.id}`" class="route-item">
+                                            <p class="ma-0 pa-0"><b>{{ oldPoll.created | displayDate }}</b> - <i>{{ oldPoll.name }}</i></p>
+                                        </router-link>
+                                    </v-col>
+                                </v-row>
+                            </v-card>
+                        </div>
+                    </template>
                 </template>
             </v-card>
         </v-container>
@@ -284,6 +316,9 @@ export default {
             ],
         };
     },
+    filters: {
+        displayDate: Common.filters.displayDate,
+    },
     computed: {
         pollIsOpen: Common.computed.pollIsOpen,
         pollStatusMessage: Common.computed.pollStatusMessage,
@@ -299,6 +334,31 @@ export default {
             let choiceIdx = this.pollModel.choices.indexOf(choice);
             this.pollModel.choices.splice(choiceIdx, 1);
         },
+        duplicateSettings(oldPoll) {
+            this.openConfirmationDialog({
+                // Default context
+                'title': 'Load Poll Settings',
+                'text': `Are you sure you want to copy these Poll Settings?  The current Poll settings will be overwritten with the configuration current settings from "${oldPoll.name}".`,
+                'button1Text': 'Cancel',
+                'button1Color': 'red',
+                'button1Handler': () => {
+                    this.confirmationDialog = false;
+                },
+                'button2Text': 'Overwrite',
+                'button2Color': 'green',
+                'button2Handler': () => {
+                    this.confirmationDialog = false;
+                    this.duplicateSettingsConfirm(oldPoll);
+                },
+            });
+        },
+        duplicateSettingsConfirm(oldPoll) {
+            this.pollModel = {
+                ...this.pollModel,
+                ...oldPoll.model,
+                'id': this.pollModel.id,
+            };
+        },
         savePoll() {
             this.saving = true;
             this.saveErrorString = null;
@@ -308,6 +368,7 @@ export default {
                         this.saveSuccessString = "Save Successful!";
                         this.pollModel = {
                             ...Common.getEmptyPollContext(),
+                            ...this.pollModel,
                             ...data,
                         };
                         if (!this.id) {
@@ -343,11 +404,12 @@ export default {
             this.recycling = true;
             this.recycleErrorString = null;
             this.recycleSuccessString = null;
-            Common.recyclePoll(this.pollModel)
+            Common.recyclePoll(this.pollModel, {'includeOldPolls': true})
                     .then(data => {
                         this.recycleSuccessString = "Recycle Successful!";
                         this.pollModel = {
                             ...Common.getEmptyPollContext(),
+                            ...this.pollModel,
                             ...data,
                         };
                     })
@@ -363,10 +425,11 @@ export default {
             if (id) {
                 this.loading = true;
                 this.loadingErrorString = null;
-                Common.getPollData({'id': id})
+                Common.getPollData({'id': id, 'includeOldPolls': true})
                     .then(data => {
                         this.pollModel = {
                             ...Common.getEmptyPollContext(),
+                            ...this.pollModel,
                             ...data,
                         };
                     })
