@@ -383,6 +383,7 @@ export default {
                         this.choiceEdited = false;
                         this.pollModel = {
                             ...data,
+                            oldPolls: this.pollModel.oldPolls,
                             ballots: this.pollModel.ballots,
                             ballotsPublic: this.pollModel.ballotsPublic,
                         };
