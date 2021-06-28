@@ -205,6 +205,7 @@ export default {
             name: '',
             description: '',
             creator: '',
+            isDeleted: false,
         };
     },
 
@@ -379,7 +380,7 @@ export default {
             if (this.pollModel.locked) return false;
             if (this.pollModel.limitChoicesAdded) {
                 let count = 0;
-                count += this.pollModel.choices.filter((c) => c.created).length;
+                count += this.pollModel.choices.filter((c) => c.created && !c.isDeleted).length;
                 if (this.newChoices) count += this.newChoices.length;
                 if (count >= this.pollModel.limitChoicesAdded) return false;
             }

@@ -104,7 +104,7 @@ export default {
             return !this.edit && !this.preview;
         },
         isEdit() {
-            return this.edit && !this.preview;
+            return this.edit && !this.preview && !this.choice.isDeleted;
         },
         isPreview() {
             return !this.edit && this.preview;

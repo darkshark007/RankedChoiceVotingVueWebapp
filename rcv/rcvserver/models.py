@@ -75,6 +75,7 @@ class Choice(models.Model):
     name = models.CharField(max_length=40)
     description = models.CharField(max_length=500)
     creator = models.EmbeddedField(model_container=User, default=User)
+    is_deleted = models.BooleanField(default=False)
 
     def __getitem__(self, name):
        return getattr(self, name, None)
@@ -85,6 +86,7 @@ class Choice(models.Model):
             'id': str(self.id),
             'name': self.name,
             'description': self.description,
+            'isDeleted': self.is_deleted,
         }
         if user.id == self.creator.id:
             obj['created'] = True
@@ -356,17 +358,16 @@ class Poll(models.Model):
         self.description = model.get('description', None)
         self.type = model.get('type', None)
         old_choices_map = {str(cand.id): cand for cand in self.choices}
-        new_choices = []
         for cand in model.get('choices', []):
             if cand.get('id', None):
                 cand_obj = old_choices_map[cand.get('id')]
             else:
                 cand_obj = Choice()
                 cand_obj.creator = user
+                self.choices.append(cand_obj)
             cand_obj.name = cand.get('name', None)
             cand_obj.description = cand.get('description', None)
-            new_choices.append(cand_obj)
-        self.choices = new_choices
+            cand_obj.is_deleted = cand.get('isDeleted', False)
         self.updated = pendulum.now()
         self.public = model.get('publicPoll', None)
         self.public_ballots = model.get('publicBallots', None)

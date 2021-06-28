@@ -122,7 +122,7 @@
                         </v-col>
                     </v-row>
                     <poll-choice
-                        v-for="choice, idx in newChoices"
+                        v-for="choice, idx in newChoices.filter((c) => !c.isDeleted)"
                         :key="idx"
                         :choice="choice"
                         :propEdit="true"
@@ -148,7 +148,7 @@
                         :successString=saveChoicesSuccessString
                     ></message-card>
                     <poll-choice
-                        v-for="choice, idx in pollModel.choices" 
+                        v-for="choice, idx in pollModel.choices.filter((c) => !c.isDeleted)"
                         :key="'choice-'+idx"
                         :choice="choice"
                         :editable="choice.created && shouldShowChoiceAddButton"
@@ -364,7 +364,7 @@ export default {
             let choiceIdx = this.newChoices.indexOf(choice);
             if (choiceIdx !== -1) this.newChoices.splice(choiceIdx, 1);
             choiceIdx = this.pollModel.choices.indexOf(choice);
-            if (choiceIdx !== -1) this.pollModel.choices.splice(choiceIdx, 1);
+            if (choiceIdx !== -1) this.pollModel.choices[choiceIdx].isDeleted = true;
         },
         saveChoices() {
             let data = {
