@@ -358,6 +358,7 @@ export default {
         getEmptyPollContext: Common.getEmptyPollContext,
         addChoice() {
             let newChoice = Common.getEmptyChoiceContext();
+            newChoice.created = true;
             this.newChoices.push(newChoice);
         },
         removeChoice(choice) {

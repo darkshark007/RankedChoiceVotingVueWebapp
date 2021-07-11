@@ -39,7 +39,20 @@
                         v-for="choice1, idx1 in choices"
                         :key="idx1"
                     >
-                        <th>{{ choice1.name }}</th>
+                        <v-tooltip top>
+                            <template v-slot:activator="{ on, attrs }">
+                                <th
+                                    v-bind="attrs"
+                                    v-on="on"
+                                >
+                                    {{ choice1.name }}
+                                </th>
+                            </template>
+                            <template>
+                                <span><b>{{ choice1.name }}</b></span><br/>
+                                <span>{{ choice1.description }}</span>
+                            </template>
+                        </v-tooltip>
                         <th
                             v-for="choice2, idx2 in scoreList"
                             :key="idx2"

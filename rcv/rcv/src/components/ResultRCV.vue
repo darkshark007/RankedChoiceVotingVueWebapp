@@ -174,8 +174,8 @@ export default {
             // Get initial Score Distribution
             let choiceEliminationMap = {};
             let choiceScoresMap = {};
-            for (let choiceKey in this.pollModel.choices) {
-                let choice = this.pollModel.choices[choiceKey];
+            for (let choiceKey in this.pollModel.activeChoices) {
+                let choice = this.pollModel.activeChoices[choiceKey];
                 choiceScoresMap[choice.id] = 0;
             }
             for (let choiceKey in results) {
@@ -188,7 +188,7 @@ export default {
             addExplainStage('First, we tally up all of the First-Rank choices...', choiceScoresMap, round);
             let winner = null;
             while (!winner) {
-                if (round > this.pollModel.choices.length + 2) throw 'Error, infinite loop detected calculating Result';
+                if (round > this.pollModel.activeChoices.length + 2) throw 'Error, infinite loop detected calculating Result';
                 addExplainStage(`Then we check again to see if any of the Choices have more than 50% of the total vote...`, choiceScoresMap, round)
                 for (let choiceKey in choiceScoresMap) {
                     if (choiceScoresMap[choiceKey] >= majority) {
@@ -247,8 +247,8 @@ export default {
                 let sumQueue = [results];
                 round++;
                 choiceScoresMap = {};
-                for (let choiceKey in this.pollModel.choices) {
-                    let choice = this.pollModel.choices[choiceKey];
+                for (let choiceKey in this.pollModel.activeChoices) {
+                    let choice = this.pollModel.activeChoices[choiceKey];
                     choiceScoresMap[choice.id] = 0;
                 }
                 while (sumQueue.length > 0) {

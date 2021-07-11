@@ -141,8 +141,8 @@ export default {
 
             // Get initial Score Distribution
             let choiceScoresMap = {};
-            for (let choiceKey in this.pollModel.choices) {
-                let choice = this.pollModel.choices[choiceKey];
+            for (let choiceKey in this.pollModel.activeChoices) {
+                let choice = this.pollModel.activeChoices[choiceKey];
                 choiceScoresMap[choice.id] = 0;
             }
             choiceScoresMap = {

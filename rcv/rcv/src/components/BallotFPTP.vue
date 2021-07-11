@@ -22,11 +22,24 @@
                         v-slot:label
                         class="choiceRadioLabel"
                     >
-                        <poll-choice
-                            :choice="choice"
-                            :preview="true"
-                            class="choiceRadioLabel"
-                        ></poll-choice>
+                        <v-tooltip top>
+                            <template v-slot:activator="{ on, attrs }">
+                                <div
+                                    v-bind="attrs"
+                                    v-on="on"
+                                >
+                                    <poll-choice
+                                        :choice="choice"
+                                        :preview="true"
+                                        class="choiceRadioLabel"
+                                    ></poll-choice>
+                                </div>
+                            </template>
+                            <template>
+                                <span><b>{{ choice.name }}</b></span><br/>
+                                <span>{{ choice.description }}</span>
+                            </template>
+                        </v-tooltip>
                     </template>
                 </v-radio>
             </v-radio-group>

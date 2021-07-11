@@ -23,7 +23,7 @@
                         {{ pollModel.name }}
                         <v-spacer></v-spacer>
                     </v-card-title>
-                    <v-card-subtitle align=left>
+                    <v-card-subtitle class="descriptionText" align=left>
                         {{ pollModel.description }}
                     </v-card-subtitle>
                     <div><v-divider class="ma-4"></v-divider></div>
@@ -67,7 +67,7 @@
                         </v-col>
                     </v-row>
                     <v-text-field
-                        label="Name or Ballot Label"
+                        label="Name or Label your Ballot"
                         v-model="ballotContext.name"
                     ></v-text-field>
                     <v-select
@@ -86,7 +86,7 @@
                     <ballot
                         :ballotContext="getContextForType()"
                         :pollModel="pollModel"
-                        :choices="pollModel.choices"
+                        :choices="pollModel.activeChoices"
                         :type="selectedType"
                         :edit="true"
                         @onChange="onBallotChange"

@@ -75,8 +75,8 @@ export default {
     computed: {
         choiceIdToNameMap() {
             let idToNameMap = {};
-            for (let choiceKey in this.pollModel.choices) {
-                let choice = this.pollModel.choices[choiceKey];
+            for (let choiceKey in this.pollModel.activeChoices) {
+                let choice = this.pollModel.activeChoices[choiceKey];
                 idToNameMap[choice['id']] = choice['name'];
             }
             return idToNameMap;
@@ -159,8 +159,8 @@ export default {
             let topN = 1;
             let calculateScores = function() {
                 choiceScoresMap = {};
-                for (let choiceKey in this.pollModel.choices) {
-                    let choice = this.pollModel.choices[choiceKey];
+                for (let choiceKey in this.pollModel.activeChoices) {
+                    let choice = this.pollModel.activeChoices[choiceKey];
                     choiceScoresMap[choice.id] = 0;
                 }
 
@@ -184,7 +184,7 @@ export default {
             let winner = [];
             let lastScoresCalculated = JSON.stringify(choiceScoresMap);
             let result = "";
-            while (topN <= this.pollModel.choices.length) {
+            while (topN <= this.pollModel.activeChoices.length) {
                 winner = [];
                 addExplainStage(`Then we check again to see if any of the Choices have more than 50% of the total vote...`, choiceScoresMap, topN)
                 for (let choiceKey in choiceScoresMap) {

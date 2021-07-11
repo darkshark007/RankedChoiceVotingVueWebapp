@@ -354,6 +354,7 @@ class Poll(models.Model):
 
 
     def update_from_js_poll_model(self, model, user):
+        # Todo: Add Permission checks for setting all of the other settings
         self.name = model.get('name', None)
         self.description = model.get('description', None)
         self.type = model.get('type', None)
@@ -361,6 +362,12 @@ class Poll(models.Model):
         for cand in model.get('choices', []):
             if cand.get('id', None):
                 cand_obj = old_choices_map[cand.get('id')]
+                permission_checks = (
+                    cand_obj.creator.id == user.id,
+                    user.id == self.creator.id,
+                )
+                if not any(permission_checks):
+                    continue
             else:
                 cand_obj = Choice()
                 cand_obj.creator = user

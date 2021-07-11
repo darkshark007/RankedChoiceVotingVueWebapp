@@ -75,8 +75,8 @@ export default {
     computed: {
         choiceIdToNameMap() {
             let idToNameMap = {};
-            for (let choiceKey in this.pollModel.choices) {
-                let choice = this.pollModel.choices[choiceKey];
+            for (let choiceKey in this.pollModel.activeChoices) {
+                let choice = this.pollModel.activeChoices[choiceKey];
                 idToNameMap[choice['id']] = choice['name'];
             }
             return idToNameMap;
@@ -158,8 +158,8 @@ export default {
             };
             score_stage['choiceData'] = [];
             score_stage['choiceList'] = [];
-            for (let choiceIdx in this.pollModel.choices) {
-                let choiceKey = this.pollModel.choices[choiceIdx].id;
+            for (let choiceIdx in this.pollModel.activeChoices) {
+                let choiceKey = this.pollModel.activeChoices[choiceIdx].id;
                 score_stage['choiceData'].push({
                     'y': results[choiceKey]['score'],
                     'unit': 'pts',
@@ -168,8 +168,8 @@ export default {
             }
             this.explainStages.push(score_stage);
 
-            for (let choiceIdx in this.pollModel.choices) {
-                addChoiceScoringExplainStage(this.pollModel.choices[choiceIdx].id);
+            for (let choiceIdx in this.pollModel.activeChoices) {
+                addChoiceScoringExplainStage(this.pollModel.activeChoices[choiceIdx].id);
             }
 
             let select2Stage = {

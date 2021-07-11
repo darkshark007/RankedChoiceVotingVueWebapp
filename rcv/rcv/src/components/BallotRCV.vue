@@ -42,7 +42,20 @@
                         v-for="choice, rowIdx in choices"
                         :key="rowIdx"
                     >
-                        <th>{{ choice.name }}</th>
+                        <v-tooltip top>
+                            <template v-slot:activator="{ on, attrs }">
+                                <th
+                                    v-bind="attrs"
+                                    v-on="on"
+                                >
+                                    {{ choice.name }}
+                                </th>
+                            </template>
+                            <template>
+                                <span><b>{{ choice.name }}</b></span><br/>
+                                <span>{{ choice.description }}</span>
+                            </template>
+                        </v-tooltip>
                         <th 
                             v-for="_, colIdx in ranks"
                             :key="colIdx"
