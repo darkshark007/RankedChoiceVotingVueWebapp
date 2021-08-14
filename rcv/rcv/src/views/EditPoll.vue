@@ -85,8 +85,6 @@
                         v-model="pollModel.ballotsMustBeFull"
                     />
                 </template>
-                <!-- TODO: On Ballot Page, Hover over Choice to show modal with full description -->
-                <!-- TODO: Fix bugs on Create/Save/Load -->
                 <!-- TODO: Fix Vote Preview Pills -->
                 <!-- TODO: Remove STAR generated choices, add Available Choices to Ballot, verify STAR Fully Ranked validation works, add Limit-Ranked-Choices validation to STAR<br/> -->
                 <v-divider class="my-4"/>
