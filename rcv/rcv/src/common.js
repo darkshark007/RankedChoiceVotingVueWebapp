@@ -456,6 +456,18 @@ export default {
             this.displayStats = [];
             for (let idx = 0; idx < 5 && idx < this.statsList.length; idx++) {
                 let nextStat = this.statsList.splice(0,1)[0];
+                let shouldSkip = false;
+                for (let cName of nextStat.choices) {
+                    let choice = this.pollModel.choices.find((c) => c.name === cName);
+                    if (choice.isDeleted) {
+                        shouldSkip = true;
+                        break;
+                    }
+                }
+                if (shouldSkip) {
+                    idx--;
+                    continue;
+                }
                 this.displayStats.push(nextStat);
                 this.statsList.push(nextStat);
             }

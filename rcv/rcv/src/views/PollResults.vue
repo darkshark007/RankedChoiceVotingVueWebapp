@@ -234,18 +234,18 @@ export default {
                         stat.interest *= 0.25;
                         if (stat.count === 0) {
                             stat.interest *= 0.5;
-                            return `<b>No</b> ballots included <b>${stat.choice}</b> as a pick!`;
+                            return `<b>No</b> ballots included <b>${stat.choices[0]}</b> as a pick!`;
                         } else if (stat.percent > 25.0) {
-                            return `<b>${stat.percent}%</b> of ballots included <b>${stat.choice}</b> as a pick!`;
+                            return `<b>${stat.percent}%</b> of ballots included <b>${stat.choices[0]}</b> as a pick!`;
                         } else {
-                            return `Only <b>${stat.percent}</b>% of ballots included <b>${stat.choice}</b> as a pick!`;
+                            return `Only <b>${stat.percent}</b>% of ballots included <b>${stat.choices[0]}</b> as a pick!`;
                         }
                     }.bind(this);
                     for (let statKey in stats.included) {
                         if (statKey === 'total') continue;
                         let count = stats.included[statKey];
                         let choice = this.choiceIdToNameMap[statKey];
-                        let newStat = getNewStat(includedFactory, count, {'type': 'included', choice, });
+                        let newStat = getNewStat(includedFactory, count, {'type': 'included', choices: [choice], });
                         this.statsList.push(newStat);
                     }
                 }
@@ -255,11 +255,11 @@ export default {
                         stat.interest *= 0.5;
                         if (stat.count === 0) {
                             stat.interest *= 0.25;
-                            return `<b>No</b> ballots picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                            return `<b>No</b> ballots picked <b>${stat.choices[0]}</b> as their #${stat.rank} pick!`;
                         } else if (stat.percent > 25.0) {
-                            return `<b>${stat.percent}%</b> of ballots picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                            return `<b>${stat.percent}%</b> of ballots picked <b>${stat.choices[0]}</b> as their #${stat.rank} pick!`;
                         } else {
-                            return `Only <b>${stat.percent}</b>% of ballots picked <b>${stat.choice}</b> as their #${stat.rank} pick!`;
+                            return `Only <b>${stat.percent}</b>% of ballots picked <b>${stat.choices[0]}</b> as their #${stat.rank} pick!`;
                         }
                     }.bind(this);
                     for (let statKey in stats.picks) {
@@ -269,7 +269,7 @@ export default {
                         let count = stats.picks[statKey];
                         let choice = this.choiceIdToNameMap[spl[1]];
                         if (count/total < 0.34 && rank >= 4) continue;
-                        let newStat = getNewStat(picksFactory, count, {'type': 'pick', rank, choice, });
+                        let newStat = getNewStat(picksFactory, count, {'type': 'pick', rank, choices: [choice], });
                         this.statsList.push(newStat);
                     }
                 }
@@ -279,11 +279,11 @@ export default {
                         stat.interest *= 0.5;
                         if (stat.count === 0) {
                             stat.interest *= 0.25;
-                            return `<b>No</b> ballots scored <b>${stat.choice}</b> as a <b>${stat.score}</b>!`;
+                            return `<b>No</b> ballots scored <b>${stat.choices[0]}</b> as a <b>${stat.score}</b>!`;
                         } else if (stat.percent > 15.0) {
-                            return `<b>${stat.percent}%</b> of ballots scored <b>${stat.choice}</b> as a <b>${stat.score}</b>!`;
+                            return `<b>${stat.percent}%</b> of ballots scored <b>${stat.choices[0]}</b> as a <b>${stat.score}</b>!`;
                         } else {
-                            return `Only <b>${stat.percent}</b>% of ballots scored <b>${stat.choice}</b> as a <b>${stat.score}</b>!`;
+                            return `Only <b>${stat.percent}</b>% of ballots scored <b>${stat.choices[0]}</b> as a <b>${stat.score}</b>!`;
                         }
                     }.bind(this);
                     for (let statKey in stats.score_picks) {
@@ -293,7 +293,7 @@ export default {
                         let count = stats.score_picks[statKey];
                         let choice = this.choiceIdToNameMap[spl[1]];
                         if (count/total < 0.34) continue;
-                        let newStat = getNewStat(scorePicksFactory, count, {'type': 'pick', score, choice, });
+                        let newStat = getNewStat(scorePicksFactory, count, {'type': 'pick', score, choices: [choice], });
                         this.statsList.push(newStat);
                     }
                 }
@@ -301,11 +301,11 @@ export default {
                 if (stats.top_n_picks) {
                     let topNPicksFactory = function(stat) {
                         if (stat.count === 0) {
-                            return `<b>No</b> ballots ranked <b>${stat.choice}</b> among their Top-${stat.rank} picks!`;
+                            return `<b>No</b> ballots ranked <b>${stat.choices[0]}</b> among their Top-${stat.rank} picks!`;
                         } else if (stat.percent > 25.0) {
-                            return `<b>${stat.percent}%</b> of ballots ranked <b>${stat.choice}</b> among their Top-${stat.rank} picks!`;
+                            return `<b>${stat.percent}%</b> of ballots ranked <b>${stat.choices[0]}</b> among their Top-${stat.rank} picks!`;
                         } else {
-                            return `Only <b>${stat.percent}</b>% of ballots ranked <b>${stat.choice}</b> among their Top-${stat.rank} picks!`;
+                            return `Only <b>${stat.percent}</b>% of ballots ranked <b>${stat.choices[0]}</b> among their Top-${stat.rank} picks!`;
                         }
                     }.bind(this);
                     for (let statKey in stats.top_n_picks) {
@@ -316,7 +316,7 @@ export default {
                         let choice = this.choiceIdToNameMap[spl[1]];
                         if (rank >= (this.pollModel.choices.length)/2+1) continue;
                         if (count/total < 0.5 && rank >= 4) continue;
-                        let newStat = getNewStat(topNPicksFactory, count, {'type': 'pick', rank, choice, });
+                        let newStat = getNewStat(topNPicksFactory, count, {'type': 'pick', rank, choices: [choice], });
                         this.statsList.push(newStat);
                     }
                 }
@@ -325,25 +325,25 @@ export default {
                     let prefsFactory = function(stat) {
                         if (stat.operator === '>') {
                             if (stat.count === 0) {
-                                return `No ballots ranked <b>${stat.choice1}</b> above <b>${stat.choice2}</b>!`;
+                                return `No ballots ranked <b>${stat.choices[0]}</b> above <b>${stat.choices[1]}</b>!`;
                             } else if (stat.percent < 10.0) {
-                                return `Merely <b>${stat.percent}%</b> of ballots ranked <b>${stat.choice1}</b> above <b>${stat.choice2}</b>!`;
+                                return `Merely <b>${stat.percent}%</b> of ballots ranked <b>${stat.choices[0]}</b> above <b>${stat.choices[1]}</b>!`;
                             } else if (stat.percent < 30.0) {
-                                return `Only <b>${stat.percent}%</b> of ballots preferred <b>${stat.choice1}</b> to <b>${stat.choice2}</b>!`;
+                                return `Only <b>${stat.percent}%</b> of ballots preferred <b>${stat.choices[0]}</b> to <b>${stat.choices[1]}</b>!`;
                             } else if (stat.percent < 66.65) {
-                                return `<b>${stat.percent}%</b> of ballots preferred <b>${stat.choice1}</b> to <b>${stat.choice2}</b>!`;
+                                return `<b>${stat.percent}%</b> of ballots preferred <b>${stat.choices[0]}</b> to <b>${stat.choices[1]}</b>!`;
                             } else {
-                                return `Overwhelmingly, <b>${stat.percent}%</b> of ballots preferred <b>${stat.choice1}</b> over <b>${stat.choice2}</b>!`;
+                                return `Overwhelmingly, <b>${stat.percent}%</b> of ballots preferred <b>${stat.choices[0]}</b> over <b>${stat.choices[1]}</b>!`;
                             }
                         } else if (stat.operator === '=') {
                             let ord = Math.random();
                             let c1, c2;
                             if (ord > 0.5) {
-                                c1 = stat.choice1;
-                                c2 = stat.choice2;
+                                c1 = stat.choices[0];
+                                c2 = stat.choices[1];
                             } else {
-                                c1 = stat.choice2;
-                                c2 = stat.choice1;
+                                c1 = stat.choices[1];
+                                c2 = stat.choices[0];
                             }
                             if (stat.count === 0) {
                                 return `No ballots ranked <b>${c1}</b> equal to <b>${c2}</b>!`;
@@ -372,7 +372,7 @@ export default {
                             choice2 = this.choiceIdToNameMap[spl[1]];
                             operator = '=';
                         }
-                        let newStat = getNewStat(prefsFactory, stats.preferences[statKey], {'type': 'pref', choice1, choice2, operator});
+                        let newStat = getNewStat(prefsFactory, stats.preferences[statKey], {'type': 'pref', choices: [choice1, choice2], operator});
                         this.statsList.push(newStat);
                     }
                 }
