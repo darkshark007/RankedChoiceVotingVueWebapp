@@ -105,6 +105,7 @@ export default {
             choices: [],
             ballots: [],
             ballotsPublic: [],
+            oldPolls: [],
             pollRoute: '',
             editRoute: '',
             editBallots: '',
