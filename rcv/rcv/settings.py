@@ -103,7 +103,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'polls2',
-        'ENFORCE_SCHEMA': False, # TEMP
+        # 'ENFORCE_SCHEMA': False, # TEMP
     }
 }
 

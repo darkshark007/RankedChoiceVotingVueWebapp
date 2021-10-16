@@ -16,8 +16,8 @@ def migrate():
 
     # Migration #2 (10/14/2021)
     #   - Add CustomLanguage
-    #   Local:  Not
-    #   Prod:   Not
+    #   Local:  Done
+    #   Prod:   Done
     if False:
         from rcvserver.models import Poll, CustomLanguage
         print('Running Migration #2')
