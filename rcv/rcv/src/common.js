@@ -106,6 +106,9 @@ export default {
             ballots: [],
             ballotsPublic: [],
             oldPolls: [],
+            custom_language: {
+                ballot_identifier: null,
+            },
             pollRoute: '',
             editRoute: '',
             editBallots: '',
@@ -509,6 +512,12 @@ export default {
                 // Custom Context
                 ...context,
             }
+        },
+        customLanguage(identifier, defaultText) {
+            if (!this.pollModel) return defaultText;
+            if (!this.pollModel.custom_language) return defaultText;
+            if (!this.pollModel.custom_language[identifier]) return defaultText;
+            return this.pollModel.custom_language[identifier]
         },
     },
 };

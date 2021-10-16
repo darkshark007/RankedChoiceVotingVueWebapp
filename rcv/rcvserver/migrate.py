@@ -1,4 +1,4 @@
-from rcvserver.models import Poll
+from rcvserver.models import Poll, CustomLanguage
 
 def migrate():
 
@@ -13,3 +13,14 @@ def migrate():
                 print('Updating Poll <{}>'.format(p.id))
                 p.limit_rank_choices = None
                 p.save()
+
+    # Migration #2 (10/14/2021)
+    #   - Add CustomLanguage
+    #   Local:  Not
+    #   Prod:   Not
+    if False:
+        from rcvserver.models import Poll, CustomLanguage
+        print('Running Migration #2')
+        for p in Poll.objects.all():
+            p.custom_language = CustomLanguage()
+            p.save()

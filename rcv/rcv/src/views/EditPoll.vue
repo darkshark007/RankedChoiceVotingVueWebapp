@@ -129,8 +129,8 @@
                         :rules="[validateLimitChoicesAdded]"
                     />
                 </template>
-                <v-divider class="my-4"/>
                 <template v-if="showAdvanced">
+                    <v-divider class="my-4"/>
                     <v-row>
                         <v-col cols=6>
                             <h4>Poll Settings</h4>
@@ -160,6 +160,20 @@
                         clearable
                     />
                 </template>
+                <template v-if="showAdvanced">
+                    <v-divider class="my-4"/>
+                    <v-row>
+                        <v-col cols=6>
+                            <h4>Custom Language</h4>
+                        </v-col>
+                    </v-row>
+                    <form-text
+                        title="Ballot Identifier Text"
+                        tooltip="Change the Text for the Ballot Identifier text box on the Ballot Edit page.<br/><br/>Default: '<i>Name or Label your Ballot</i>'"
+                        v-model="pollModel.custom_language.ballot_identifier"
+                    ></form-text>
+                </template>
+                <v-divider class="my-4"/>
                 <form-checkbox
                     :title="pollModel.locked ? 'Poll Voting is Locked' : 'Poll Voting is Open'"
                     tooltip="If active, Users will not be able to submit or edit ballots."

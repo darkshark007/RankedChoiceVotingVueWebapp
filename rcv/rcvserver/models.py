@@ -299,6 +299,25 @@ class Result(models.Model):
                     stats['preferences'][pref_key] = 1
         return stats
 
+class CustomLanguage(models.Model):
+    ballot_identifier = models.CharField(max_length=24, default=None)
+
+    def __getitem__(self, name):
+       return getattr(self, name, None)
+
+
+    def get_js_model(self):
+        obj = {
+            'ballot_identifier': self.ballot_identifier,
+        }
+        return obj
+
+    def update_from_js_model(self, model=None):
+        if model == None:
+            return
+
+        self.ballot_identifier = model.get('ballot_identifier', None)
+
 
 class Poll(models.Model):
     '''
@@ -347,6 +366,7 @@ class Poll(models.Model):
     choices = models.ArrayField(model_container=Choice, default=[])
     ballots = models.ArrayField(model_container=Ballot, default=[])
     results = models.EmbeddedField(model_container=Result, default=Result)
+    custom_language = models.EmbeddedField(model_container=CustomLanguage, default=CustomLanguage)
 
 
     def __getitem__(self, name):
@@ -390,6 +410,7 @@ class Poll(models.Model):
         self.ballot_start = model.get('ballotStart', None)
         self.ballot_end = model.get('ballotEnd', None)
         self.locked = model.get('locked', None)
+        self.custom_language.update_from_js_model(model.get('custom_language', None))
         self.init_stats()
         self.save()
 
@@ -477,6 +498,7 @@ class Poll(models.Model):
             'limitChoicesAdded': self.limit_choices_added,
             'locked': self.locked,
             'choices': list(map(lambda choice: choice.get_js_choice_model(user), self.choices)),
+            'custom_language': self.custom_language.get_js_model(),
         }
         if user.id == self.creator.id:
             obj['canEdit'] = True

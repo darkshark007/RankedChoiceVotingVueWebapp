@@ -67,7 +67,7 @@
                         </v-col>
                     </v-row>
                     <v-text-field
-                        label="Name or Label your Ballot"
+                        :label="customLanguage('ballot_identifier', 'Name or Label your Ballot')"
                         v-model="ballotContext.name"
                     ></v-text-field>
                     <v-select
@@ -256,6 +256,7 @@ export default {
         ballotSimilarity: Common.methods.ballotSimilarity,
         nextStats: Common.methods.nextStats,
         openConfirmationDialog: Common.methods.openConfirmationDialog,
+        customLanguage: Common.methods.customLanguage,
         processStats() {
             this.statsList = [];
             if (!this.pollModel || !this.ballotContext || !this.ballotContext.stats) return;
