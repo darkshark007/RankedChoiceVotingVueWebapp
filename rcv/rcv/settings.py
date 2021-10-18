@@ -36,12 +36,13 @@ ALLOWED_HOSTS = [
     # Tunneled environments
     # '2857045a8ecd.ngrok.io',
     # '1b2ad9ddebd69b.localhost.run',
-    'loving-dew-34657.pktriot.net',
+    # 'loving-dew-34657.pktriot.net',
 
     # Deployed Environments
     'c2277d1.online-server.cloud',
     '70.35.200.250',
     'multipolls.app',
+    'www.multipolls.app',
 ]
 
 
