@@ -463,6 +463,8 @@ export default {
     },
     mounted() {
         this.setPollModel(this.id);
+        // TOOD: Make conditional/Query Param?
+        window.editPollContext = this;
     },
     watch: {
         "$route.params.id"(newId) {
