@@ -131,6 +131,7 @@ export default {
             this.explainStages = [];
             let results = {...this.resultContext['star_vote']};
             delete results['stats'];
+            let activeChoiceKeys = this.pollModel.activeChoices.map((c) => c.id)
             let addChoiceScoringExplainStage = function(choiceKey) {
                 let data = {
                     'message': `These are the scores that ${this.choiceIdToNameMap[choiceKey]} got on the ballots:<br/><br/>Total Score: ${results[choiceKey]['score']}`,
@@ -177,7 +178,7 @@ export default {
                 'message': 'Next, we select 2 choices with the highest scores to go to the Runoff round.',
             }
             this.explainStages.push(select2Stage);
-            let sortedByScore = Object.keys(results)
+            let sortedByScore = activeChoiceKeys
                 .map((item, index) => {
                     results[item]['id'] = item;
                     return {item: results[item], index};
