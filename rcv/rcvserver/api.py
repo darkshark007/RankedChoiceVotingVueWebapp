@@ -143,6 +143,7 @@ def get_poll_data(request):
                         'created': old_poll.created,
                         'name': old_poll.name,
                         'model': old_poll.get_js_poll_model(user),
+                        'description': old_poll.description,
                     })
 
         response = JsonResponse(data)

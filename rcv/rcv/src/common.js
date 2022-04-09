@@ -252,6 +252,10 @@ export default {
             }
             return `${(dt.getMonth()+1)}/${dt.getDate()}/${dt.getFullYear()} ${hour}:${min}`;
         },
+        truncate(text, len) {
+            let truncated = (text.substring(0,len).trim()) + (text.length > len ? '...' : '');
+            return truncated;
+        },
         displayPollType(type) {
             let item = window['POLL_TYPES'].find((t) => {
                 return t[0] === type;

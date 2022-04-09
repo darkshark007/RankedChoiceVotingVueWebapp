@@ -301,6 +301,7 @@
                             <v-card class="pa-4 ma-2" elevation=2>
                                 <router-link :to="`/poll/${oldPoll.id}`" class="route-item">
                                     <p class="ma-0 pa-0"><b>{{ oldPoll.created | displayDate }}</b> - <i>{{ oldPoll.name }}</i></p>
+                                    <p class="ma-0 pa-0 text-caption">{{ oldPoll.description | truncate(80) }}</p>
                                 </router-link>
                             </v-card>
                         </div>
