@@ -78,7 +78,7 @@
                         v-model="selectedType"
                     ></v-select>
                     <form-checkbox
-                        title="This Ballot is Public"
+                        :title="ballotContext.publicBallot ? 'This Ballot will be Public' : 'This Ballot will be Private'"
                         tooltip="If Selected, this Ballot and its choices will be visible to anyone on the Poll page.<br/><br/><b>Note:</b> If switch cannot be toggled, this means that this Poll's creator set <b><i>all</i></b> Ballots to either public or private."
                         :disabled="pollModel.publicBallots !== 'maybe'"
                         v-model="ballotContext.publicBallot"
