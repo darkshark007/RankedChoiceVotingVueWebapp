@@ -93,11 +93,11 @@
                     </v-row>
                     <v-divider class="mx-4"></v-divider>
                     <v-row>
-                        <v-col class="subheader" cols=6>
+                        <v-col class="subheader" cols=5>
                             <h4>Choices</h4>
                         </v-col>
                         <v-spacer/>
-                        <v-col class="subheader" cols=5 v-if="shouldShowChoiceAddButton">
+                        <v-col class="subheader" cols=7 v-if="shouldShowChoiceAddButton">
                             <v-btn
                                 tile
                                 small
@@ -158,11 +158,11 @@
                     ></poll-choice>
                     <v-divider class="mx-4"></v-divider>
                     <v-row align=center>
-                        <v-col class="subheader" cols=6>
+                        <v-col class="subheader" cols=5>
                             <h4>{{ pollModel.ballots.length > 1 ? 'My Ballots' : 'My Ballot'}}</h4>
                         </v-col>
                         <v-spacer></v-spacer>
-                        <v-col class="subheader" cols=5>
+                        <v-col class="subheader" cols=7>
                             <nav-button
                                 :route="pollModel.editBallots"
                                 :disabled="(!pollModel.multiBallotsPerUser && pollModel.ballots.length >= 1) || (pollModel.locked) || (!pollIsOpen)"
