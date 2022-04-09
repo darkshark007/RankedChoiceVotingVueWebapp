@@ -97,15 +97,16 @@
                             <h4>Choices</h4>
                         </v-col>
                         <v-spacer/>
-                        <v-col class="subheader" cols=4 v-if="shouldShowChoiceAddButton">
+                        <v-col class="subheader" cols=5 v-if="shouldShowChoiceAddButton">
                             <v-btn
-                                fab
+                                tile
                                 small
                                 color="light-green lighten-4"
                                 :disabled="!shouldActivateChoiceAddButton"
                                 @click="addChoice"
                             >
                                 <v-icon color="indigo">mdi-plus</v-icon>
+                                New Choice
                             </v-btn>
                         </v-col>
                     </v-row>
@@ -161,10 +162,11 @@
                             <h4>{{ pollModel.ballots.length > 1 ? 'My Ballots' : 'My Ballot'}}</h4>
                         </v-col>
                         <v-spacer></v-spacer>
-                        <v-col class="subheader" cols=4>
+                        <v-col class="subheader" cols=5>
                             <nav-button
                                 :route="pollModel.editBallots"
                                 :disabled="(!pollModel.multiBallotsPerUser && pollModel.ballots.length >= 1) || (pollModel.locked) || (!pollIsOpen)"
+                                title="New Ballot"
                                 icon="mdi-plus"
                             ></nav-button>
                         </v-col>

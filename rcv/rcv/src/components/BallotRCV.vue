@@ -13,11 +13,16 @@
                     * Ballot must be fully ranked!
                 </p>
             </div>
-            <v-simple-table dense v-if="update">
+            <v-simple-table 
+                fixed-header 
+                height="600px" 
+                dense 
+                v-if="update"
+            >
                 <template v-slot:default>
                 <thead>
                     <tr>
-                        <th><!-- Empty Col --></th>
+                        <th class="sticky-col first-col first-col-header"><!-- Empty Col --></th>
                         <th :colspan=1 class="text-center">
                             Best
                         </th>
@@ -25,9 +30,10 @@
                         <th :colspan=1 class="text-center">
                             Worst
                         </th>
+                        <th class="sticky-col last-col"><!-- Empty Col --></th>
                     </tr>
                     <tr>
-                        <th><!-- Empty Col --></th>
+                        <th class="sticky-col first-col first-col-header"><!-- Empty Col --></th>
                         <th 
                             v-for="_, idx in ranks"
                             :key="idx"
@@ -35,6 +41,7 @@
                         >
                             {{ idx+1 }}
                         </th>
+                        <th class="sticky-col last-col"><!-- Empty Col --></th>                        
                     </tr>
                 </thead>
                 <tbody>
@@ -47,6 +54,7 @@
                                 <th
                                     v-bind="attrs"
                                     v-on="on"
+                                    class="sticky-col first-col"
                                 >
                                     {{ choice.name }}
                                 </th>
@@ -69,7 +77,7 @@
                                 />
                             </v-radio-group>
                         </th>
-                        <th>
+                        <th class="sticky-col last-col">
                             <v-btn icon color="indigo" @click="clearBallotMatrixRow(rowIdx)">
                                 <v-icon>mdi-close</v-icon>
                             </v-btn>
@@ -80,17 +88,18 @@
             </v-simple-table>
         </v-container>
         <v-container v-if="isPreview" align=center class="wrapper">
-            <v-chip-group
-                multiple
-                active-class="primary--text"
-            >
-                <v-chip
+                <div
                     v-for="choice, idx in ballotContext.selected"
                     :key="idx"
                 >
-                    {{ getChoiceNameFromId(choice) }}
-                </v-chip>
-            </v-chip-group>
+                    <v-chip-group
+                        active-class="primary--text"
+                    >
+                        <v-chip>
+                            {{ getChoiceNameFromId(choice) }}
+                        </v-chip>
+                    </v-chip-group>
+                </div>
         </v-container>
         <v-container v-if="isDisplay" align=center class="wrapper">
             TODO:
@@ -280,5 +289,29 @@ export default {
 
 .wrapper {
     padding: 0px;
+}
+
+.sticky-col {
+  position: -webkit-sticky;
+  position: sticky;
+  background-color: white !important;
+  background: white !important;
+}
+
+.first-col {
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  left: 0px;
+  z-index: 4 !important;
+}
+
+.first-col-header {
+  z-index: 5 !important;
+}
+
+.last-col {
+  right: 0px;
+  padding: 0px !important;
 }
 </style>

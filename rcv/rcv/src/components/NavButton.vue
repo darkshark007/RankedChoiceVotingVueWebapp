@@ -1,6 +1,16 @@
 <template>
     <router-link :to="route" class="nav-button" :event="disabled ? ['none'] : ['click']">
         <v-btn
+            v-if="isTile"
+            :disabled=disabled
+            tile
+            small
+            color="light-green lighten-4"
+        >
+            <v-icon left color="indigo">{{icon}}</v-icon>
+            {{title}}
+        </v-btn>
+        <v-btn
             v-if="isIcon"
             :disabled=disabled
             fab
@@ -47,6 +57,9 @@ export default {
         },
     },
     computed: {
+        isTile() {
+            return this.icon && this.title;
+        },
         isIcon() {
             return this.icon && !this.title;
         },
