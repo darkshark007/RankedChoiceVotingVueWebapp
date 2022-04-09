@@ -123,11 +123,11 @@ export default {
         pollModel.editRoute = `/editPoll/${pollModel.id}`;
         pollModel.editBallots = `/editBallots/${pollModel.id}`;
 
-        pollModel.activeChoices = pollModel.choices.filter((c) => !c.isDeleted);
-
         if (pollModel.randomizeChoices) {
             this.shuffle(pollModel.choices);
         }
+
+        pollModel.activeChoices = pollModel.choices.filter((c) => !c.isDeleted);
 
         for (let ballotKey in pollModel.ballots) {
             let ballot = pollModel.ballots[ballotKey];
