@@ -2,90 +2,138 @@
     <v-container class="wrapper">
         <!-- Classic RCV -->
         <v-container v-if="isEdit" align=center class="wrapper">
-            <div class="pa-4">
-                <p align=left>
-                    <b>Instructions:</b>  Rank each Choice in order of preference.
-                </p>
-                <p align=left v-if="pollModel.limitRankChoices">
-                    * A maximum of <b>{{ pollModel.limitRankChoices }}</b> choices can be ranked.
-                </p>
-                <p align=left v-if="pollModel.ballotsMustBeFull">
-                    * Ballot must be fully ranked!
-                </p>
+            <form-checkbox
+                title="Use Classic RCV Ballot Style"
+                tooltip="If selected, this Ballot and its choices will be formatted in a classic RCV table-style.<br/>If not selected, then this Ballot and its choices will be formatted in a modern way more optimized for screen/device constraints."
+                v-model="isClassicEdit"
+            />
+            <div v-if="isClassicEdit">
+                <div class="pa-4">
+                    <p align=left>
+                        <b>Instructions:</b>  Rank each Choice in order of preference.
+                    </p>
+                    <p align=left v-if="pollModel.limitRankChoices">
+                        * A maximum of <b>{{ pollModel.limitRankChoices }}</b> choices can be ranked.
+                    </p>
+                    <p align=left v-if="pollModel.ballotsMustBeFull">
+                        * Ballot must be fully ranked!
+                    </p>
+                </div>
+                <v-simple-table 
+                    fixed-header 
+                    height="600px" 
+                    dense 
+                    v-if="update"
+                >
+                    <template v-slot:default>
+                    <thead>
+                        <tr>
+                            <th class="sticky-col first-col first-col-header"><!-- Empty Col --></th>
+                            <th :colspan=1 class="text-center">
+                                Best
+                            </th>
+                            <th v-if="ranks.length > 2" :colspan=ranks.length-2 class="text-center"></th>
+                            <th :colspan=1 class="text-center">
+                                Worst
+                            </th>
+                            <th class="sticky-col last-col"><!-- Empty Col --></th>
+                        </tr>
+                        <tr>
+                            <th class="sticky-col first-col first-col-header"><!-- Empty Col --></th>
+                            <th 
+                                v-for="_, idx in ranks"
+                                :key="idx"
+                                class="text-center ballot-rank-text"
+                            >
+                                {{ idx+1 }}
+                            </th>
+                            <th class="sticky-col last-col"><!-- Empty Col --></th>                        
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="choice, rowIdx in choices"
+                            :key="rowIdx"
+                        >
+                            <v-tooltip top>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <th
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        class="sticky-col first-col"
+                                    >
+                                        {{ choice.name }}
+                                    </th>
+                                </template>
+                                <template>
+                                    <span><b>{{ choice.name }}</b></span><br/>
+                                    <span>{{ choice.description }}</span>
+                                </template>
+                            </v-tooltip>
+                            <th 
+                                v-for="_, colIdx in ranks"
+                                :key="colIdx"
+                                class="text-center ballot-rank-text"
+                            >
+                                <v-radio-group v-model="ballotMatrix[rowIdx][colIdx].val">
+                                    <v-radio
+                                        class="choiceRadioLabel"
+                                        :value="true"
+                                        @change="select(rowIdx, colIdx)"
+                                    />
+                                </v-radio-group>
+                            </th>
+                            <th class="sticky-col last-col">
+                                <v-btn icon color="indigo" @click="clearBallotMatrixRow(rowIdx)">
+                                    <v-icon>mdi-close</v-icon>
+                                </v-btn>
+                            </th>
+                        </tr>
+                    </tbody>
+                    </template>
+                </v-simple-table>
             </div>
-            <v-simple-table 
-                fixed-header 
-                height="600px" 
-                dense 
-                v-if="update"
-            >
-                <template v-slot:default>
-                <thead>
-                    <tr>
-                        <th class="sticky-col first-col first-col-header"><!-- Empty Col --></th>
-                        <th :colspan=1 class="text-center">
-                            Best
-                        </th>
-                        <th v-if="ranks.length > 2" :colspan=ranks.length-2 class="text-center"></th>
-                        <th :colspan=1 class="text-center">
-                            Worst
-                        </th>
-                        <th class="sticky-col last-col"><!-- Empty Col --></th>
-                    </tr>
-                    <tr>
-                        <th class="sticky-col first-col first-col-header"><!-- Empty Col --></th>
-                        <th 
-                            v-for="_, idx in ranks"
-                            :key="idx"
-                            class="text-center ballot-rank-text"
-                        >
-                            {{ idx+1 }}
-                        </th>
-                        <th class="sticky-col last-col"><!-- Empty Col --></th>                        
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="choice, rowIdx in choices"
-                        :key="rowIdx"
-                    >
-                        <v-tooltip top>
-                            <template v-slot:activator="{ on, attrs }">
-                                <th
-                                    v-bind="attrs"
-                                    v-on="on"
-                                    class="sticky-col first-col"
+            <div v-else>
+                <div class="pa-4">
+                    <p align=left>
+                        <b>Instructions:</b>  Rank each Choice in order of preference.  Click a choice to rank it next or un-rank it.  Drag choices to re-order.
+                    </p>
+                    <p align=left v-if="pollModel.limitRankChoices">
+                        * A maximum of <b>{{ pollModel.limitRankChoices }}</b> choices can be ranked.
+                    </p>
+                    <p align=left v-if="pollModel.ballotsMustBeFull">
+                        * Ballot must be fully ranked!
+                    </p>
+                    <draggable v-model="selected" group="choices" @start="drag=true" @end="drag=true" @change="dragChoiceBox()">
+                        <div v-for="element in selected" :key="element.id">
+                            <v-chip-group mandatory>
+                                <v-chip 
+                                    :color="getColorForSelectionBox(element)"
+                                    text-color="grey darken-3"
+                                    :disabled="element.disabled"
+                                    @click="selectChoiceBox(element)"
                                 >
-                                    {{ choice.name }}
-                                </th>
-                            </template>
-                            <template>
-                                <span><b>{{ choice.name }}</b></span><br/>
-                                <span>{{ choice.description }}</span>
-                            </template>
-                        </v-tooltip>
-                        <th 
-                            v-for="_, colIdx in ranks"
-                            :key="colIdx"
-                            class="text-center ballot-rank-text"
-                        >
-                            <v-radio-group v-model="ballotMatrix[rowIdx][colIdx].val">
-                                <v-radio
-                                    class="choiceRadioLabel"
-                                    :value="true"
-                                    @change="select(rowIdx, colIdx)"
-                                />
-                            </v-radio-group>
-                        </th>
-                        <th class="sticky-col last-col">
-                            <v-btn icon color="indigo" @click="clearBallotMatrixRow(rowIdx)">
-                                <v-icon>mdi-close</v-icon>
-                            </v-btn>
-                        </th>
-                    </tr>
-                </tbody>
-                </template>
-            </v-simple-table>
+                                    <v-avatar v-if="element.selected" left class="green darken-3 white--text">{{element.rank}}</v-avatar>
+                                    <v-tooltip top>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <div
+                                                v-bind="attrs"
+                                                v-on="on"
+                                            >
+                                                {{element.name}}
+                                            </div>
+                                        </template>
+                                        <template>
+                                            <span><b>{{ element.name }}</b></span><br/>
+                                            <span>{{ element.description }}</span>
+                                        </template>
+                                    </v-tooltip>
+                                </v-chip>
+                            </v-chip-group>
+                        </div>
+                    </draggable>
+                </div>
+            </div>
         </v-container>
         <v-container v-if="isPreview" align=center class="wrapper">
                 <div
@@ -105,10 +153,13 @@
             TODO:
         </v-container>
     </v-container>
+    
 </template>
 
 <script>
 // import Choice from './Choice.vue';
+import FormCheckbox from '../components/FormCheckbox.vue';
+import draggable from 'vuedraggable'
 
 export default {
     name: 'rcv-poll-ballot',
@@ -140,14 +191,23 @@ export default {
             required: false,
             default: false,
         },
+        classicEdit: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
     components: {
         // 'poll-choice': Choice,
+        'form-checkbox': FormCheckbox,
+        draggable,
     },
     data() {
         return {
             ballotMatrix: [[]],
             update: 1,
+            selected: [],
+            isClassicEdit: this.classicEdit,
         }
     },
     computed: {
@@ -242,12 +302,85 @@ export default {
             }
             return newTable;
         },
+        updateChoiceBoxSelectionsFromBallot() {
+            let selectedChoices = this.ballotContext.selected;
+            this.selected = this.choices.map(function buildSelected(choice) {
+                let index = selectedChoices.indexOf(choice.id);
+                let isSelected = index !== -1;
+                let rank = isSelected ? index+1 : Number.POSITIVE_INFINITY
+                return {
+                    'name': choice.name,
+                    'id': choice.id,
+                    'description': choice.description,
+                    'selected': isSelected,
+                    'rank': rank,
+                };
+            }).sort((a,b) => a.rank-b.rank);
+            this.updateChoiceBoxList();
+        },
+        selectChoiceBox(element) {
+            if (element.selected) {
+                // Unselect it
+                element.selected = false;
+                element.rank = Number.POSITIVE_INFINITY;
+            } else {
+                // Select it next
+                element.selected = true;
+                element.rank = this.selected.filter((e) => e.selected).length;
+            }
+            this.updateChoiceBoxList();
+            this.onChange();
+        },
+        dragChoiceBox() {
+            // Select all intermingled options
+            let found = false;
+            for (let choiceIdx = this.selected.length-1; choiceIdx >= 0; choiceIdx--) {
+                let choice = this.selected[choiceIdx];
+                if (found) {
+                    choice.selected = true;
+                } else {
+                    if (choice.selected) found = true;
+                }
+            }
+
+            this.updateChoiceBoxList();
+            this.onChange();
+        },
+        updateChoiceBoxList() {
+            // Re-assign ranks
+            let newRank = 1;
+            let ranked = this.selected.filter((e) => e.selected);
+            ranked.forEach((e) => e.rank = newRank++);
+
+            // Re-sort list by rank
+            this.selected.sort((a,b) => a.rank-b.rank);
+
+            // Update Ballot
+            this.ballotContext.selected = ranked.map((e) => e.id);
+
+            // Validate Limits
+            this.selected.forEach((e) => e.disabled = false);
+            if (ranked.length >= this.ranks.length) {
+                for (let rankIdx = this.ranks.length; rankIdx < ranked.length; rankIdx++) {
+                    let element = ranked[rankIdx];
+                    element.selected = false;
+                    element.rank = Number.POSITIVE_INFINITY;
+                }
+                this.selected.filter((e) => !e.selected).forEach((e) => e.disabled = true);
+            }
+        },
+        getColorForSelectionBox(element) {
+            if (element.selected) return 'green lighten-3';
+            if (element.disabled) return 'red lighten-3';
+            return 'grey lighten-3';
+        },
         onChange() {
             this.$emit('onChange');
         },
     },
     created() {
         this.ballotMatrix = this.getBallotMatrix();
+        this.updateChoiceBoxSelectionsFromBallot();
     },
     watch: {
         choices() {
@@ -255,6 +388,17 @@ export default {
         },
         ballotContext() {
             this.ballotMatrix = this.getBallotMatrix();
+            this.updateChoiceBoxSelectionsFromBallot();
+        },
+        isClassicEdit() {
+            if (this.isClassicEdit) {
+                // Switched to Classic mode
+                this.ballotMatrix = this.getBallotMatrix();
+            } else {
+                // Switched to Regular mode
+                this.updateChoiceBoxSelectionsFromBallot();
+            }
+            
         },
     }
 };
