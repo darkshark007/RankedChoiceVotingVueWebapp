@@ -104,21 +104,24 @@
                     <p align=left v-if="pollModel.ballotsMustBeFull">
                         * Ballot must be fully ranked!
                     </p>
-                    <draggable v-model="selected" group="choices" @start="drag=true" @end="drag=true" @change="dragChoiceBox()">
-                        <div v-for="element in selected" :key="element.id">
-                            <v-chip-group mandatory>
-                                <v-chip 
-                                    :color="getColorForSelectionBox(element)"
-                                    text-color="grey darken-3"
+                    <v-list rounded dense>
+                        <draggable v-model="selected" @change="dragChoiceBox()">
+                            <div v-for="element in selected" :key="element.id">
+                                <v-list-item
+                                    :style="{
+                                        'background-color': getColorForSelectionBox(element),
+                                    }"
+                                    class="choiceBoxItem mb-1"
                                     :disabled="element.disabled"
                                     @click="selectChoiceBox(element)"
                                 >
-                                    <v-avatar v-if="element.selected" left class="green darken-3 white--text">{{element.rank}}</v-avatar>
+                                    <v-avatar v-if="element.selected" left size="25" class="green darken-3 white--text mr-2">{{element.rank}}</v-avatar>
                                     <v-tooltip top>
                                         <template v-slot:activator="{ on, attrs }">
                                             <div
                                                 v-bind="attrs"
                                                 v-on="on"
+                                                text-align=left
                                             >
                                                 {{element.name}}
                                             </div>
@@ -128,10 +131,10 @@
                                             <span>{{ element.description }}</span>
                                         </template>
                                     </v-tooltip>
-                                </v-chip>
-                            </v-chip-group>
-                        </div>
-                    </draggable>
+                                </v-list-item>
+                            </div>
+                        </draggable>
+                    </v-list>
                 </div>
             </div>
         </v-container>
@@ -370,9 +373,9 @@ export default {
             }
         },
         getColorForSelectionBox(element) {
-            if (element.selected) return 'green lighten-3';
-            if (element.disabled) return 'red lighten-3';
-            return 'grey lighten-3';
+            if (element.selected) return '#A5D6A7';
+            if (element.disabled) return '#EF9A9A';
+            return '#EEEEEE';
         },
         onChange() {
             this.$emit('onChange');
@@ -457,5 +460,10 @@ export default {
 .last-col {
   right: 0px;
   padding: 0px !important;
+}
+
+.choiceBoxItem {
+    text-align: left;
+    color: '#424242',
 }
 </style>
