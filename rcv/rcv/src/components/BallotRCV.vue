@@ -96,7 +96,7 @@
             <div v-else>
                 <div class="pa-4">
                     <p align=left>
-                        <b>Instructions:</b>  Rank each Choice in order of preference.  Click a choice to rank it next or un-rank it.  Drag choices to re-order.
+                        <b>Instructions:</b>  Rank each Choice in order of preference.  Click/tap a choice to rank it next or to un-rank it.  Drag choices to re-order.
                     </p>
                     <p align=left v-if="pollModel.limitRankChoices">
                         * A maximum of <b>{{ pollModel.limitRankChoices }}</b> choices can be ranked.

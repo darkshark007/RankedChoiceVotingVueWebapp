@@ -481,13 +481,14 @@ export default {
             // Validate
             let errors = false;
             this.saveBallotErrorString = null;
-            if (!this.ballotContext.name) {
-                errors = true;
-                setTimeout(function() {
-                    // Hate this.
-                    this.saveBallotErrorString = 'Name is required!';
-                }.bind(this), 0);
-            }
+            // Disable name requirement, at least temporarily.
+            // if (!this.ballotContext.name) {
+            //     errors = true;
+            //     setTimeout(function() {
+            //         // Hate this.
+            //         this.saveBallotErrorString = 'Name is required!';
+            //     }.bind(this), 0);
+            // }
             if (errors) return;
 
             // Save
