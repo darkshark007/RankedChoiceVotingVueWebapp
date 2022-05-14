@@ -482,6 +482,7 @@ export default {
             let errors = false;
             this.saveBallotErrorString = null;
             // Disable name requirement, at least temporarily.
+            // TODO: Re-Enable as a Poll Option
             // if (!this.ballotContext.name) {
             //     errors = true;
             //     setTimeout(function() {

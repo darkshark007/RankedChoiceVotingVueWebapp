@@ -82,6 +82,11 @@ export default {
     padding: 15px;
 }
 
+.wrapWords {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+
+}
 .appWidth {
     max-width: 590px;
 }

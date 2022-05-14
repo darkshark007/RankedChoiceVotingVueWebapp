@@ -25,7 +25,7 @@
                     class="wrapper appWidth"
                     v-else
                 >
-                    <v-card-title>
+                    <v-card-title class="wrapWords">
                         <nav-button
                             v-if="pollModel.recycled"
                             :route="`/poll/${pollModel.parent}`"
