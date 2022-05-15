@@ -25,7 +25,7 @@
                     class="wrapper appWidth"
                     v-else
                 >
-                    <v-card-title>
+                    <v-card-title class="wrapWords">
                         {{ pollModel.name }}
                     </v-card-title>
                     <v-card-subtitle class="descriptionText" align=left>

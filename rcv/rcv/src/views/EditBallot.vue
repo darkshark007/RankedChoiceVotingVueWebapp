@@ -19,7 +19,7 @@
             >
                 <div v-if="!pollModel.id"> Poll with that ID was not found.</div>
                 <div v-else>
-                    <v-card-title>
+                    <v-card-title class="wrapWords">
                         {{ pollModel.name }}
                         <v-spacer></v-spacer>
                     </v-card-title>
