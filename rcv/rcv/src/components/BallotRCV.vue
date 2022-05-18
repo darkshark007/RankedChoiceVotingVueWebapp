@@ -104,34 +104,52 @@
                     <p align=left v-if="pollModel.ballotsMustBeFull">
                         * Ballot must be fully ranked!
                     </p>
-                    <v-list rounded dense>
+                    <v-list rounded dense align=center>
                         <draggable v-model="selected" @change="dragChoiceBox()">
-                            <div v-for="element in selected" :key="element.id">
+                            <div 
+                                v-for="element in selected"
+                                :key="element.id" 
+                                class="d-flex"
+                                :style="{
+                                    'width': '90%',
+                                }"
+                            >
                                 <v-list-item
                                     :style="{
                                         'background-color': getColorForSelectionBox(element),
+                                        'width': '90%',
                                     }"
                                     class="choiceBoxItem mb-1"
                                     :disabled="element.disabled"
                                     @click="selectChoiceBox(element)"
                                 >
                                     <v-avatar v-if="element.selected" left size="25" class="green darken-3 white--text mr-2">{{element.rank}}</v-avatar>
-                                    <v-tooltip top>
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <div
-                                                v-bind="attrs"
-                                                v-on="on"
-                                                text-align=left
-                                            >
-                                                {{element.name}}
-                                            </div>
-                                        </template>
-                                        <template>
-                                            <span><b>{{ element.name }}</b></span><br/>
-                                            <span>{{ element.description }}</span>
-                                        </template>
-                                    </v-tooltip>
+                                    <div
+                                        text-align=left
+                                        :style="{
+                                            'overflow': 'hidden',
+                                            'white-space': 'nowrap',
+                                            'text-overflow': 'ellipsis',
+                                        }"
+                                    >
+                                        {{element.name}}
+                                    </div>
                                 </v-list-item>
+                                <v-tooltip top>
+                                    <template v-slot:activator="{ on, attrs }" right>
+                                        <v-icon 
+                                            v-bind="attrs" 
+                                            v-on="on"
+                                            :disabled=false
+                                        >
+                                            mdi-information-outline
+                                        </v-icon>
+                                    </template>
+                                    <template>
+                                        <span><b>{{ element.name }}</b></span><br/>
+                                        <span>{{ element.description }}</span>
+                                    </template>
+                                </v-tooltip>
                             </div>
                         </draggable>
                     </v-list>
@@ -358,9 +376,6 @@ export default {
             // Re-sort list by rank
             this.selected.sort((a,b) => a.rank-b.rank);
 
-            // Update Ballot
-            this.ballotContext.selected = ranked.map((e) => e.id);
-
             // Validate Limits
             this.selected.forEach((e) => e.disabled = false);
             if (ranked.length >= this.ranks.length) {
@@ -371,6 +386,10 @@ export default {
                 }
                 this.selected.filter((e) => !e.selected).forEach((e) => e.disabled = true);
             }
+
+            // Update Ballot
+            ranked = this.selected.filter((e) => e.selected);
+            this.ballotContext.selected = ranked.map((e) => e.id);
         },
         getColorForSelectionBox(element) {
             if (element.selected) return '#A5D6A7';
